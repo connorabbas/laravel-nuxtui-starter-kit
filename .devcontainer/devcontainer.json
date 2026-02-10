@@ -1,0 +1,46 @@
+// https://aka.ms/devcontainer.json
+{
+    "name": "Laravel Nuxt UI",
+    "dockerComposeFile": [
+        "../docker-compose.dev.yml"
+    ],
+    "service": "laravel",
+    "workspaceFolder": "/var/www/html",
+    "mounts": [
+        "type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/www-data/.ssh,readonly"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "DEVSENSE.phptools-vscode",
+                "MehediDracula.php-namespace-resolver",
+                "xdebug.php-debug",
+                "laravel.vscode-laravel",
+                "Vue.volar",
+                "hollowtree.vue-snippets",
+                "dbaeumer.vscode-eslint",
+                "EditorConfig.EditorConfig",
+                "bradlc.vscode-tailwindcss",
+                "eamodio.gitlens",
+                "esbenp.prettier-vscode",
+                "mikestead.dotenv",
+                "streetsidesoftware.code-spell-checker",
+                "shd101wyy.markdown-preview-enhanced",
+                "formulahendry.auto-rename-tag",
+                "pmneo.tsimporter"
+            ],
+            "settings": {
+                "html.format.wrapAttributes": "force-expand-multiline",
+                "[vue]": {
+                    "editor.defaultFormatter": "Vue.volar",
+                    "editor.tabSize": 4
+                }
+            }
+        }
+    },
+    "remoteUser": "www-data",
+    "postCreateCommand": "chown -R 1000:1000 /var/www/html 2>/dev/null || true"
+    // "forwardPorts": [],
+    // "runServices": [],
+    // "shutdownAction": "none",
+}
