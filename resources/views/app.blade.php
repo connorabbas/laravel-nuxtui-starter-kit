@@ -16,8 +16,16 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
     @routes
-    @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead
+    @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
+    <script>
+    const theme = localStorage.getItem('vueuse-color-scheme');
+    if (theme === 'dark' || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    </script>
 </head>
 <body>
     <div class="isolate">

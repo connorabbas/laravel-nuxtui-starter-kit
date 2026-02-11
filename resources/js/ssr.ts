@@ -4,11 +4,13 @@ import { renderToString } from '@vue/server-renderer'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { createSSRApp, DefineComponent, h } from 'vue'
 import { Config, route as ziggyRoute } from 'ziggy-js'
+import { createHead, renderSSRHead } from '@unhead/vue/server'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
 
-createServer((page) =>
-    createInertiaApp({
+createServer((page) => {
+    const head = createHead()
+    return createInertiaApp({
         page,
         render: renderToString,
         title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -44,5 +46,9 @@ createServer((page) =>
 
             return app
         }
+    }).then(async (app) => {
+        const payload = await renderSSRHead(head)
+        app.head.push(payload.headTags)
+        return app
     })
-)
+})
