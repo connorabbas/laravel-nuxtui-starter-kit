@@ -1,10 +1,10 @@
 import { createInertiaApp } from '@inertiajs/vue3'
 import createServer from '@inertiajs/vue3/server'
+import { createHead, renderSSRHead } from '@unhead/vue/server'
 import { renderToString } from '@vue/server-renderer'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { createSSRApp, DefineComponent, h } from 'vue'
 import { Config, route as ziggyRoute } from 'ziggy-js'
-import { createHead, renderSSRHead } from '@unhead/vue/server'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
 

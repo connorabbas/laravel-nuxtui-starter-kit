@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-
-import { usePage, Link as ILink } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 
 const page = usePage()
 
+// TODO: make route() helper
 // Ziggy route() issue: https://github.com/nuxt/ui/issues/4202
 
 const currentRoute = computed(() => {
-    // Access page.url to trigger re-computation on navigation.
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     const url = page.url
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-    return route().current()
+
+    return route().current() ?? url
 })
 </script>
 
@@ -20,18 +18,20 @@ const currentRoute = computed(() => {
     <UApp>
         <UHeader>
             <template #left>
-                <ILink href="/">
+                <Link href="/">
                     <AppLogo class="h-6 w-auto shrink-0" />
-                </ILink>
+                </Link>
             </template>
 
             <UNavigationMenu
-                :items="[{
-                    label: 'Test Login',
-                    to: route('login', {}, false),
-                    as: ILink,
-                    active: currentRoute === 'login'
-                }]"
+                :items="[
+                    {
+                        label: 'Test Login',
+                        to: route('login', {}, false),
+                        as: Link,
+                        active: currentRoute === 'login'
+                    }
+                ]"
                 orientation="vertical"
                 class="-mx-2.5"
             />
@@ -82,7 +82,9 @@ const currentRoute = computed(() => {
 
         <UFooter>
             <template #left>
-                <p class="text-muted text-sm">Built with Nuxt UI • © {{ new Date().getFullYear() }}</p>
+                <p class="text-muted text-sm">
+                    Built with Nuxt UI • © {{ new Date().getFullYear() }}
+                </p>
             </template>
 
             <template #right>

@@ -1,9 +1,7 @@
 // https://aka.ms/devcontainer.json
 {
     "name": "Laravel Nuxt UI",
-    "dockerComposeFile": [
-        "../docker-compose.dev.yml"
-    ],
+    "dockerComposeFile": ["../docker-compose.dev.yml"],
     "service": "laravel",
     "workspaceFolder": "/var/www/html",
     "mounts": [
@@ -25,7 +23,6 @@
                 "EditorConfig.EditorConfig",
                 "bradlc.vscode-tailwindcss",
                 "eamodio.gitlens",
-                "esbenp.prettier-vscode",
                 "mikestead.dotenv",
                 "streetsidesoftware.code-spell-checker",
                 "shd101wyy.markdown-preview-enhanced",

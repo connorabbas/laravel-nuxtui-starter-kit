@@ -1,8 +1,8 @@
-import vue from '@vitejs/plugin-vue';
-import laravel from 'laravel-vite-plugin';
-import path from 'path';
-import { resolve } from 'node:path';
-import { defineConfig, loadEnv } from 'vite';
+import vue from '@vitejs/plugin-vue'
+import laravel from 'laravel-vite-plugin'
+import path from 'path'
+import { resolve } from 'node:path'
+import { defineConfig, loadEnv } from 'vite'
 import ui from '@nuxt/ui/vite'
 
 // https://vitejs.dev/config/

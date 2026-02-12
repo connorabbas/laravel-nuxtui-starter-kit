@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -36,7 +38,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
@@ -46,7 +48,42 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::loginView(function () {
-            return inertia('auth/login');
+            return Inertia::render('auth/login', [
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'canRegister' => Features::enabled(Features::registration()),
+                'status' => session('status'),
+            ]);
+        });
+
+        Fortify::registerView(function () {
+            return Inertia::render('auth/register');
+        });
+
+        Fortify::requestPasswordResetLinkView(function () {
+            return Inertia::render('auth/forgot-password', [
+                'status' => session('status'),
+            ]);
+        });
+
+        Fortify::resetPasswordView(function (Request $request) {
+            return Inertia::render('auth/reset-password', [
+                'token' => $request->route('token'),
+                'email' => $request->email,
+            ]);
+        });
+
+        Fortify::verifyEmailView(function () {
+            return Inertia::render('auth/verify-email', [
+                'status' => session('status'),
+            ]);
+        });
+
+        Fortify::confirmPasswordView(function () {
+            return Inertia::render('auth/confirm-password');
+        });
+
+        Fortify::twoFactorChallengeView(function () {
+            return Inertia::render('auth/two-factor-challenge');
         });
     }
 }

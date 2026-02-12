@@ -1,17 +1,8 @@
-@import 'tailwindcss' source('../..');
-@import '@nuxt/ui';
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-@theme static {
-  --font-sans: 'Instrument Sans', sans-serif;
-
-  --color-scarlet-50: #fff1ed;
-  --color-scarlet-100: #ffe4d9;
-  --color-scarlet-200: #ffc5b3;
-  --color-scarlet-300: #ff9d7d;
-  --color-scarlet-400: #ff6b3d;
-  --color-scarlet-500: #f53003;
-  --color-scarlet-600: #d62500;
-  --color-scarlet-700: #b11d00;
-  --color-scarlet-800: #8e1a00;
-  --color-scarlet-950: #4a0d00;
+#nprogress .bar {
+    z-index: 9999999 !important;
 }

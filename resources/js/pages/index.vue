@@ -48,7 +48,8 @@ defineOptions({ layout: Layout })
                 {
                     icon: 'i-lucide-zap',
                     title: 'Lightning fast',
-                    description: 'Optimized with Vite\'s blazing fast HMR, automatic code splitting, and tree-shaking. Your users will love the speed.'
+                    description:
+                        'Optimized with Vite\'s blazing fast HMR, automatic code splitting, and tree-shaking. Your users will love the speed.'
                 },
                 {
                     icon: 'i-lucide-blocks',

@@ -3,30 +3,55 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
     <title inertia>{{ config('app.name', 'Laravel Starter Template') }}</title>
-    <meta name="description" content="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.">
+    <meta
+        name="description"
+        content="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
+    >
 
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link
+        rel="icon"
+        href="/favicon.ico"
+        sizes="any"
+    >
+    <link
+        rel="icon"
+        href="/favicon.svg"
+        type="image/svg+xml"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="/apple-touch-icon.png"
+    >
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link
+        rel="preconnect"
+        href="https://fonts.bunny.net"
+    >
+    <link
+        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
+        rel="stylesheet"
+    />
 
     @routes
     @inertiaHead
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     <script>
-    const theme = localStorage.getItem('vueuse-color-scheme');
-    if (theme === 'dark' || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
+        // https://ui.nuxt.com/docs/getting-started/integrations/ssr
+        const theme = localStorage.getItem('vueuse-color-scheme');
+        if (theme === 'dark' || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
+
 <body>
     <div class="isolate">
         @inertia
