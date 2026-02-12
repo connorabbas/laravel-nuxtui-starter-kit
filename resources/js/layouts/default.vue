@@ -28,7 +28,6 @@ const currentRoute = computed(() => {
                     {
                         label: 'Test Login',
                         to: route('login', {}, false),
-                        as: Link,
                         active: currentRoute === 'login'
                     }
                 ]"
