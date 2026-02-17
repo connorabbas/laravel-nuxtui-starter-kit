@@ -6,7 +6,9 @@ import ui from '@nuxt/ui/vue-plugin'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import type { DefineComponent } from 'vue'
 import { createApp, h } from 'vue'
-import { ZiggyVue } from 'ziggy-js'
+import { Config, ZiggyVue } from 'ziggy-js'
+
+import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-compat'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
 
@@ -15,10 +17,19 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(ui)
-            .use(ZiggyVue)
-            .mount(el)
+        const ziggyConfig = {
+            ...(props.initialPage.props.ziggy as Config),
+            location: new URL((props.initialPage.props.ziggy as { location: string }).location)
+        }
+        const route = createZiggyRoute(ziggyConfig)
+
+        const app = createApp({ render: () => h(App, props) })
+
+        app.use(plugin)
+        app.use(ui)
+        app.use(ZiggyVue, ziggyConfig)
+        installZiggyRoute(app, route)
+
+        app.mount(el)
     }
 })

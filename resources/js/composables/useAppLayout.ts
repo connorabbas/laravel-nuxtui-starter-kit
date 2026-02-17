@@ -16,12 +16,12 @@ export function useAppLayout() {
     const subPageNavItems = ref<NavigationMenuItem[] | undefined>([
         {
             label: 'Test 123 123',
-            to: route('index', {}, false),
+            to: route('index'),
             active: currentRoute.value === 'index'
         },
         {
             label: 'Dashboard',
-            to: route('dashboard', {}, false),
+            to: route('dashboard'),
             active: currentRoute.value === 'dashboard'
         }
     ])
@@ -34,13 +34,13 @@ export function useAppLayout() {
                 {
                     label: 'Home',
                     icon: 'i-lucide-house',
-                    to: route('index', {}, false),
+                    to: route('index'),
                     active: currentRoute.value === 'index'
                 },
                 {
                     label: 'Dashboard',
                     icon: 'i-lucide-layout-dashboard',
-                    to: route('dashboard', {}, false),
+                    to: route('dashboard'),
                     active: currentRoute.value === 'dashboard'
                 }
             ],

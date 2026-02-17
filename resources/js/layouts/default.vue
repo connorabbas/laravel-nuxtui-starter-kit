@@ -4,9 +4,6 @@ import { Link, usePage } from '@inertiajs/vue3'
 
 const page = usePage()
 
-// TODO: make route() helper
-// Ziggy route() issue: https://github.com/nuxt/ui/issues/4202
-
 const currentRoute = computed(() => {
     const url = page.url
 
@@ -27,7 +24,7 @@ const currentRoute = computed(() => {
                 :items="[
                     {
                         label: 'Test Login',
-                        to: route('login', {}, false),
+                        to: route('login'),
                         active: currentRoute === 'login'
                     }
                 ]"
@@ -41,7 +38,7 @@ const currentRoute = computed(() => {
                     color="neutral"
                     variant="ghost"
                     class="lg:hidden"
-                    :to="route('login', {}, false)"
+                    :to="route('login')"
                 />
 
                 <UButton
@@ -49,7 +46,7 @@ const currentRoute = computed(() => {
                     color="neutral"
                     variant="outline"
                     class="hidden lg:inline-flex"
-                    :to="route('login', {}, false)"
+                    :to="route('login')"
                 />
 
                 <UButton
@@ -57,7 +54,7 @@ const currentRoute = computed(() => {
                     color="neutral"
                     trailing-icon="i-lucide-arrow-right"
                     class="hidden lg:inline-flex"
-                    :to="route('register', {}, false)"
+                    :to="route('register')"
                 />
 
                 <UColorModeButton />

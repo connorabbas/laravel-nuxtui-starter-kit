@@ -88,10 +88,7 @@ const description = computed(() => {
                 color="neutral"
                 variant="ghost"
                 block
-                @click="
-                    usingRecoveryCode = !usingRecoveryCode
-                    clearErrors()
-                "
+                @click="usingRecoveryCode = !usingRecoveryCode; clearErrors()"
             >
                 {{ usingRecoveryCode ? 'Use an authentication code' : 'Use a recovery code' }}
             </UButton>
