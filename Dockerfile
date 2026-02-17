@@ -27,11 +27,11 @@ RUN npm run build:ssr
 
 # Development Image
 FROM base AS development
-ARG USER_ID
-ARG GROUP_ID
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 USER root
 RUN apk update \
-    && apk add --no-cache curl git bash gnupg postgresql-client openssh-client \
+    && apk add --no-cache curl git bash gnupg postgresql-client openssh-client ncurses \
     && apk add --no-cache --virtual .build-deps build-base autoconf \
     && install-php-extensions xdebug \
         bcmath \
