@@ -19,8 +19,8 @@ services:
       - '.:/var/www/html'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.laravel-primevue.rule=Host(`${APP_DOMAIN}`)'
-      - 'traefik.http.services.laravel-primevue.loadbalancer.server.port=8080' # exposed http port from serversideup image
+      - 'traefik.http.routers.laravel-nuxtui.rule=Host(`${APP_DOMAIN}`)'
+      - 'traefik.http.services.laravel-nuxtui.loadbalancer.server.port=8080' # exposed http port from serversideup image
     networks:
       - proxy
       - laravel
