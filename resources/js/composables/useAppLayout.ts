@@ -1,30 +1,22 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 import type { SharedData } from '@/types'
 import { router, usePage } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 export function useAppLayout() {
-    // TODO: globally inferred type for page props
     const page = usePage<SharedData>()
 
-    const currentRoute = computed(() => {
-        const url = page.url
+    const currentPath = computed(() => page.url.split('?')[0])
 
-        return route().current() ?? url
+    const currentRoute = computed(() => {
+        // Access page.url to trigger re-computation on navigation.
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        const url = page.url
+        /* eslint-enable @typescript-eslint/no-unused-vars */
+        return route().current()
     })
 
-    const subPageNavItems = ref<NavigationMenuItem[] | undefined>([
-        {
-            label: 'Test 123 123',
-            to: route('index'),
-            active: currentRoute.value === 'index'
-        },
-        {
-            label: 'Dashboard',
-            to: route('dashboard'),
-            active: currentRoute.value === 'dashboard'
-        }
-    ])
+    const subPageNavItems = computed<NavigationMenuItem[] | undefined>(() => undefined)
 
     const appName = computed(() => page.props.name)
 
@@ -85,6 +77,7 @@ export function useAppLayout() {
 
     return {
         currentRoute,
+        currentPath,
         appName,
         subPageNavItems,
         navMenuItems,

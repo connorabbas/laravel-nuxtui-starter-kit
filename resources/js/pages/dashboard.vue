@@ -8,10 +8,19 @@ defineOptions({ layout: AppLayout })
 <template>
     <InertiaHead title="Dashboard" />
 
-    <UContainer class="flex flex-col gap-4 sm:gap-6 w-full">
-        <UPageHeader
-            title="Dashboard"
-            description="This is your authenticated application area."
-        />
+    <UContainer class="w-full">
+        <UPage>
+            <UPageHeader
+                title="Dashboard"
+                description="This is your authenticated application area."
+            />
+
+            <UPageBody>
+                <UPageCard
+                    title="Welcome to the Laravel + NuxtUI Starter Kit"
+                    description="You are logged in!"
+                />
+            </UPageBody>
+        </UPage>
     </UContainer>
 </template>

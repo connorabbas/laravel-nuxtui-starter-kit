@@ -9,19 +9,34 @@ const USE_RELATIVE_ZIGGY_ROUTE_WORKAROUND = import.meta.env.VITE_ZIGGY_RELATIVE_
 
 export type ZiggyRoute = typeof ziggyRoute
 
+function getRuntimeConfig(baseConfig: Config, config?: Config): Config {
+    const activeConfig = config ?? baseConfig
+
+    if (typeof window === 'undefined') {
+        return activeConfig
+    }
+
+    return {
+        ...activeConfig,
+        location: new URL(window.location.href),
+    }
+}
+
 export function createZiggyRoute(ziggyConfig: Config): ZiggyRoute {
     function route(): Router
     function route(name: string, params?: RouteParams<string>, absolute?: boolean, config?: Config): string
     function route(name?: string, params?: RouteParams<string>, absolute?: boolean, config?: Config): Router | string {
+        const runtimeConfig = getRuntimeConfig(ziggyConfig, config)
+
         if (!name) {
-            return ziggyRoute(undefined, undefined, absolute, config ?? ziggyConfig)
+            return ziggyRoute(undefined, undefined, absolute, runtimeConfig)
         }
 
         if (!USE_RELATIVE_ZIGGY_ROUTE_WORKAROUND) {
-            return ziggyRoute(name, params, absolute, config ?? ziggyConfig)
+            return ziggyRoute(name, params, absolute, runtimeConfig)
         }
 
-        return ziggyRoute(name, params, absolute ?? false, config ?? ziggyConfig)
+        return ziggyRoute(name, params, absolute ?? false, runtimeConfig)
     }
 
     return route as ZiggyRoute

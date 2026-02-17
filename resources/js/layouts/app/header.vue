@@ -24,8 +24,6 @@ const { appName, navMenuItems, subPageNavItems, userMenuItems, user } = useAppLa
             />
 
             <template #right>
-                <UColorModeButton />
-
                 <UDropdownMenu
                     v-if="user"
                     :items="userMenuItems"

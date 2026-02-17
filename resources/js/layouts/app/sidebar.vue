@@ -6,6 +6,7 @@ import { useAppLayout } from '@/composables/useAppLayout'
 
 const { appName, subPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
 
+// TODO: derive from the page head data, or some other meta-data method available through Inertia?
 const pageTitle = 'TEST'
 
 const sidebarOpen = ref(false)
@@ -75,9 +76,6 @@ const groups = computed(() => [
                     tooltip
                     class="mt-auto"
                 />
-
-                <UColorModeButton v-if="collapsed" />
-                <UColorModeSelect v-else />
             </template>
 
             <template #footer="{ collapsed }">
