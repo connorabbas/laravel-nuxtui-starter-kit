@@ -37,6 +37,16 @@ export default defineConfig(({ mode }) => {
                         primary: 'scarlet',
                         neutral: 'neutral',
                     },
+                    card: {
+                        defaultVariants: {
+                            variant: 'subtle',
+                        },
+                    },
+                    pageCard: {
+                        defaultVariants: {
+                            variant: 'subtle',
+                        },
+                    },
                 },
             }),
         ],
