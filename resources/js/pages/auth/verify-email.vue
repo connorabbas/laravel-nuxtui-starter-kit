@@ -25,7 +25,6 @@ const props = defineProps<{
             <UAlert
                 v-if="props.status === 'verification-link-sent'"
                 color="success"
-                variant="subtle"
                 icon="i-lucide-send"
                 description="A new verification link has been sent to your email address."
             />

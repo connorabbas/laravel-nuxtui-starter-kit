@@ -37,6 +37,11 @@ export default defineConfig(({ mode }) => {
                         //primary: 'laravel',
                         neutral: 'neutral',
                     },
+                    alert: {
+                        defaultVariants: {
+                            variant: 'subtle',
+                        },
+                    },
                     card: {
                         defaultVariants: {
                             variant: 'subtle',

@@ -27,7 +27,6 @@ const props = defineProps<{
             <UAlert
                 v-if="props.status"
                 color="success"
-                variant="subtle"
                 icon="i-lucide-circle-check"
                 :description="props.status"
             />

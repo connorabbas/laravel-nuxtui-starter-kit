@@ -25,7 +25,6 @@ const props = defineProps<{
             <UAlert
                 v-if="props.status"
                 color="success"
-                variant="subtle"
                 icon="i-lucide-mail-check"
                 :description="props.status"
             />

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3'
+import { Form, Head, useForm } from '@inertiajs/vue3'
+import { useClipboard } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/settings.vue'
 
 const props = defineProps<{
@@ -11,6 +13,72 @@ const props = defineProps<{
     setupKey: string | null
     recoveryCodes: string[]
 }>()
+
+const setupModalOpen = ref(false)
+const confirmationCode = ref<number[]>([])
+const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true })
+const confirmForm = useForm<{ code: string }>({
+    code: '',
+})
+
+const confirmationCodeIsComplete = computed(() => confirmationCode.value.join('').length === 6)
+
+const statusAlertDescription = computed<string | null>(() => {
+    if (!props.status) {
+        return null
+    }
+
+    if (props.status === 'two-factor-authentication-enabled') {
+        if (!props.twoFactorEnabled && props.isConfirming) {
+            return null
+        }
+
+        return 'Two-factor authentication has been enabled.'
+    }
+
+    if (props.status === 'two-factor-authentication-confirmed') {
+        return props.twoFactorEnabled ? 'Two-factor authentication confirmed and enabled successfully.' : null
+    }
+
+    if (props.status === 'two-factor-authentication-disabled') {
+        return !props.twoFactorEnabled ? 'Two-factor authentication has been disabled.' : null
+    }
+
+    return null
+})
+
+const submitConfirmationCode = (): void => {
+    confirmForm.code = confirmationCode.value.map((digit) => String(digit)).join('')
+
+    confirmForm.post(route('two-factor.confirm'), {
+        preserveScroll: true,
+        errorBag: 'confirmTwoFactorAuthentication',
+        onSuccess: () => {
+            confirmationCode.value = []
+        },
+    })
+}
+
+const resetConfirmState = (): void => {
+    confirmationCode.value = []
+    confirmForm.cancel()
+    confirmForm.reset('code')
+    confirmForm.clearErrors()
+}
+
+watch(setupModalOpen, (open) => {
+    if (!open) {
+        resetConfirmState()
+    }
+})
+
+const copySetupKey = async (): Promise<void> => {
+    if (!props.setupKey) {
+        return
+    }
+
+    await copy(props.setupKey)
+}
 </script>
 
 <template>
@@ -19,7 +87,6 @@ const props = defineProps<{
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
-
         <Head title="Settings - Two-Factor" />
 
         <UCard class="max-w-xl">
@@ -28,9 +95,8 @@ const props = defineProps<{
                     <h2 class="text-base font-semibold">
                         Two-factor status
                     </h2>
-                    <!-- TODO: not updating on change -->
                     <UBadge
-                        :color="props.twoFactorEnabled ? 'success' : 'neutral'"
+                        :color="props.twoFactorEnabled ? 'success' : 'error'"
                         variant="subtle"
                     >
                         {{ props.twoFactorEnabled ? 'Enabled' : 'Disabled' }}
@@ -42,13 +108,15 @@ const props = defineProps<{
                 {{
                     props.twoFactorEnabled
                         ? 'Your account is protected with two-factor authentication.'
-                        : 'Enable two-factor authentication to require a one-time code at login.'
+                        : props.isConfirming
+                            ? 'Setup is in progress. Confirm your authenticator code to finish enabling two-factor authentication.'
+                            : 'Enable two-factor authentication to require a one-time code at login.'
                 }}
             </p>
 
             <UAlert
-                v-if="props.status"
-                :description="props.status"
+                v-if="statusAlertDescription"
+                :description="statusAlertDescription"
                 color="success"
                 variant="subtle"
                 class="mt-4"
@@ -59,19 +127,29 @@ const props = defineProps<{
                     v-if="!props.twoFactorEnabled && !props.isConfirming"
                     v-slot="{ processing }"
                     :action="route('two-factor.enable')"
-                    method="post"
+                    method="POST"
+                    @success="setupModalOpen = true"
                 >
                     <UButton
                         type="submit"
                         :loading="processing"
                         :disabled="processing"
                     >
-                        Enable two-factor
+                        Enable 2FA
                     </UButton>
                 </Form>
 
+                <UButton
+                    v-else-if="props.isConfirming"
+                    color="neutral"
+                    variant="outline"
+                    @click="setupModalOpen = true"
+                >
+                    Continue setup
+                </UButton>
+
                 <Form
-                    v-if="props.twoFactorEnabled || props.isConfirming"
+                    v-if="props.twoFactorEnabled"
                     v-slot="{ processing }"
                     :action="route('two-factor.disable')"
                     method="delete"
@@ -89,66 +167,90 @@ const props = defineProps<{
             </div>
         </UCard>
 
-        <UCard
-            v-if="props.isConfirming || props.twoFactorEnabled"
-            class="max-w-xl"
+        <UModal
+            v-if="props.isConfirming"
+            v-model:open="setupModalOpen"
+            title="Enable Two-Factor Authentication"
+            description="To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app"
         >
-            <template #header>
-                <h2 class="text-base font-semibold">
-                    Authenticator setup
-                </h2>
+            <template #body>
+                <div class="flex flex-col items-center space-y-5 text-center">
+                    <div class="relative z-10 overflow-hidden border border-default p-3 rounded-lg">
+                        <div
+                            v-if="props.qrCode"
+                            class="flex aspect-square size-full items-center justify-center"
+                            v-html="props.qrCode"
+                        />
+                    </div>
+
+                    <form
+                        v-if="props.requiresConfirmation"
+                        class="w-full max-w-sm space-y-3 text-center"
+                        @submit.prevent="submitConfirmationCode"
+                    >
+                        <UFormField
+                            name="code"
+                            :error="confirmForm.errors.code"
+                        >
+                            <div class="flex justify-center">
+                                <UPinInput
+                                    id="code"
+                                    v-model="confirmationCode"
+                                    :ui="{ root: 'w-auto justify-center' }"
+                                    :disabled="confirmForm.processing"
+                                    :highlight="Boolean(confirmForm.errors.code)"
+                                    :color="confirmForm.errors.code ? 'error' : 'primary'"
+                                    :length="6"
+                                    size="xl"
+                                    type="number"
+                                    autofocus
+                                    otp
+                                    required
+                                />
+                            </div>
+                        </UFormField>
+
+                        <UButton
+                            type="submit"
+                            class="w-full flex justify-center"
+                            size="xl"
+                            :loading="confirmForm.processing"
+                            :disabled="confirmForm.processing || !confirmationCodeIsComplete"
+                        >
+                            Confirm two-factor
+                        </UButton>
+                    </form>
+
+                    <div
+                        v-if="props.setupKey"
+                        class="w-full max-w-sm space-y-3 text-left"
+                    >
+                        <USeparator label="or, enter the code manually" />
+
+                        <UFieldGroup
+                            class="w-full"
+                            size="xl"
+                        >
+                            <UInput
+                                :value="props.setupKey"
+                                readonly
+                                class="w-full font-mono"
+                            />
+
+                            <UButton
+                                type="button"
+                                color="neutral"
+                                variant="outline"
+                                :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
+                                :aria-label="copied ? 'Copied setup key' : 'Copy setup key'"
+                                :disabled="!clipboardSupported"
+                                @click="copySetupKey"
+                            />
+                        </UFieldGroup>
+                    </div>
+                </div>
             </template>
-
-            <p class="text-muted text-sm">
-                Scan this QR code with your authenticator app and use the generated code to confirm setup.
-            </p>
-
-            <div
-                v-if="props.qrCode"
-                class="mt-4 max-w-52 rounded-lg border border-default p-3"
-                v-html="props.qrCode"
-            />
-
-            <p
-                v-if="props.setupKey"
-                class="mt-3 text-sm"
-            >
-                Setup key:
-                <span class="font-mono">{{ props.setupKey }}</span>
-            </p>
-
-            <Form
-                v-if="props.isConfirming && props.requiresConfirmation"
-                v-slot="{ errors, processing }"
-                :action="route('two-factor.confirm')"
-                method="post"
-                class="mt-4 max-w-sm space-y-3"
-            >
-                <UFormField
-                    name="code"
-                    label="Confirmation code"
-                    required
-                    :error="errors.code"
-                >
-                    <UInput
-                        id="code"
-                        name="code"
-                        type="text"
-                        inputmode="numeric"
-                        autocomplete="one-time-code"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UButton
-                    type="submit"
-                    :loading="processing"
-                    :disabled="processing"
-                >
-                    Confirm two-factor
-                </UButton>
-            </Form>
-        </UCard>
+        </UModal>
 
         <UCard
             v-if="props.twoFactorEnabled && props.recoveryCodes.length > 0"

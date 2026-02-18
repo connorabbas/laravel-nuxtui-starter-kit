@@ -94,7 +94,6 @@ const deleteModalOpen = ref(false)
                 <UAlert
                     v-if="props.status === 'verification-link-sent'"
                     color="success"
-                    variant="subtle"
                     title="Verification link sent"
                     description="A new verification link has been sent to your email address."
                 />
