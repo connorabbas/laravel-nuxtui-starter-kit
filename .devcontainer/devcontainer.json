@@ -33,6 +33,7 @@
             ],
             "settings": {
                 "html.format.wrapAttributes": "force-expand-multiline",
+                "typescript.preferences.quoteStyle": "single",
                 "javascript.format.semicolons": "remove",
                 "typescript.format.semicolons": "remove",
                 "[vue]": {

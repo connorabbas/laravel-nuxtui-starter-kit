@@ -13,7 +13,7 @@ import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
 
 createInertiaApp({
-    progress: { color: 'var(--ui-color-primary-500)' },
+    progress: { color: 'var(--ui-primary)' },
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {

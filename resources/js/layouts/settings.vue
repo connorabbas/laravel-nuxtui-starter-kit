@@ -12,6 +12,8 @@ const props = defineProps<{
 
 const { currentRoute } = useAppLayout()
 
+const settingsPageTitle = computed(() => `Settings - ${props.pageTitle}`)
+
 const items = computed<NavigationMenuItem[]>(() => [
     {
         label: 'Profile',
@@ -41,11 +43,13 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-    <AppLayout
-        :page-title="props.pageTitle"
-    >
+    <AppLayout :page-title="props.pageTitle">
+        <UPageHeader
+            :title="settingsPageTitle"
+            :description="props.description"
+        />
+
         <UPage>
-            <!-- TODO: different layout where page header is on top -->
             <template #left>
                 <UPageAside>
                     <UNavigationMenu
@@ -61,14 +65,9 @@ const items = computed<NavigationMenuItem[]>(() => [
                     :items="items"
                     orientation="vertical"
                     variant="pill"
-                    class="w-full"
+                    class="w-full mt-6"
                 />
             </div>
-
-            <UPageHeader
-                :title="props.title"
-                :description="props.description"
-            />
 
             <UPageBody>
                 <slot />
