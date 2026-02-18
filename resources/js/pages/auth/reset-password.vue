@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3'
+import { Form, Head as IHead } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/auth.vue'
 
@@ -12,7 +12,7 @@ const props = defineProps<{
 <template>
     <AuthLayout>
         <div class="space-y-6">
-            <Head title="Reset password" />
+            <IHead title="Reset password" />
 
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">

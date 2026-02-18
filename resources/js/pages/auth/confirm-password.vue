@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3'
+import { Form, Head as IHead } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/auth.vue'
 </script>
@@ -7,7 +7,7 @@ import AuthLayout from '@/layouts/auth.vue'
 <template>
     <AuthLayout>
         <div class="space-y-6">
-            <Head title="Confirm password" />
+            <IHead title="Confirm password" />
 
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">

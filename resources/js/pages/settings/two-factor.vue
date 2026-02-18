@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head, useForm } from '@inertiajs/vue3'
+import { Form, Head as IHead, useForm } from '@inertiajs/vue3'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/settings.vue'
@@ -87,7 +87,7 @@ const copySetupKey = async (): Promise<void> => {
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
-        <Head title="Settings - Two-Factor" />
+        <IHead title="Settings - Two-Factor" />
 
         <UCard class="max-w-xl">
             <template #header>

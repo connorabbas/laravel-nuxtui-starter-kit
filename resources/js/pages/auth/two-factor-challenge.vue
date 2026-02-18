@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3'
+import { Form, Head as IHead } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
@@ -18,7 +18,7 @@ const description = computed(() => {
 <template>
     <AuthLayout>
         <div class="space-y-6">
-            <Head title="Two-factor challenge" />
+            <IHead title="Two-factor challenge" />
 
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">

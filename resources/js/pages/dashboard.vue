@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/app/index.vue'
-import { Head as InertiaHead } from '@inertiajs/vue3'
+import { Head as IHead } from '@inertiajs/vue3'
 </script>
 
 <template>
     <AppLayout page-title="Dashboard">
-        <InertiaHead title="Dashboard" />
+        <IHead title="Dashboard" />
 
         <UPage>
             <UPageHeader

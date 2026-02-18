@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3'
+import { Form, Head as IHead } from '@inertiajs/vue3'
 import SettingsLayout from '@/layouts/settings.vue'
 </script>
 
@@ -9,7 +9,7 @@ import SettingsLayout from '@/layouts/settings.vue'
         title="Password"
         description="Update your password to keep your account secure."
     >
-        <Head title="Settings - Password" />
+        <IHead title="Settings - Password" />
 
         <UCard class="max-w-xl">
             <template #header>

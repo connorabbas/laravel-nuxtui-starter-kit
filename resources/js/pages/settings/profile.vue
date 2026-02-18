@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head, usePage } from '@inertiajs/vue3'
+import { Form, Head as IHead, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import SettingsLayout from '@/layouts/settings.vue'
 import type { SharedData } from '@/types'
@@ -20,7 +20,7 @@ const deleteModalOpen = ref(false)
         title="Profile"
         description="Update your name, email address, and account details."
     >
-        <Head title="Settings - Profile" />
+        <IHead title="Settings - Profile" />
 
         <UCard class="max-w-xl">
             <template #header>
