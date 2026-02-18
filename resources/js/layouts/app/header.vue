@@ -1,9 +1,18 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
 import { Link } from '@inertiajs/vue3'
+import { computed } from 'vue'
 
 import { useAppLayout } from '@/composables/useAppLayout'
 
-const { appName, navMenuItems, subPageNavItems, userMenuItems, user } = useAppLayout()
+const props = defineProps<{
+    pageTitle?: string
+    subPageNavItems?: NavigationMenuItem[]
+}>()
+
+const { appName, navMenuItems, subPageNavItems: defaultSubPageNavItems, userMenuItems, user } = useAppLayout()
+
+const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
 </script>
 
 <template>
@@ -49,12 +58,13 @@ const { appName, navMenuItems, subPageNavItems, userMenuItems, user } = useAppLa
         </UHeader>
 
         <div
-            v-if="subPageNavItems"
+            v-if="resolvedSubPageNavItems"
             class="border-default bg-default/75 sticky top-(--ui-header-height) z-40 w-full border-b backdrop-blur"
         >
             <UContainer>
                 <UNavigationMenu
-                    :items="subPageNavItems"
+                    v-if="resolvedSubPageNavItems"
+                    :items="resolvedSubPageNavItems"
                     class="-mx-2.5 w-full"
                     variant="pill"
                     highlight
@@ -64,9 +74,9 @@ const { appName, navMenuItems, subPageNavItems, userMenuItems, user } = useAppLa
         </div>
 
         <UMain>
-            <div class="py-4 sm:py-6">
+            <UContainer class="w-full">
                 <slot />
-            </div>
+            </UContainer>
         </UMain>
     </div>
 </template>

@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import AppLayout from './sidebar.vue'
+import type { NavigationMenuItem } from '@nuxt/ui'
+import AppLayout from './header.vue'
+
+const props = defineProps<{
+    pageTitle?: string
+    subPageNavItems?: NavigationMenuItem[]
+}>()
 </script>
 
 <template>
     <UApp>
-        <AppLayout>
+        <AppLayout
+            :page-title="props.pageTitle"
+            :sub-page-nav-items="props.subPageNavItems"
+        >
             <slot />
         </AppLayout>
     </UApp>

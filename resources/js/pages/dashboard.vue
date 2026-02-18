@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/app/index.vue'
 import { Head as InertiaHead } from '@inertiajs/vue3'
-
-defineOptions({ layout: AppLayout })
 </script>
 
 <template>
-    <InertiaHead title="Dashboard" />
+    <AppLayout page-title="Dashboard">
+        <InertiaHead title="Dashboard" />
 
-    <UContainer class="w-full">
         <UPage>
             <UPageHeader
                 title="Dashboard"
@@ -22,5 +20,5 @@ defineOptions({ layout: AppLayout })
                 />
             </UPageBody>
         </UPage>
-    </UContainer>
+    </AppLayout>
 </template>

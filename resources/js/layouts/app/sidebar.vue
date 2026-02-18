@@ -1,15 +1,21 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
 import { Link } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
-
+import { computed } from 'vue'
 import { useAppLayout } from '@/composables/useAppLayout'
+import { useSsrStorage } from '@/composables/useSsrStorage'
 
-const { appName, subPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
+const props = defineProps<{
+    pageTitle?: string
+    subPageNavItems?: NavigationMenuItem[]
+}>()
 
-// TODO: derive from the page head data, or some other meta-data method available through Inertia?
-const pageTitle = 'TEST'
+const { appName, subPageNavItems: defaultSubPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
 
-const sidebarOpen = ref(false)
+const pageTitle = computed(() => props.pageTitle ?? 'Application')
+const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
+
+const sidebarCollapsed = useSsrStorage('sidebar-collapsed', false)
 
 const groups = computed(() => [
     {
@@ -32,7 +38,7 @@ const groups = computed(() => [
     <UDashboardGroup unit="rem">
         <UDashboardSidebar
             id="default"
-            v-model:open="sidebarOpen"
+            v-model:collapsed="sidebarCollapsed"
             collapsible
             resizable
             class="bg-elevated/25"
@@ -104,19 +110,21 @@ const groups = computed(() => [
 
         <UDashboardPanel>
             <template #header>
-                <!-- TODO: Get page title from meta tag? -->
                 <UDashboardNavbar :title="pageTitle">
                     <template #leading>
                         <UDashboardSidebarCollapse />
                     </template>
                 </UDashboardNavbar>
 
-                <UDashboardToolbar v-if="subPageNavItems">
-                    <UNavigationMenu
-                        :items="subPageNavItems"
-                        highlight
-                        class="-mx-1 flex-1"
-                    />
+                <UDashboardToolbar v-if="resolvedSubPageNavItems">
+                    <div class="flex w-full flex-col gap-3 md:flex-row md:items-center">
+                        <UNavigationMenu
+                            v-if="resolvedSubPageNavItems"
+                            :items="resolvedSubPageNavItems"
+                            highlight
+                            class="-mx-1 flex-1"
+                        />
+                    </div>
                 </UDashboardToolbar>
             </template>
 

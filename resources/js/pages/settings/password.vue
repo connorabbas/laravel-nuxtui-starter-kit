@@ -1,95 +1,91 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/app/index.vue'
 import SettingsLayout from '@/layouts/settings.vue'
-
-defineOptions({ layout: AppLayout })
 </script>
 
 <template>
-    <div>
+    <SettingsLayout
+        page-title="Password"
+        title="Password"
+        description="Update your password to keep your account secure."
+    >
         <Head title="Settings - Password" />
 
-        <SettingsLayout
-            title="Password"
-            description="Update your password to keep your account secure."
-        >
-            <UCard>
-                <template #header>
-                    <h2 class="text-base font-semibold">
-                        Update password
-                    </h2>
-                </template>
+        <UCard>
+            <template #header>
+                <h2 class="text-base font-semibold">
+                    Update password
+                </h2>
+            </template>
 
-                <Form
-                    v-slot="{ errors, processing, recentlySuccessful }"
-                    :action="route('user-password.update')"
-                    method="put"
-                    :reset-on-error="['password', 'password_confirmation', 'current_password']"
-                    :reset-on-success="['password', 'password_confirmation', 'current_password']"
-                    class="space-y-4"
+            <Form
+                v-slot="{ errors, processing, recentlySuccessful }"
+                :action="route('user-password.update')"
+                method="put"
+                :reset-on-error="['password', 'password_confirmation', 'current_password']"
+                :reset-on-success="['password', 'password_confirmation', 'current_password']"
+                class="space-y-4"
+            >
+                <UFormField
+                    name="current_password"
+                    label="Current password"
+                    required
+                    :error="errors.current_password"
                 >
-                    <UFormField
+                    <UInput
+                        id="current_password"
                         name="current_password"
-                        label="Current password"
-                        required
-                        :error="errors.current_password"
-                    >
-                        <UInput
-                            id="current_password"
-                            name="current_password"
-                            type="password"
-                            autocomplete="current-password"
-                            class="w-full"
-                        />
-                    </UFormField>
+                        type="password"
+                        autocomplete="current-password"
+                        class="w-full"
+                    />
+                </UFormField>
 
-                    <UFormField
+                <UFormField
+                    name="password"
+                    label="New password"
+                    required
+                    :error="errors.password"
+                >
+                    <UInput
+                        id="password"
                         name="password"
-                        label="New password"
-                        required
-                        :error="errors.password"
-                    >
-                        <UInput
-                            id="password"
-                            name="password"
-                            type="password"
-                            autocomplete="new-password"
-                            class="w-full"
-                        />
-                    </UFormField>
+                        type="password"
+                        autocomplete="new-password"
+                        class="w-full"
+                    />
+                </UFormField>
 
-                    <UFormField
+                <UFormField
+                    name="password_confirmation"
+                    label="Confirm new password"
+                    required
+                    :error="errors.password_confirmation"
+                >
+                    <UInput
+                        id="password_confirmation"
                         name="password_confirmation"
-                        label="Confirm new password"
-                        required
-                        :error="errors.password_confirmation"
+                        type="password"
+                        autocomplete="new-password"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <div class="flex items-center gap-3">
+                    <UButton
+                        type="submit"
+                        :loading="processing"
+                        :disabled="processing"
                     >
-                        <UInput
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            type="password"
-                            autocomplete="new-password"
-                            class="w-full"
-                        />
-                    </UFormField>
+                        Save password
+                    </UButton>
 
-                    <div class="flex items-center gap-3">
-                        <UButton
-                            type="submit"
-                            :loading="processing"
-                            :disabled="processing"
-                        >
-                            Save password
-                        </UButton>
-
-                        <span
-                            v-if="recentlySuccessful"
-                            class="text-muted text-sm"
-                        >Saved.</span>
-                    </div>
-                </Form>
-            </UCard>
-        </SettingsLayout>
-    </div>
+                    <span
+                        v-if="recentlySuccessful"
+                        class="text-muted text-sm"
+                    >Saved.</span>
+                </div>
+            </Form>
+        </UCard>
+    </SettingsLayout>
 </template>

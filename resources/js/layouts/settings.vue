@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
 import { computed } from 'vue'
+import AppLayout from '@/layouts/app/index.vue'
 import { useAppLayout } from '@/composables/useAppLayout'
-import { NavigationMenuItem } from '@nuxt/ui'
 
-defineProps<{
+const props = defineProps<{
+    pageTitle?: string
     title: string
     description: string
 }>()
@@ -39,8 +41,11 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-    <UContainer class="w-full">
+    <AppLayout
+        :page-title="props.pageTitle"
+    >
         <UPage>
+            <!-- TODO: different layout where page header is on top -->
             <template #left>
                 <UPageAside>
                     <UNavigationMenu
@@ -61,13 +66,13 @@ const items = computed<NavigationMenuItem[]>(() => [
             </div>
 
             <UPageHeader
-                :title="title"
-                :description="description"
+                :title="props.title"
+                :description="props.description"
             />
 
             <UPageBody>
                 <slot />
             </UPageBody>
         </UPage>
-    </UContainer>
+    </AppLayout>
 </template>
