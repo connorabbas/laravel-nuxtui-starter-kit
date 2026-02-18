@@ -22,7 +22,7 @@ const deleteModalOpen = ref(false)
     >
         <Head title="Settings - Profile" />
 
-        <UCard>
+        <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">
                     Profile information
@@ -116,7 +116,7 @@ const deleteModalOpen = ref(false)
             </Form>
         </UCard>
 
-        <UCard>
+        <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold text-error">
                     Danger zone

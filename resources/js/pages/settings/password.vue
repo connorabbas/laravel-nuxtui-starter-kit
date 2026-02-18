@@ -11,7 +11,7 @@ import SettingsLayout from '@/layouts/settings.vue'
     >
         <Head title="Settings - Password" />
 
-        <UCard>
+        <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">
                     Update password

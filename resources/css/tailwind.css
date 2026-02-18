@@ -5,17 +5,26 @@
 @source '../../resources/views/**/*.blade.php';
 @source '../../resources/js/**/*.vue';
 
+:root {
+    --ui-primary: black;
+}
+
+.dark {
+    --ui-primary: white;
+}
+
 @theme static {
     --font-sans: 'Instrument Sans', sans-serif;
 
-    --color-scarlet-50: #fff1ed;
-    --color-scarlet-100: #ffe4d9;
-    --color-scarlet-200: #ffc5b3;
-    --color-scarlet-300: #ff9d7d;
-    --color-scarlet-400: #ff6b3d;
-    --color-scarlet-500: #f53003;
-    --color-scarlet-600: #d62500;
-    --color-scarlet-700: #b11d00;
-    --color-scarlet-800: #8e1a00;
-    --color-scarlet-950: #4a0d00;
+    --color-laravel-50: #ffedec;
+    --color-laravel-100: #ffdedc;
+    --color-laravel-200: #ffb7b4;
+    --color-laravel-300: #ff928c;
+    --color-laravel-400: #ff675c;
+    --color-laravel-500: #f53003;
+    --color-laravel-600: #c52402;
+    --color-laravel-700: #951901;
+    --color-laravel-800: #680e00;
+    --color-laravel-900: #410600;
+    --color-laravel-950: #2a0300;
 }

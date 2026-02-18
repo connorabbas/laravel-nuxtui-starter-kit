@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
                 },
                 ui: {
                     colors: {
-                        primary: 'scarlet',
+                        //primary: 'laravel',
                         neutral: 'neutral',
                     },
                     card: {

@@ -19,9 +19,10 @@ const props = defineProps<{
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
+
         <Head title="Settings - Two-Factor" />
 
-        <UCard>
+        <UCard class="max-w-xl">
             <template #header>
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-base font-semibold">
@@ -88,7 +89,10 @@ const props = defineProps<{
             </div>
         </UCard>
 
-        <UCard v-if="props.isConfirming || props.twoFactorEnabled">
+        <UCard
+            v-if="props.isConfirming || props.twoFactorEnabled"
+            class="max-w-xl"
+        >
             <template #header>
                 <h2 class="text-base font-semibold">
                     Authenticator setup
@@ -146,7 +150,10 @@ const props = defineProps<{
             </Form>
         </UCard>
 
-        <UCard v-if="props.twoFactorEnabled && props.recoveryCodes.length > 0">
+        <UCard
+            v-if="props.twoFactorEnabled && props.recoveryCodes.length > 0"
+            class="max-w-xl"
+        >
             <template #header>
                 <h2 class="text-base font-semibold">
                     Recovery codes
@@ -154,7 +161,8 @@ const props = defineProps<{
             </template>
 
             <p class="text-muted text-sm">
-                Save these recovery codes in a secure place. They can be used if you lose access to your authenticator app.
+                Save these recovery codes in a secure place. They can be used if you lose access to your authenticator
+                app.
             </p>
 
             <div class="mt-4 grid gap-2 rounded-lg border border-default p-4 sm:grid-cols-2">
@@ -162,9 +170,7 @@ const props = defineProps<{
                     v-for="code in props.recoveryCodes"
                     :key="code"
                     class="text-sm"
-                >
-                    {{ code }}
-                </code>
+                >{{ code }}</code>
             </div>
 
             <Form
