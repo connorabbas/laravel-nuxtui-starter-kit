@@ -11,10 +11,10 @@ import AuthLayout from '@/layouts/auth.vue'
 
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
-                    Create your account
+                    Create an account
                 </h1>
                 <p class="text-muted text-sm">
-                    Sign up to start using your application.
+                    Enter your details below to create your account
                 </p>
             </div>
 

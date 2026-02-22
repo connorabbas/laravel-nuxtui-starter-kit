@@ -4,13 +4,14 @@ import { Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
 import { useAppLayout } from '@/composables/useAppLayout'
+import AppLogo from '@/components/AppLogo.vue'
 
 const props = defineProps<{
     pageTitle?: string
     subPageNavItems?: NavigationMenuItem[]
 }>()
 
-const { appName, navMenuItems, subPageNavItems: defaultSubPageNavItems, userMenuItems, user } = useAppLayout()
+const { navMenuItems, subPageNavItems: defaultSubPageNavItems, userMenuItems, user } = useAppLayout()
 
 const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
 </script>
@@ -19,11 +20,8 @@ const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultS
     <div>
         <UHeader>
             <template #left>
-                <Link
-                    :href="route('index')"
-                    class="font-semibold"
-                >
-                    {{ appName }}
+                <Link :href="route('index')">
+                    <AppLogo class="h-6 w-auto shrink-0" />
                 </Link>
             </template>
 

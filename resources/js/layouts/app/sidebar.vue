@@ -4,13 +4,15 @@ import { Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
 import { useAppLayout } from '@/composables/useAppLayout'
 import { useSsrStorage } from '@/composables/useSsrStorage'
+import AppLogo from '@/components/AppLogo.vue'
+import LaravelLogo from '@/components/LaravelLogo.vue'
 
 const props = defineProps<{
     pageTitle?: string
     subPageNavItems?: NavigationMenuItem[]
 }>()
 
-const { appName, subPageNavItems: defaultSubPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
+const { subPageNavItems: defaultSubPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
 
 const pageTitle = computed(() => props.pageTitle ?? 'Application')
 const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
@@ -46,17 +48,15 @@ const groups = computed(() => [
         >
             <template #header="{ collapsed }">
                 <div class="flex w-full justify-center">
-                    <Link
-                        :href="route('index')"
-                        class="flex items-center gap-3"
-                    >
-                        <span
-                            class="bg-primary/15 text-primary inline-flex h-8 w-8 items-center justify-center rounded-md font-semibold"
-                        >A</span>
-                        <span
-                            v-if="!collapsed"
-                            class="font-medium"
-                        >{{ appName }}</span>
+                    <Link :href="route('index')">
+                        <LaravelLogo
+                            v-if="collapsed"
+                            class="block h-6 lg:h-8 w-auto fill-current"
+                        />
+                        <AppLogo
+                            v-else
+                            class="h-6 w-auto shrink-0"
+                        />
                     </Link>
                 </div>
             </template>
@@ -91,17 +91,23 @@ const groups = computed(() => [
                     :content="{ align: 'center', collisionPadding: 12 }"
                     :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
                 >
-                    <UButton
-                        :label="collapsed ? undefined : user.name"
-                        class="data-[state=open]:bg-elevated"
-                        color="neutral"
-                        variant="ghost"
-                        block
-                        :icon="collapsed ? 'i-lucide-user' : undefined"
-                        :square="collapsed"
-                        trailing-icon="i-lucide-chevrons-up-down"
-                        :ui="{ trailingIcon: 'text-dimmed' }"
-                    />
+                    <UTooltip
+                        :disabled="!collapsed"
+                        :content="{ side: 'right' }"
+                        text="Account"
+                    >
+                        <UButton
+                            class="data-[state=open]:bg-elevated"
+                            color="neutral"
+                            variant="ghost"
+                            block
+                            :label="collapsed ? undefined : user.name"
+                            :icon="collapsed ? 'i-lucide-user' : undefined"
+                            :trailing-icon="collapsed ? undefined : 'i-lucide-chevrons-up-down'"
+                            :square="collapsed"
+                            :ui="{ trailingIcon: 'text-dimmed' }"
+                        />
+                    </UTooltip>
                 </UDropdownMenu>
             </template>
         </UDashboardSidebar>
