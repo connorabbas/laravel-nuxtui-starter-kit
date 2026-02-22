@@ -14,7 +14,7 @@ import SettingsLayout from '@/layouts/settings.vue'
         <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">
-                    Theme mode
+                    Color mode
                 </h2>
             </template>
 
