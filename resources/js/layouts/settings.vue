@@ -24,8 +24,8 @@ const items = computed<NavigationMenuItem[]>(() => [
     {
         label: 'Password',
         icon: 'i-lucide-key-round',
-        to: route('user-password.edit'),
-        active: currentRoute.value === 'user-password.edit'
+        to: route('settings.password.edit'),
+        active: currentRoute.value === 'settings.password.edit'
     },
     {
         label: 'Two-Factor',

@@ -22,6 +22,6 @@ class PasswordController extends Controller
             'password' => Hash::make($request->string('password')->toString()),
         ]);
 
-        return to_route('user-password.edit');
+        return to_route('settings.password.edit');
     }
 }

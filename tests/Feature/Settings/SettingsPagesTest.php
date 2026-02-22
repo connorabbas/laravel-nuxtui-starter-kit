@@ -9,26 +9,26 @@ use Laravel\Fortify\Fortify;
 uses(RefreshDatabase::class);
 
 test('guests are redirected from settings pages', function () {
-    $this->get('/settings')->assertRedirect('/login');
-    $this->get('/settings/profile')->assertRedirect('/login');
-    $this->get('/settings/password')->assertRedirect('/login');
-    $this->get('/settings/two-factor')->assertRedirect('/login');
-    $this->get('/settings/appearance')->assertRedirect('/login');
+    $this->get(route('settings', absolute: false))->assertRedirect(route('login', absolute: false));
+    $this->get(route('profile.edit', absolute: false))->assertRedirect(route('login', absolute: false));
+    $this->get(route('settings.password.edit', absolute: false))->assertRedirect(route('login', absolute: false));
+    $this->get(route('two-factor.show', absolute: false))->assertRedirect(route('login', absolute: false));
+    $this->get(route('appearance.edit', absolute: false))->assertRedirect(route('login', absolute: false));
 });
 
 test('settings index redirects to profile settings page', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get('/settings')
-        ->assertRedirect('/settings/profile');
+        ->get(route('settings', absolute: false))
+        ->assertRedirect(route('profile.edit', absolute: false));
 });
 
 test('profile settings page renders', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get('/settings/profile')
+        ->get(route('profile.edit', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -41,7 +41,7 @@ test('password settings page renders', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get('/settings/password')
+        ->get(route('settings.password.edit', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -56,7 +56,7 @@ test('two factor settings page renders', function () {
         ->withSession([
             'auth.password_confirmed_at' => time(),
         ])
-        ->get('/settings/two-factor')
+        ->get(route('two-factor.show', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -81,7 +81,7 @@ test('two factor settings page reports setup in progress when not confirmed', fu
         ->withSession([
             'auth.password_confirmed_at' => time(),
         ])
-        ->get('/settings/two-factor')
+        ->get(route('two-factor.show', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -106,7 +106,7 @@ test('two factor settings page reports enabled when confirmed', function () {
         ->withSession([
             'auth.password_confirmed_at' => time(),
         ])
-        ->get('/settings/two-factor')
+        ->get(route('two-factor.show', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
@@ -120,7 +120,7 @@ test('appearance settings page renders', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->get('/settings/appearance')
+        ->get(route('appearance.edit', absolute: false))
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page

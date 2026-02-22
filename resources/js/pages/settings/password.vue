@@ -20,7 +20,7 @@ import SettingsLayout from '@/layouts/settings.vue'
 
             <Form
                 v-slot="{ errors, processing, recentlySuccessful }"
-                :action="route('user-password.update')"
+                :action="route('settings.password.update')"
                 error-bag="updatePassword"
                 method="put"
                 :reset-on-error="['password', 'password_confirmation', 'current_password']"
