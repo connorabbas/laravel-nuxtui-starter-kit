@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -38,14 +39,22 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
-            'auth' => [
-                'user' => fn () => $request->user()?->only(['id', 'name', 'email', 'email_verified_at', 'created_at', 'updated_at']),
-            ],
             'ziggy' => [
                 ...(new Ziggy())->toArray(),
                 'location' => $request->url(),
             ],
+            'name' => config('app.name'),
+            'auth' => [
+                'user' => fn () => $request->user()?->only(['id', 'name', 'email', 'email_verified_at', 'created_at', 'updated_at']),
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('flash_success'),
+                'info' => fn () => $request->session()->get('flash_info'),
+                'warn' => fn () => $request->session()->get('flash_warn'),
+                'error' => fn () => $request->session()->get('flash_error'),
+                'message' => fn () => $request->session()->get('flash_message'),
+            ],
+            'queryParams' => Inertia::always($request->query()),
         ];
     }
 }

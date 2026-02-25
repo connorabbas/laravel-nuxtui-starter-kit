@@ -2,14 +2,13 @@
 import { Form, Head as IHead, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import SettingsLayout from '@/layouts/settings.vue'
-import type { SharedData } from '@/types'
 
 const props = defineProps<{
     mustVerifyEmail: boolean
     status?: string
 }>()
 
-const page = usePage<SharedData>()
+const page = usePage()
 const user = computed(() => page.props.auth.user)
 const deleteModalOpen = ref(false)
 </script>

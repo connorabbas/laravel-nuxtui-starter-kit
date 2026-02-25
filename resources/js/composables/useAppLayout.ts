@@ -1,10 +1,9 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
-import type { SharedData } from '@/types'
 import { router, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
 export function useAppLayout() {
-    const page = usePage<SharedData>()
+    const page = usePage()
 
     const currentPath = computed(() => page.url.split('?')[0])
 

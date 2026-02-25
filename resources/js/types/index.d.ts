@@ -1,8 +1,31 @@
-import type { PageProps } from '@inertiajs/core'
 import type { Config } from 'ziggy-js'
 
-export interface Auth {
-    user: User | null
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface AuthProps {
+    user: User;
+}
+
+export interface FlashProps {
+    success?: string | null;
+    info?: string | null;
+    warn?: string | null;
+    error?: string | null;
+    message?: string | null;
+}
+
+export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+    ziggy: Config & { location: string };
+    auth: AuthProps;
+    flash: FlashProps;
+    queryParams: Record<string, string | string[]>;
 }
 
 export interface ErrorResponsePayload {
@@ -12,22 +35,4 @@ export interface ErrorResponsePayload {
     error_detail: string
     error_icon: string
     error_color: string
-}
-
-export interface SharedData extends PageProps {
-    name: string
-    quote: { message: string; author: string }
-    auth: Auth
-    ziggy: Config & { location: string }
-    sidebarOpen: boolean
-}
-
-export interface User {
-    id: number
-    name: string
-    email: string
-    avatar?: string
-    email_verified_at: string | null
-    created_at: string
-    updated_at: string
 }
