@@ -5,6 +5,15 @@ export interface Auth {
     user: User | null
 }
 
+export interface ErrorResponsePayload {
+    status: number
+    error_title: string
+    error_summary: string
+    error_detail: string
+    error_icon: string
+    error_color: string
+}
+
 export interface SharedData extends PageProps {
     name: string
     quote: { message: string; author: string }
