@@ -24,7 +24,6 @@ class ProfileController extends Controller
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        throw new \Exception('Test');
         $user = $request->user();
 
         $user->fill($request->validated());
