@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 
+import FlashMessages from '@/components/FlashMessages.vue'
+
 const page = usePage()
 
 const currentRoute = computed(() => {
@@ -71,6 +73,10 @@ const currentRoute = computed(() => {
         </UHeader>
 
         <UMain>
+            <UContainer class="pt-4">
+                <FlashMessages />
+            </UContainer>
+
             <slot />
         </UMain>
 

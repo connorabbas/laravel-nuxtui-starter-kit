@@ -52,13 +52,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 $errorMetadata = $resolveErrorMetadata($statusCode);
 
                 return back()->with([
-                    'flash_warn' => $errorMetadata['detail'] ?? 'The page expired, please try again.',
+                    'flash_warning' => $errorMetadata['detail'] ?? 'The page expired, please try again.',
                 ]);
             }
 
             if ($statusCode >= 400) {
                 $errorMetadata = $resolveErrorMetadata($statusCode);
-                $errorTitle = $errorMetadata['title'] ?? 'Error';
+                $errorTitle = Response::$statusTexts[$statusCode] ?? 'Error';
                 $errorDetail = $errorMetadata['detail'] ?? 'An unexpected error occurred.';
                 $errorIcon = $errorMetadata['icon'] ?? 'i-lucide-alert-triangle';
                 $errorColor = $errorMetadata['color'] ?? ($statusCode >= 500 ? 'error' : 'warning');

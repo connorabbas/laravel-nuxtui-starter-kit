@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import FlashMessages from '@/components/FlashMessages.vue'
+</script>
+
 <template>
     <UApp>
         <div class="flex h-screen items-center justify-center px-4">
@@ -13,6 +17,8 @@
             <UPageCard
                 class="w-full max-w-md"
             >
+                <FlashMessages class="mb-4" />
+
                 <slot />
             </UPageCard>
         </div>

@@ -9,7 +9,7 @@ import { createSSRApp, h } from 'vue'
 import { Config, ZiggyVue } from 'ziggy-js'
 
 import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-compat'
-import type { ErrorResponsePayload, SharedData } from '@/types'
+import type { AppPageProps, ErrorResponsePayload } from '@/types'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
 
@@ -18,7 +18,7 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        const pageProps = props.initialPage.props as unknown as SharedData
+        const pageProps = props.initialPage.props as unknown as AppPageProps
 
         // Ziggy config
         const ziggyConfig = {

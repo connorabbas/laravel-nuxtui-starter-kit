@@ -50,9 +50,9 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('flash_success'),
                 'info' => fn () => $request->session()->get('flash_info'),
-                'warn' => fn () => $request->session()->get('flash_warn'),
+                'warning' => fn () => $request->session()->get('flash_warning'),
                 'error' => fn () => $request->session()->get('flash_error'),
-                'message' => fn () => $request->session()->get('flash_message'),
+                'neutral' => fn () => $request->session()->get('flash_neutral'),
             ],
             'queryParams' => Inertia::always($request->query()),
         ];

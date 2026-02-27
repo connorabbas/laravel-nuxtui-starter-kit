@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-import AppLayout from './header.vue'
+import AppLayout from './sidebar.vue'
 
 const props = defineProps<{
     pageTitle?: string

@@ -22,6 +22,15 @@ const confirmForm = useForm<{ code: string }>({
 })
 
 const confirmationCodeIsComplete = computed(() => confirmationCode.value.join('').length === 6)
+const confirmationCodeError = computed(() => {
+    const error = confirmForm.errors.code
+
+    if (Array.isArray(error)) {
+        return error[0]
+    }
+
+    return error
+})
 
 const statusAlertDescription = computed<string | null>(() => {
     if (!props.status) {
@@ -190,7 +199,7 @@ const copySetupKey = async (): Promise<void> => {
                     >
                         <UFormField
                             name="code"
-                            :error="confirmForm.errors.code"
+                            :error="confirmationCodeError"
                         >
                             <div class="flex justify-center">
                                 <UPinInput

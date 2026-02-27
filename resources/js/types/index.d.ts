@@ -16,9 +16,9 @@ export interface AuthProps {
 export interface FlashProps {
     success?: string | null;
     info?: string | null;
-    warn?: string | null;
+    warning?: string | null;
     error?: string | null;
-    message?: string | null;
+    neutral?: string | null;
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
