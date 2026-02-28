@@ -1,21 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
-
+import { Link } from '@inertiajs/vue3'
 import FlashMessages from '@/components/FlashMessages.vue'
-
-const page = usePage()
-
-const currentRoute = computed(() => {
-    const url = page.url
-
-    return route().current() ?? url
-})
 </script>
 
 <template>
     <UApp>
-        <UHeader>
+        <UHeader :ui="{ right: 'flex sm:gap-3' }">
             <template #left>
                 <Link href="/">
                     <AppLogo class="h-6 w-auto shrink-0" />
@@ -23,13 +13,7 @@ const currentRoute = computed(() => {
             </template>
 
             <UNavigationMenu
-                :items="[
-                    {
-                        label: 'Test Login',
-                        to: route('login'),
-                        active: currentRoute === 'login'
-                    }
-                ]"
+                :items="[]"
                 orientation="vertical"
                 class="-mx-2.5"
             />

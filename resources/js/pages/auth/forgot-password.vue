@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { Form, Head as IHead, Link } from '@inertiajs/vue3'
+import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/auth.vue'
 
 const props = defineProps<{
     status?: string
 }>()
+
+const forgotPasswordForm = useForm({
+    email: '',
+})
+
+const submit = (): void => {
+    forgotPasswordForm.post(route('password.email'))
+}
 </script>
 
 <template>
@@ -29,20 +37,19 @@ const props = defineProps<{
                 :description="props.status"
             />
 
-            <Form
-                v-slot="{ errors, processing }"
-                :action="route('password.email')"
-                method="post"
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
                 <UFormField
                     name="email"
                     label="Email address"
                     required
-                    :error="errors.email"
+                    :error="forgotPasswordForm.errors?.email"
                 >
                     <UInput
                         id="email"
+                        v-model="forgotPasswordForm.email"
                         name="email"
                         type="email"
                         placeholder="email@example.com"
@@ -55,12 +62,12 @@ const props = defineProps<{
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="forgotPasswordForm.processing"
+                    :disabled="forgotPasswordForm.processing"
                 >
                     Email password reset link
                 </UButton>
-            </Form>
+            </form>
 
             <p class="text-toned text-center text-sm">
                 Remembered your password?

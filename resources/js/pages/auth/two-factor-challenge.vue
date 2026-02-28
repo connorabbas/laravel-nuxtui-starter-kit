@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { Form, Head as IHead } from '@inertiajs/vue3'
+import { Head as IHead, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
 
 const usingRecoveryCode = ref(false)
+
+const challengeForm = useForm({
+    code: '',
+    recovery_code: '',
+})
 
 const heading = computed(() => {
     return usingRecoveryCode.value ? 'Use a recovery code' : 'Two-factor challenge'
@@ -13,6 +18,19 @@ const heading = computed(() => {
 const description = computed(() => {
     return usingRecoveryCode.value ? 'Enter one of your recovery codes to continue.' : 'Enter the code from your authenticator application.'
 })
+
+const submit = (): void => {
+    challengeForm.post(route('two-factor.login.store'), {
+        onError: () => {
+            challengeForm.reset('code', 'recovery_code')
+        },
+    })
+}
+
+const toggleChallengeType = (): void => {
+    usingRecoveryCode.value = !usingRecoveryCode.value
+    challengeForm.clearErrors()
+}
 </script>
 
 <template>
@@ -29,22 +47,20 @@ const description = computed(() => {
                 </p>
             </div>
 
-            <Form
-                v-slot="{ errors, processing, clearErrors }"
-                :action="route('two-factor.login.store')"
-                method="post"
-                reset-on-error
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
                 <UFormField
                     v-if="!usingRecoveryCode"
                     name="code"
                     label="Authentication code"
                     required
-                    :error="errors.code"
+                    :error="challengeForm.errors?.code"
                 >
                     <UInput
                         id="code"
+                        v-model="challengeForm.code"
                         name="code"
                         type="text"
                         inputmode="numeric"
@@ -60,10 +76,11 @@ const description = computed(() => {
                     name="recovery_code"
                     label="Recovery code"
                     required
-                    :error="errors.recovery_code"
+                    :error="challengeForm.errors?.recovery_code"
                 >
                     <UInput
                         id="recovery_code"
+                        v-model="challengeForm.recovery_code"
                         name="recovery_code"
                         type="text"
                         autocomplete="one-time-code"
@@ -76,8 +93,8 @@ const description = computed(() => {
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="challengeForm.processing"
+                    :disabled="challengeForm.processing"
                 >
                     Continue
                 </UButton>
@@ -87,11 +104,11 @@ const description = computed(() => {
                     color="neutral"
                     variant="ghost"
                     block
-                    @click="usingRecoveryCode = !usingRecoveryCode; clearErrors()"
+                    @click="toggleChallengeType"
                 >
                     {{ usingRecoveryCode ? 'Use an authentication code' : 'Use a recovery code' }}
                 </UButton>
-            </Form>
+            </form>
         </div>
     </AuthLayout>
 </template>

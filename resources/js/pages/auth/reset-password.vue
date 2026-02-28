@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Form, Head as IHead } from '@inertiajs/vue3'
+import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
 
@@ -7,6 +8,24 @@ const props = defineProps<{
     token: string
     email: string
 }>()
+
+const showPassword = ref(false)
+const showPasswordConfirmation = ref(false)
+
+const resetPasswordForm = useForm({
+    token: props.token,
+    email: props.email,
+    password: '',
+    password_confirmation: '',
+})
+
+const submit = (): void => {
+    resetPasswordForm.post(route('password.update'), {
+        onSuccess: () => {
+            resetPasswordForm.reset('password', 'password_confirmation')
+        },
+    })
+}
 </script>
 
 <template>
@@ -23,30 +42,21 @@ const props = defineProps<{
                 </p>
             </div>
 
-            <Form
-                v-slot="{ errors, processing }"
-                :action="route('password.update')"
-                method="post"
-                :reset-on-success="['password', 'password_confirmation']"
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
-                <input
-                    type="hidden"
-                    name="token"
-                    :value="props.token"
-                >
-
                 <UFormField
                     name="email"
                     label="Email address"
                     required
-                    :error="errors.email"
+                    :error="resetPasswordForm.errors?.email"
                 >
                     <UInput
                         id="email"
+                        v-model="resetPasswordForm.email"
                         name="email"
                         type="email"
-                        :value="props.email"
                         autocomplete="email"
                         class="w-full"
                     />
@@ -56,44 +66,74 @@ const props = defineProps<{
                     name="password"
                     label="Password"
                     required
-                    :error="errors.password"
+                    :error="resetPasswordForm.errors?.password"
                 >
                     <UInput
                         id="password"
+                        v-model="resetPasswordForm.password"
                         name="password"
-                        type="password"
+                        :type="showPassword ? 'text' : 'password'"
                         placeholder="New password"
                         autocomplete="new-password"
                         autofocus
+                        :ui="{ trailing: 'pe-1' }"
                         class="w-full"
-                    />
+                    >
+                        <template #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                :aria-pressed="showPassword"
+                                aria-controls="password"
+                                @click="showPassword = !showPassword"
+                            />
+                        </template>
+                    </UInput>
                 </UFormField>
 
                 <UFormField
                     name="password_confirmation"
                     label="Confirm password"
                     required
-                    :error="errors.password_confirmation"
+                    :error="resetPasswordForm.errors?.password_confirmation"
                 >
                     <UInput
                         id="password_confirmation"
+                        v-model="resetPasswordForm.password_confirmation"
                         name="password_confirmation"
-                        type="password"
+                        :type="showPasswordConfirmation ? 'text' : 'password'"
                         placeholder="Confirm new password"
                         autocomplete="new-password"
+                        :ui="{ trailing: 'pe-1' }"
                         class="w-full"
-                    />
+                    >
+                        <template #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                :icon="showPasswordConfirmation ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                :aria-label="showPasswordConfirmation ? 'Hide password' : 'Show password'"
+                                :aria-pressed="showPasswordConfirmation"
+                                aria-controls="password_confirmation"
+                                @click="showPasswordConfirmation = !showPasswordConfirmation"
+                            />
+                        </template>
+                    </UInput>
                 </UFormField>
 
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="resetPasswordForm.processing"
+                    :disabled="resetPasswordForm.processing"
                 >
                     Reset password
                 </UButton>
-            </Form>
+            </form>
         </div>
     </AuthLayout>
 </template>

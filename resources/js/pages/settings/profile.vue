@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Form, Head as IHead, usePage } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { Head as IHead, useForm, usePage } from '@inertiajs/vue3'
+import { computed, ref, watch } from 'vue'
+
 import SettingsLayout from '@/layouts/settings.vue'
 
 const props = defineProps<{
@@ -11,6 +12,49 @@ const props = defineProps<{
 const page = usePage()
 const user = computed(() => page.props.auth.user)
 const deleteModalOpen = ref(false)
+const showDeletePassword = ref(false)
+
+// TODO: success toast on save
+const profileUpdateForm = useForm({
+    name: user.value?.name ?? '',
+    email: user.value?.email ?? '',
+})
+
+const resendVerificationForm = useForm({})
+
+const deleteAccountForm = useForm({
+    password: '',
+})
+
+const updateProfile = (): void => {
+    profileUpdateForm.patch(route('profile.update'), {
+        onSuccess: () => {
+            profileUpdateForm.defaults()
+        },
+    })
+}
+
+const resendVerificationEmail = (): void => {
+    resendVerificationForm.post(route('verification.send'))
+}
+
+const deleteAccount = (): void => {
+    deleteAccountForm.delete(route('profile.destroy'), {
+        onSuccess: () => {
+            deleteAccountForm.reset()
+            deleteModalOpen.value = false
+            showDeletePassword.value = false
+        },
+    })
+}
+
+watch(deleteModalOpen, (open) => {
+    if (!open) {
+        deleteAccountForm.reset()
+        deleteAccountForm.clearErrors()
+        showDeletePassword.value = false
+    }
+})
 </script>
 
 <template>
@@ -28,23 +72,21 @@ const deleteModalOpen = ref(false)
                 </h2>
             </template>
 
-            <Form
-                v-slot="{ errors, processing, recentlySuccessful }"
-                :action="route('profile.update')"
-                method="patch"
+            <form
                 class="space-y-4"
+                @submit.prevent="updateProfile"
             >
                 <UFormField
                     name="name"
                     label="Name"
                     required
-                    :error="errors.name"
+                    :error="profileUpdateForm.errors?.name"
                 >
                     <UInput
                         id="name"
+                        v-model="profileUpdateForm.name"
                         name="name"
                         type="text"
-                        :value="user?.name"
                         autocomplete="name"
                         class="w-full"
                     />
@@ -54,13 +96,13 @@ const deleteModalOpen = ref(false)
                     name="email"
                     label="Email address"
                     required
-                    :error="errors.email"
+                    :error="profileUpdateForm.errors?.email"
                 >
                     <UInput
                         id="email"
+                        v-model="profileUpdateForm.email"
                         name="email"
                         type="email"
-                        :value="user?.email"
                         autocomplete="email"
                         class="w-full"
                     />
@@ -73,21 +115,17 @@ const deleteModalOpen = ref(false)
                     <p class="text-muted text-sm">
                         Your email address is unverified.
                     </p>
-                    <Form
-                        v-slot="{ processing: resendProcessing }"
-                        :action="route('verification.send')"
-                        method="post"
+                    <UButton
+                        type="button"
+                        color="neutral"
+                        variant="subtle"
+                        size="sm"
+                        :loading="resendVerificationForm.processing"
+                        :disabled="resendVerificationForm.processing"
+                        @click="resendVerificationEmail"
                     >
-                        <UButton
-                            type="submit"
-                            color="neutral"
-                            variant="link"
-                            class="p-0"
-                            :loading="resendProcessing"
-                        >
-                            Resend verification email
-                        </UButton>
-                    </Form>
+                        Resend verification email
+                    </UButton>
                 </div>
 
                 <UAlert
@@ -100,18 +138,18 @@ const deleteModalOpen = ref(false)
                 <div class="flex items-center gap-3">
                     <UButton
                         type="submit"
-                        :loading="processing"
-                        :disabled="processing"
+                        :loading="profileUpdateForm.processing"
+                        :disabled="profileUpdateForm.processing"
                     >
                         Save changes
                     </UButton>
 
                     <span
-                        v-if="recentlySuccessful"
+                        v-if="profileUpdateForm.recentlySuccessful"
                         class="text-muted text-sm"
                     >Saved.</span>
                 </div>
-            </Form>
+            </form>
         </UCard>
 
         <UCard class="max-w-xl">
@@ -139,25 +177,38 @@ const deleteModalOpen = ref(false)
                     </UButton>
 
                     <template #body>
-                        <Form
-                            v-slot="{ errors, processing }"
-                            :action="route('profile.destroy')"
-                            method="delete"
+                        <form
                             class="space-y-4"
+                            @submit.prevent="deleteAccount"
                         >
                             <UFormField
                                 name="password"
                                 label="Password"
                                 required
-                                :error="errors.password"
+                                :error="deleteAccountForm.errors?.password"
                             >
                                 <UInput
                                     id="delete_password"
+                                    v-model="deleteAccountForm.password"
                                     name="password"
-                                    type="password"
+                                    :type="showDeletePassword ? 'text' : 'password'"
                                     autocomplete="current-password"
+                                    :ui="{ trailing: 'pe-1' }"
                                     class="w-full"
-                                />
+                                >
+                                    <template #trailing>
+                                        <UButton
+                                            color="neutral"
+                                            variant="link"
+                                            size="sm"
+                                            :icon="showDeletePassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                            :aria-label="showDeletePassword ? 'Hide password' : 'Show password'"
+                                            :aria-pressed="showDeletePassword"
+                                            aria-controls="delete_password"
+                                            @click="showDeletePassword = !showDeletePassword"
+                                        />
+                                    </template>
+                                </UInput>
                             </UFormField>
 
                             <div class="flex justify-end gap-2">
@@ -173,13 +224,13 @@ const deleteModalOpen = ref(false)
                                 <UButton
                                     type="submit"
                                     color="error"
-                                    :loading="processing"
-                                    :disabled="processing"
+                                    :loading="deleteAccountForm.processing"
+                                    :disabled="deleteAccountForm.processing"
                                 >
                                     Delete account
                                 </UButton>
                             </div>
-                        </Form>
+                        </form>
                     </template>
                 </UModal>
             </div>

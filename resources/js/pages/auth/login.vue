@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Form, Head as IHead, Link } from '@inertiajs/vue3'
+import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
 
@@ -8,6 +9,22 @@ const props = defineProps<{
     canResetPassword: boolean
     canRegister: boolean
 }>()
+
+const showPassword = ref(false)
+
+const loginForm = useForm({
+    email: '',
+    password: '',
+    remember: false,
+})
+
+const submit = (): void => {
+    loginForm.post(route('login.store'), {
+        onSuccess: () => {
+            loginForm.reset('password')
+        },
+    })
+}
 </script>
 
 <template>
@@ -31,22 +48,19 @@ const props = defineProps<{
                 :description="props.status"
             />
 
-            <!-- TODO: reset-on-success behavior -->
-            <Form
-                v-slot="{ errors, processing }"
-                :action="route('login.store')"
-                method="post"
-                :reset-on-success="['password']"
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
                 <UFormField
                     name="email"
                     label="Email address"
                     required
-                    :error="errors.email"
+                    :error="loginForm.errors?.email"
                 >
                     <UInput
                         id="email"
+                        v-model="loginForm.email"
                         name="email"
                         type="email"
                         placeholder="email@example.com"
@@ -74,22 +88,38 @@ const props = defineProps<{
                     <UFormField
                         name="password"
                         required
-                        :error="errors.password"
+                        :error="loginForm.errors?.password"
                     >
                         <UInput
                             id="password"
+                            v-model="loginForm.password"
                             name="password"
-                            type="password"
+                            :type="showPassword ? 'text' : 'password'"
                             placeholder="Password"
                             autocomplete="current-password"
+                            :ui="{ trailing: 'pe-1' }"
                             class="w-full"
-                        />
+                        >
+                            <template #trailing>
+                                <UButton
+                                    color="neutral"
+                                    variant="link"
+                                    size="sm"
+                                    :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                    :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                    :aria-pressed="showPassword"
+                                    aria-controls="password"
+                                    @click="showPassword = !showPassword"
+                                />
+                            </template>
+                        </UInput>
                     </UFormField>
                 </div>
 
                 <div class="flex items-center gap-2">
                     <UCheckbox
                         id="remember"
+                        v-model="loginForm.remember"
                         name="remember"
                     />
                     <label
@@ -101,12 +131,12 @@ const props = defineProps<{
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="loginForm.processing"
+                    :disabled="loginForm.processing"
                 >
                     Log in
                 </UButton>
-            </Form>
+            </form>
 
             <p
                 v-if="props.canRegister"

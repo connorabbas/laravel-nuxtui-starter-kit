@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head as IHead, useForm } from '@inertiajs/vue3'
+import { Head as IHead, useForm } from '@inertiajs/vue3'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/settings.vue'
@@ -16,7 +16,10 @@ const props = defineProps<{
 
 const setupModalOpen = ref(false)
 const confirmationCode = ref<number[]>([])
-const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true })
+const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true }) // TODO: success toast on copy
+const enableTwoFactorForm = useForm({})
+const disableTwoFactorForm = useForm({})
+const regenerateRecoveryCodesForm = useForm({})
 const confirmForm = useForm<{ code: string }>({
     code: '',
 })
@@ -88,6 +91,22 @@ const copySetupKey = async (): Promise<void> => {
 
     await copy(props.setupKey)
 }
+
+const enableTwoFactor = (): void => {
+    enableTwoFactorForm.post(route('two-factor.enable'), {
+        onSuccess: () => {
+            setupModalOpen.value = true
+        },
+    })
+}
+
+const disableTwoFactor = (): void => {
+    disableTwoFactorForm.delete(route('two-factor.disable'))
+}
+
+const regenerateRecoveryCodes = (): void => {
+    regenerateRecoveryCodesForm.post(route('two-factor.regenerate-recovery-codes'))
+}
 </script>
 
 <template>
@@ -132,47 +151,36 @@ const copySetupKey = async (): Promise<void> => {
             />
 
             <div class="mt-4 flex flex-wrap gap-2">
-                <Form
+                <UButton
                     v-if="!props.twoFactorEnabled && !props.isConfirming"
-                    v-slot="{ processing }"
-                    :action="route('two-factor.enable')"
-                    method="POST"
-                    @success="setupModalOpen = true"
+                    type="button"
+                    :loading="enableTwoFactorForm.processing"
+                    :disabled="enableTwoFactorForm.processing"
+                    @click="enableTwoFactor"
                 >
-                    <UButton
-                        type="submit"
-                        :loading="processing"
-                        :disabled="processing"
-                    >
-                        Enable 2FA
-                    </UButton>
-                </Form>
+                    Enable 2FA
+                </UButton>
 
                 <UButton
                     v-else-if="props.isConfirming"
                     color="neutral"
-                    variant="outline"
+                    variant="subtle"
                     @click="setupModalOpen = true"
                 >
                     Continue setup
                 </UButton>
 
-                <Form
+                <UButton
                     v-if="props.twoFactorEnabled"
-                    v-slot="{ processing }"
-                    :action="route('two-factor.disable')"
-                    method="delete"
+                    type="button"
+                    color="error"
+                    variant="soft"
+                    :loading="disableTwoFactorForm.processing"
+                    :disabled="disableTwoFactorForm.processing"
+                    @click="disableTwoFactor"
                 >
-                    <UButton
-                        type="submit"
-                        color="error"
-                        variant="soft"
-                        :loading="processing"
-                        :disabled="processing"
-                    >
-                        Disable two-factor
-                    </UButton>
-                </Form>
+                    Disable two-factor
+                </UButton>
             </div>
         </UCard>
 
@@ -249,7 +257,7 @@ const copySetupKey = async (): Promise<void> => {
                             <UButton
                                 type="button"
                                 color="neutral"
-                                variant="outline"
+                                variant="subtle"
                                 :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
                                 :aria-label="copied ? 'Copied setup key' : 'Copy setup key'"
                                 :disabled="!clipboardSupported"
@@ -284,22 +292,17 @@ const copySetupKey = async (): Promise<void> => {
                 >{{ code }}</code>
             </div>
 
-            <Form
-                v-slot="{ processing }"
-                :action="route('two-factor.regenerate-recovery-codes')"
-                method="post"
+            <UButton
+                type="button"
+                color="neutral"
+                variant="subtle"
                 class="mt-4"
+                :loading="regenerateRecoveryCodesForm.processing"
+                :disabled="regenerateRecoveryCodesForm.processing"
+                @click="regenerateRecoveryCodes"
             >
-                <UButton
-                    type="submit"
-                    color="neutral"
-                    variant="outline"
-                    :loading="processing"
-                    :disabled="processing"
-                >
-                    Regenerate recovery codes
-                </UButton>
-            </Form>
+                Regenerate recovery codes
+            </UButton>
         </UCard>
     </SettingsLayout>
 </template>

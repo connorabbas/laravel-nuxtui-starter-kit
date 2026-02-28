@@ -1,7 +1,26 @@
 <script setup lang="ts">
-import { Form, Head as IHead, Link } from '@inertiajs/vue3'
+import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
+
+const showPassword = ref(false)
+const showPasswordConfirmation = ref(false)
+
+const registerForm = useForm({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+})
+
+const submit = (): void => {
+    registerForm.post(route('register.store'), {
+        onSuccess: () => {
+            registerForm.reset('password', 'password_confirmation')
+        },
+    })
+}
 </script>
 
 <template>
@@ -18,21 +37,19 @@ import AuthLayout from '@/layouts/auth.vue'
                 </p>
             </div>
 
-            <Form
-                v-slot="{ errors, processing }"
-                :action="route('register.store')"
-                method="post"
-                :reset-on-success="['password', 'password_confirmation']"
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
                 <UFormField
                     name="name"
                     label="Name"
                     required
-                    :error="errors.name"
+                    :error="registerForm.errors?.name"
                 >
                     <UInput
                         id="name"
+                        v-model="registerForm.name"
                         name="name"
                         type="text"
                         placeholder="Full name"
@@ -46,10 +63,11 @@ import AuthLayout from '@/layouts/auth.vue'
                     name="email"
                     label="Email address"
                     required
-                    :error="errors.email"
+                    :error="registerForm.errors?.email"
                 >
                     <UInput
                         id="email"
+                        v-model="registerForm.email"
                         name="email"
                         type="email"
                         placeholder="email@example.com"
@@ -58,48 +76,78 @@ import AuthLayout from '@/layouts/auth.vue'
                     />
                 </UFormField>
 
-                <!-- TODO: https://ui.nuxt.com/docs/components/input#with-password-toggle -->
+                <!-- Optionally add a strength indicator: https://ui.nuxt.com/docs/components/input#with-password-strength-indicator -->
                 <UFormField
                     name="password"
                     label="Password"
                     required
-                    :error="errors.password"
+                    :error="registerForm.errors?.password"
                 >
                     <UInput
                         id="password"
+                        v-model="registerForm.password"
                         name="password"
-                        type="password"
+                        :type="showPassword ? 'text' : 'password'"
                         placeholder="Password"
                         autocomplete="new-password"
+                        :ui="{ trailing: 'pe-1' }"
                         class="w-full"
-                    />
+                    >
+                        <template #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                :aria-pressed="showPassword"
+                                aria-controls="password"
+                                @click="showPassword = !showPassword"
+                            />
+                        </template>
+                    </UInput>
                 </UFormField>
 
                 <UFormField
                     name="password_confirmation"
                     label="Confirm password"
                     required
-                    :error="errors.password_confirmation"
+                    :error="registerForm.errors?.password_confirmation"
                 >
                     <UInput
                         id="password_confirmation"
+                        v-model="registerForm.password_confirmation"
                         name="password_confirmation"
-                        type="password"
+                        :type="showPasswordConfirmation ? 'text' : 'password'"
                         placeholder="Confirm password"
                         autocomplete="new-password"
+                        :ui="{ trailing: 'pe-1' }"
                         class="w-full"
-                    />
+                    >
+                        <template #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                :icon="showPasswordConfirmation ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                :aria-label="showPasswordConfirmation ? 'Hide password' : 'Show password'"
+                                :aria-pressed="showPasswordConfirmation"
+                                aria-controls="password_confirmation"
+                                @click="showPasswordConfirmation = !showPasswordConfirmation"
+                            />
+                        </template>
+                    </UInput>
                 </UFormField>
 
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="registerForm.processing"
+                    :disabled="registerForm.processing"
                 >
                     Create account
                 </UButton>
-            </Form>
+            </form>
 
             <p class="text-toned text-center text-sm">
                 Already registered?

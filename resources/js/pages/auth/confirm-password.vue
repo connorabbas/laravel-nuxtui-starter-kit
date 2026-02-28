@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import { Form, Head as IHead } from '@inertiajs/vue3'
+import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/auth.vue'
+
+const showPassword = ref(false)
+
+const confirmPasswordForm = useForm({
+    password: '',
+})
+
+const submit = (): void => {
+    confirmPasswordForm.post(route('password.confirm.store'), {
+        onSuccess: () => {
+            confirmPasswordForm.reset()
+        },
+    })
+}
 </script>
 
 <template>
@@ -18,39 +33,51 @@ import AuthLayout from '@/layouts/auth.vue'
                 </p>
             </div>
 
-            <Form
-                v-slot="{ errors, processing }"
-                :action="route('password.confirm.store')"
-                method="post"
-                reset-on-success
+            <form
                 class="space-y-5"
+                @submit.prevent="submit"
             >
                 <UFormField
                     name="password"
                     label="Password"
                     required
-                    :error="errors.password"
+                    :error="confirmPasswordForm.errors?.password"
                 >
                     <UInput
                         id="password"
+                        v-model="confirmPasswordForm.password"
                         name="password"
-                        type="password"
+                        :type="showPassword ? 'text' : 'password'"
                         placeholder="Password"
                         autocomplete="current-password"
                         autofocus
+                        :ui="{ trailing: 'pe-1' }"
                         class="w-full"
-                    />
+                    >
+                        <template #trailing>
+                            <UButton
+                                color="neutral"
+                                variant="link"
+                                size="sm"
+                                :icon="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+                                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                                :aria-pressed="showPassword"
+                                aria-controls="password"
+                                @click="showPassword = !showPassword"
+                            />
+                        </template>
+                    </UInput>
                 </UFormField>
 
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="confirmPasswordForm.processing"
+                    :disabled="confirmPasswordForm.processing"
                 >
                     Confirm password
                 </UButton>
-            </Form>
+            </form>
         </div>
     </AuthLayout>
 </template>

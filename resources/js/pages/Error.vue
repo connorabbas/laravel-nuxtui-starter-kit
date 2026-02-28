@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, Link as ILink } from '@inertiajs/vue3'
+import { Head as IHead, Link } from '@inertiajs/vue3'
 
 const props = defineProps<{
     title: string
@@ -21,11 +21,11 @@ const props = defineProps<{
         }"
     >
         <template #links>
-            <ILink :href="props.homepageRoute">
+            <Link :href="props.homepageRoute">
                 <UButton size="lg">
                     Back to home
                 </UButton>
-            </ILink>
+            </Link>
         </template>
     </UError>
 </template>

@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { Form, Head as IHead } from '@inertiajs/vue3'
+import { Head as IHead, useForm } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/auth.vue'
 
 const props = defineProps<{
     status?: string
 }>()
+
+const resendVerificationForm = useForm({})
+const logoutForm = useForm({})
+
+const resendVerificationEmail = (): void => {
+    resendVerificationForm.post(route('verification.send'))
+}
+
+const submitLogout = (): void => {
+    logoutForm.post(route('logout'))
+}
 </script>
 
 <template>
@@ -29,37 +40,29 @@ const props = defineProps<{
                 description="A new verification link has been sent to your email address."
             />
 
-            <Form
-                v-slot="{ processing }"
-                :action="route('verification.send')"
-                method="post"
-            >
+            <form @submit.prevent="resendVerificationEmail">
                 <UButton
                     type="submit"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="resendVerificationForm.processing"
+                    :disabled="resendVerificationForm.processing"
                 >
                     Resend verification email
                 </UButton>
-            </Form>
+            </form>
 
-            <Form
-                v-slot="{ processing }"
-                :action="route('logout')"
-                method="post"
-            >
+            <form @submit.prevent="submitLogout">
                 <UButton
                     type="submit"
                     color="neutral"
                     variant="soft"
                     block
-                    :loading="processing"
-                    :disabled="processing"
+                    :loading="logoutForm.processing"
+                    :disabled="logoutForm.processing"
                 >
                     Log out
                 </UButton>
-            </Form>
+            </form>
         </div>
     </AuthLayout>
 </template>
