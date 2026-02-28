@@ -1,144 +1,163 @@
 # AGENTS.md
 
-Guide for coding agents working in this repository.
+Practical guide for coding agents operating in this repository.
 
 ## Project Snapshot
 
-- Backend: Laravel 12, PHP 8.4, Fortify, Inertia server adapter.
-- Frontend: Vue 3 + TypeScript + Inertia client + Nuxt UI.
-- Build tooling: Vite.
-- Quality tooling: ESLint 9, Pint.
-- Testing: Pest 3 on PHPUnit 11.
-- Package manager usage: `npm`.
+- Stack: Laravel 12 (PHP 8.4) + Inertia v2 + Vue 3 + TypeScript + Nuxt UI v4.
+- Auth: Laravel Fortify.
+- Bundler: Vite.
+- Package manager: `npm` (not `yarn`/`pnpm`).
+- Quality tools: ESLint 9, Laravel Pint, Pest 3 (PHPUnit 11 runtime).
+- Test database defaults to in-memory SQLite in `phpunit.xml`.
 
 ## Setup Commands
 
-- Install backend deps: `composer install`.
-- Install frontend deps: `npm install`.
-- Bootstrap env: `cp .env.example .env`.
-- Generate app key: `php artisan key:generate`.
-- Run migrations: `php artisan migrate`.
-- Use `npm` for all frontend package and script commands.
+- Install PHP dependencies: `composer install`
+- Install frontend dependencies: `npm install`
+- Create env file: `cp .env.example .env`
+- Generate app key: `php artisan key:generate`
+- Run migrations: `php artisan migrate`
 
-## Build / Dev Commands
+## Build and Dev Commands
 
-- Full local workflow (server, queue, logs, vite): `composer run dev`.
-- Frontend dev server only: `npm run dev`.
-- Production build: `npm run build`.
-- SSR build: `npm run build:ssr`.
+- Full local workflow (server, queue, logs, vite): `composer run dev`
+- Full local workflow with SSR server: `composer run dev:ssr`
+- Frontend dev server only: `npm run dev`
+- Production assets build: `npm run build`
+- SSR assets build: `npm run build:ssr`
 
-## Lint / Typecheck Commands
+## Lint, Format, and Typecheck Commands
 
-- Frontend lint: `npm run lint`.
-- Type-check Vue/TS: `npm run typecheck`.
-- PHP format all: `vendor/bin/pint`.
-- PHP format changed files: `vendor/bin/pint --dirty`.
+- Frontend lint + auto-fix: `npm run lint`
+- Frontend type-check: `npm run typecheck`
+- Format PHP (changed files): `vendor/bin/pint --dirty`
+- Format PHP (all files): `vendor/bin/pint`
 
-## Test Commands
+## Test Commands (Pest)
 
-- Run full suite: `php artisan test`.
-- Alternate full suite: `composer test`.
-- Run a single test file (important): `php artisan test tests/Feature/Auth/AuthenticationTest.php`.
-- Run a single test by filter (important): `php artisan test --filter="users can authenticate using the login screen"`.
-- Run one Pest case in one file: `php artisan test tests/Feature/Settings/ProfileUpdateTest.php --filter="profile information can be updated"`.
+- Full test suite: `php artisan test`
+- Full suite via Composer script: `composer test`
+- Compact output: `php artisan test --compact`
+- Single test file (important):
+  `php artisan test --compact tests/Feature/Auth/AuthenticationTest.php`
+- Single test by name/filter (important):
+  `php artisan test --compact --filter="users can authenticate using the login screen"`
+- Single Pest case scoped to one file:
+  `php artisan test --compact tests/Feature/Settings/ProfileUpdateTest.php --filter="profile information can be updated"`
 
-## CI Parity
+## Recommended Verification Order
 
-- CI/local parity target: `vendor/bin/pint`, `npm run lint`, `npm run typecheck`.
-- Feature changes should still run relevant tests locally, even though tests are not in current CI workflow.
+1. Run the most relevant single test(s) first.
+2. Run `vendor/bin/pint --dirty` for touched PHP files.
+3. Run `npm run lint` for touched frontend files.
+4. Run `npm run typecheck` if TypeScript/Vue files changed.
+5. Expand to broader test/build commands only as needed.
 
-## Code Style Guidelines
+## Architecture and File Layout
 
-### General Conventions
+- Follow existing Laravel 12 structure (`bootstrap/app.php` middleware config).
+- Keep Inertia pages in `resources/js/pages`.
+- Keep layouts in `resources/js/layouts`.
+- Keep shared TS types in `resources/js/types`.
+- Reuse existing components/actions before introducing new abstractions.
+- Avoid creating new top-level directories without strong justification.
 
-- Follow existing structure and nearby file conventions first.
-- Prefer minimal, targeted edits over broad refactors.
-- Reuse existing components/actions/helpers when possible.
-- Keep naming explicit and domain-oriented.
-- Avoid introducing new base folders unless truly necessary.
+## PHP and Laravel Style Rules
 
-### PHP / Laravel
-
-- Use explicit parameter and return types.
-- Use braces for all control structures.
-- Keep validation rules in array syntax (existing pattern in Fortify actions).
+- Use explicit parameter and return types on methods/functions.
+- Always use braces for control structures.
+- Prefer Form Request classes for non-trivial validation.
 - Prefer Eloquent relationships/query builder over raw `DB::` usage.
-- Use Form Request classes for non-trivial new endpoint validation.
+- Keep mass assignment explicit on models (`$fillable`).
+- Follow existing model cast pattern (`casts(): array` where used).
 - Use constructor property promotion when constructors are needed.
 - Do not add empty constructors.
-- Keep model mass assignment explicit (`$fillable`).
-- Prefer model `casts()` method style where appropriate.
-- Use `__()` for user-facing validation/auth messages.
-- For user/account logic, follow existing Fortify action patterns.
+- For user-facing messages/errors, use translation helpers like `__()`.
+- Prefer named routes and `route()` URL generation.
 
-### PHP Imports and Organization
+## PHP Imports and Organization
 
-- Keep `use` imports clean and consistently ordered.
-- Remove unused imports.
-- Import symbols instead of repeatedly writing fully-qualified names.
-- Keep classes focused; avoid very large multipurpose methods.
+- Keep `use` imports clean and consistent.
+- Remove unused imports (Pint enforces this).
+- Prefer importing symbols over repeated fully-qualified class names.
+- Keep classes focused; avoid very large, mixed-responsibility methods.
 
-### Testing (Pest)
+## Testing Conventions (Pest)
 
-- Write new tests with Pest (`test(...)` or `it(...)`).
-- Place HTTP/flow tests in `tests/Feature`.
-- Place isolated logic tests in `tests/Unit`.
-- Use `uses(RefreshDatabase::class)` when DB isolation is required.
-- Prefer expressive assertions (`assertOk`, `assertRedirect`, etc.) when available.
-- Use factories for model creation in tests.
-- Name tests as readable behavior statements.
-- Cover happy path and relevant failure path for changed behavior.
+- Write tests with Pest (`test(...)`/`it(...)`).
+- Feature/integration flows belong in `tests/Feature`.
+- Isolated logic belongs in `tests/Unit`.
+- Use factories for model creation.
+- Use `RefreshDatabase` when persistence isolation is required.
+- Prefer expressive assertions (`assertOk`, `assertRedirect`, etc.).
+- Cover happy paths and relevant failure paths for behavior changes.
 
-### Vue / TypeScript
+## Vue, Inertia, and TypeScript Rules
 
-- Use `<script setup lang="ts">` in SFCs.
-- Keep one root element in templates.
-- Use `@/` alias imports for app-local modules.
-- Keep pages in `resources/js/pages` and layouts in `resources/js/layouts`.
-- Keep shared types in `resources/js/types`.
-- Prefer explicit interfaces/types over implicit shapes.
+- Use `<script setup lang="ts">` in Vue SFCs.
+- Keep a single root element in templates.
+- Use `@/` alias for app-local imports.
+- Use Inertia primitives (`Link`, `useForm`, router events/visits) for SPA navigation/forms.
+- Keep Ziggy usage compatible with app bootstrap in `resources/js/app.ts` and `resources/js/ssr.ts`.
+- Prefer explicit interfaces/types for prop and payload shapes.
 - Avoid introducing new `any` unless unavoidable.
-- Keep reactivity state clear (`ref`, `reactive`, `computed`) and named by intent.
+- Keep reactive state clear and intent-revealing (`ref`, `reactive`, `computed`).
 
-### Imports and Formatting
+## Frontend Imports and Formatting
 
-- Let ESLint and the TypeScript tooling manage import sorting and linting.
+- ESLint is the source of truth for frontend style.
+- Current enforced style includes:
+  - 4-space indentation
+  - no semicolons
+  - Unix line endings
 - Use `import type` for type-only imports.
-- ESLint enforces 4-space indentation and Unix line endings.
-- `.editorconfig` also uses 4 spaces generally and 2 spaces for YAML.
-- Use 4-space indentation in all non-YAML files; only `*.yml` / `*.yaml` use 2 spaces.
-- Use `npm run lint` for frontend auto-fixes and `vendor/bin/pint` for PHP formatting.
-- Keep files UTF-8 with final newline.
+- Let linting manage stylistic import cleanup.
 
-### Naming Conventions
+## Global Formatting Rules
 
-- PHP classes, TS interfaces/types/components: `PascalCase`.
-- PHP methods/properties/variables: `camelCase`.
-- Vue page/layout filenames in this repo are lowercase (`index.vue`, `default.vue`); match local directory patterns.
-- Route and test names should be descriptive and behavior-focused.
+- `.editorconfig` defaults:
+  - UTF-8
+  - LF line endings
+  - 4 spaces for most files
+  - 2 spaces for `*.yml`/`*.yaml`
+  - final newline required
+- Pint rules include:
+  - no unused imports
+  - one import per statement
+  - no trailing comma in multiline arrays/calls
 
-### Error Handling
+## Naming Conventions
 
-- Validate early and use Laravel-native validation/auth flows.
-- Do not silently swallow unexpected exceptions.
-- Keep fallback behavior explicit if exceptions are caught.
-- In frontend forms, model submitting/loading state clearly.
-- Return/display safe, user-friendly error messages.
-- Do not expose internal stack details to end users.
+- PHP classes: `PascalCase`
+- PHP methods/properties/variables: `camelCase`
+- TS interfaces/types/components: `PascalCase`
+- Vue page/layout filenames in this repo are lowercase (for example `index.vue`, `default.vue`).
+- Route and test names should be descriptive and behavior-oriented.
 
-### Inertia-Specific Rules
+## Error Handling Expectations
 
-- Render pages via `Inertia::render()`.
-- Use Inertia navigation primitives (`Link`/router visit) for internal routes.
-- Keep Ziggy usage compatible with existing global TS typings and SSR setup.
-- Keep SSR-related route handling consistent with `resources/js/ssr.ts` patterns.
+- Validate early; use Laravel-native validation/auth flows.
+- Do not swallow unexpected exceptions silently.
+- Keep fallback behavior explicit when catching exceptions.
+- Return/display user-safe error messages.
+- Do not expose stack traces or internal details to end users.
+- In frontend forms, model submission/loading/error states clearly.
+
+## Agent Behavior Guidelines
+
+- Make minimal, targeted changes that match nearby conventions.
+- Prefer updating existing files/components over broad refactors.
+- Do not change dependencies or major architecture without explicit request.
+- Run the smallest relevant verification commands before finishing.
+- If frontend changes are not visible, run `npm run build` or ask to run `npm run dev` / `composer run dev`.
 
 ## Cursor / Copilot Rules
 
 - `.cursorrules`: not found.
 - `.cursor/rules/`: not found.
 - `.github/copilot-instructions.md`: not found.
-- If any are added later, merge them into this file and treat them as high-priority local instructions.
+- If any are added later, merge their instructions into this file and treat them as high priority.
 
 ## Recommended Verification Order
 
@@ -296,7 +315,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 # Inertia
 
 - Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
+- Components live in `resources/js/pages` (unless specified in `vite.config.ts`). Use `Inertia::render()` for server-side routing instead of Blade views.
 - ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
