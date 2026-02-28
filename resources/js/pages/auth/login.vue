@@ -23,6 +23,11 @@ function submit(): void {
         onSuccess: () => {
             loginForm.reset('password')
         },
+        onError: (errors) => {
+            if (errors.password) {
+                loginForm.reset('password')
+            }
+        },
     })
 }
 </script>

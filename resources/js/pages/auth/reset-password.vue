@@ -24,6 +24,11 @@ function submit(): void {
         onSuccess: () => {
             resetPasswordForm.reset('password', 'password_confirmation')
         },
+        onError: (errors) => {
+            if (errors.password || errors.password_confirmation) {
+                resetPasswordForm.reset('password', 'password_confirmation')
+            }
+        },
     })
 }
 </script>

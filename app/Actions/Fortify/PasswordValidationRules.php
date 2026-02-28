@@ -13,6 +13,6 @@ trait PasswordValidationRules
      */
     protected function passwordRules(): array
     {
-        return ['required', 'string', Password::default(), 'confirmed']; // todo min length, or use: https://github.com/connorabbas/laravel-primevue-starter-kit/blob/master/app/Providers/AppServiceProvider.php#L41
+        return ['required', 'string', Password::default(), 'confirmed'];
     }
 }

@@ -5,7 +5,6 @@ import FlashMessages from '@/components/FlashMessages.vue'
 <template>
     <UApp>
         <div class="flex h-screen items-center justify-center px-4">
-            <!-- TODO: router redirect to previous page -->
             <UButton
                 icon="i-lucide-chevron-left"
                 to="/"

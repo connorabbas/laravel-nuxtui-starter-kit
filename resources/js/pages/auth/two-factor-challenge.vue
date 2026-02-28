@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 import AuthLayout from '@/layouts/auth.vue'
 
 const usingRecoveryCode = ref(false)
+const authenticationCode = ref<number[]>([])
 
 const challengeForm = useForm({
     code: '',
@@ -19,9 +20,16 @@ const description = computed(() => {
     return usingRecoveryCode.value ? 'Enter one of your recovery codes to continue.' : 'Enter the code from your authenticator application.'
 })
 
+const authenticationCodeIsComplete = computed(() => authenticationCode.value.join('').length === 6)
+
 function submit(): void {
+    if (!usingRecoveryCode.value) {
+        challengeForm.code = authenticationCode.value.map((digit) => String(digit)).join('')
+    }
+
     challengeForm.post(route('two-factor.login.store'), {
         onError: () => {
+            authenticationCode.value = []
             challengeForm.reset('code', 'recovery_code')
         },
     })
@@ -29,6 +37,8 @@ function submit(): void {
 
 function toggleChallengeType(): void {
     usingRecoveryCode.value = !usingRecoveryCode.value
+    authenticationCode.value = []
+    challengeForm.reset('code', 'recovery_code')
     challengeForm.clearErrors()
 }
 </script>
@@ -54,21 +64,25 @@ function toggleChallengeType(): void {
                 <UFormField
                     v-if="!usingRecoveryCode"
                     name="code"
-                    label="Authentication code"
                     required
-                    :error="challengeForm.errors?.code"
+                    :error="challengeForm.errors.code"
                 >
-                    <UInput
-                        id="code"
-                        v-model="challengeForm.code"
-                        name="code"
-                        type="text"
-                        inputmode="numeric"
-                        autocomplete="one-time-code"
-                        placeholder="123456"
-                        autofocus
-                        class="w-full"
-                    />
+                    <div class="flex justify-center">
+                        <UPinInput
+                            id="code"
+                            v-model="authenticationCode"
+                            :ui="{ root: 'w-auto justify-center' }"
+                            :disabled="challengeForm.processing"
+                            :highlight="Boolean(challengeForm.errors.code)"
+                            :color="challengeForm.errors.code ? 'error' : 'primary'"
+                            :length="6"
+                            size="xl"
+                            type="number"
+                            autofocus
+                            otp
+                            required
+                        />
+                    </div>
                 </UFormField>
 
                 <UFormField
@@ -76,7 +90,7 @@ function toggleChallengeType(): void {
                     name="recovery_code"
                     label="Recovery code"
                     required
-                    :error="challengeForm.errors?.recovery_code"
+                    :error="challengeForm.errors.recovery_code"
                 >
                     <UInput
                         id="recovery_code"
@@ -94,7 +108,7 @@ function toggleChallengeType(): void {
                     type="submit"
                     block
                     :loading="challengeForm.processing"
-                    :disabled="challengeForm.processing"
+                    :disabled="challengeForm.processing || (!usingRecoveryCode && !authenticationCodeIsComplete)"
                 >
                     Continue
                 </UButton>

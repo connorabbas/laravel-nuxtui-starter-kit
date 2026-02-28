@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head as IHead, useForm, usePage } from '@inertiajs/vue3'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import SettingsLayout from '@/layouts/settings.vue'
 
@@ -10,11 +10,12 @@ const props = defineProps<{
 }>()
 
 const page = usePage()
+const toast = useToast()
 const user = computed(() => page.props.auth.user)
 const deleteModalOpen = ref(false)
 const showDeletePassword = ref(false)
+const deletePasswordInput = useTemplateRef('deletePasswordInput')
 
-// TODO: success toast on save
 const profileUpdateForm = useForm({
     name: user.value?.name ?? '',
     email: user.value?.email ?? '',
@@ -30,6 +31,12 @@ function updateProfile(): void {
     profileUpdateForm.patch(route('profile.update'), {
         onSuccess: () => {
             profileUpdateForm.defaults()
+            toast.add({
+                color: 'success',
+                title: 'Success',
+                description: 'Profile information has been saved.',
+                icon: 'i-lucide-circle-check'
+            })
         },
     })
 }
@@ -45,10 +52,22 @@ function deleteAccount(): void {
             deleteModalOpen.value = false
             showDeletePassword.value = false
         },
+        onError: async (errors) => {
+            if (errors.password) {
+                deleteAccountForm.reset('password')
+                await nextTick()
+                deletePasswordInput.value?.inputRef?.focus()
+            }
+        },
     })
 }
 
-watch(deleteModalOpen, (open) => {
+watch(deleteModalOpen, async (open) => {
+    if (open) {
+        await nextTick()
+        deletePasswordInput.value?.inputRef?.focus()
+    }
+
     if (!open) {
         deleteAccountForm.reset()
         deleteAccountForm.clearErrors()
@@ -189,6 +208,7 @@ watch(deleteModalOpen, (open) => {
                             >
                                 <UInput
                                     id="delete_password"
+                                    ref="deletePasswordInput"
                                     v-model="deleteAccountForm.password"
                                     name="password"
                                     :type="showDeletePassword ? 'text' : 'password'"

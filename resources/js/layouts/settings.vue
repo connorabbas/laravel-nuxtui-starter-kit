@@ -28,7 +28,7 @@ const items = computed<NavigationMenuItem[]>(() => [
         active: currentRoute.value === 'settings.password.edit'
     },
     {
-        label: 'Two-Factor',
+        label: 'Two-Factor Auth',
         icon: 'i-lucide-shield-check',
         to: route('two-factor.show'),
         active: currentRoute.value === 'two-factor.show'

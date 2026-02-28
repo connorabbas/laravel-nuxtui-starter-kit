@@ -19,6 +19,11 @@ function submit(): void {
         onSuccess: () => {
             registerForm.reset('password', 'password_confirmation')
         },
+        onError: (errors) => {
+            if (errors.password || errors.password_confirmation) {
+                registerForm.reset('password', 'password_confirmation')
+            }
+        },
     })
 }
 </script>

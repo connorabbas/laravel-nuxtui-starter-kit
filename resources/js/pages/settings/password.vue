@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Head as IHead, useForm } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { nextTick, ref, useTemplateRef } from 'vue'
 
 import SettingsLayout from '@/layouts/settings.vue'
 
 const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
 const showPasswordConfirmation = ref(false)
+
+const currentPasswordInput = useTemplateRef('currentPasswordInput')
+const newPasswordInput = useTemplateRef('newPasswordInput')
+const passwordConfirmationInput = useTemplateRef('passwordConfirmationInput')
+
+const toast = useToast()
 
 const updatePasswordForm = useForm({
     current_password: '',
@@ -19,9 +25,24 @@ function submit(): void {
         errorBag: 'updatePassword',
         onSuccess: () => {
             updatePasswordForm.reset('current_password', 'password', 'password_confirmation')
+            toast.add({
+                color: 'success',
+                title: 'Success',
+                description: 'Your password has been updated.',
+                icon: 'i-lucide-circle-check'
+            })
         },
-        onError: () => {
-            updatePasswordForm.reset('current_password', 'password', 'password_confirmation')
+        onError: async () => {
+            if (updatePasswordForm.errors.password) {
+                updatePasswordForm.reset('password', 'password_confirmation')
+                await nextTick()
+                newPasswordInput.value?.inputRef?.focus()
+            }
+            if (updatePasswordForm.errors.current_password) {
+                updatePasswordForm.reset('current_password')
+                await nextTick()
+                currentPasswordInput.value?.inputRef?.focus()
+            }
         },
     })
 }
@@ -54,6 +75,7 @@ function submit(): void {
                 >
                     <UInput
                         id="current_password"
+                        ref="currentPasswordInput"
                         v-model="updatePasswordForm.current_password"
                         name="current_password"
                         :type="showCurrentPassword ? 'text' : 'password'"
@@ -84,6 +106,7 @@ function submit(): void {
                 >
                     <UInput
                         id="password"
+                        ref="newPasswordInput"
                         v-model="updatePasswordForm.password"
                         name="password"
                         :type="showNewPassword ? 'text' : 'password'"
@@ -114,6 +137,7 @@ function submit(): void {
                 >
                     <UInput
                         id="password_confirmation"
+                        ref="passwordConfirmationInput"
                         v-model="updatePasswordForm.password_confirmation"
                         name="password_confirmation"
                         :type="showPasswordConfirmation ? 'text' : 'password'"

@@ -14,9 +14,11 @@ const props = defineProps<{
     recoveryCodes: string[]
 }>()
 
+const toast = useToast()
+
 const setupModalOpen = ref(false)
 const confirmationCode = ref<number[]>([])
-const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true }) // TODO: success toast on copy
+const { copy, copied, isSupported: clipboardSupported } = useClipboard({ legacy: true })
 const enableTwoFactorForm = useForm({})
 const disableTwoFactorForm = useForm({})
 const regenerateRecoveryCodesForm = useForm({})
@@ -67,6 +69,12 @@ function submitConfirmationCode(): void {
         errorBag: 'confirmTwoFactorAuthentication',
         onSuccess: () => {
             confirmationCode.value = []
+            toast.add({
+                color: 'success',
+                title: 'Success',
+                description: 'Two-factor authentication has been setup for your account.',
+                icon: 'i-lucide-circle-check'
+            })
         },
     })
 }
@@ -89,7 +97,13 @@ async function copySetupKey(): Promise<void> {
         return
     }
 
-    await copy(props.setupKey)
+    await copy(props.setupKey).then(() => {
+        toast.add({
+            color: 'success',
+            title: 'Setup code copied to clipboard',
+            icon: 'i-lucide-circle-check'
+        })
+    })
 }
 
 function enableTwoFactor(): void {
@@ -188,7 +202,7 @@ function regenerateRecoveryCodes(): void {
             v-if="props.isConfirming"
             v-model:open="setupModalOpen"
             title="Enable Two-Factor Authentication"
-            description="To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app"
+            description="To finish enabling two-factor authentication, scan the QR code or enter the setup code in your authenticator app"
         >
             <template #body>
                 <div class="flex flex-col items-center space-y-5 text-center">
