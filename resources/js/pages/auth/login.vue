@@ -18,7 +18,7 @@ const loginForm = useForm({
     remember: false,
 })
 
-const submit = (): void => {
+function submit(): void {
     loginForm.post(route('login.store'), {
         onSuccess: () => {
             loginForm.reset('password')

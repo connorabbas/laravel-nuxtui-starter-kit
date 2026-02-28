@@ -11,7 +11,7 @@ const forgotPasswordForm = useForm({
     email: '',
 })
 
-const submit = (): void => {
+function submit(): void {
     forgotPasswordForm.post(route('password.email'))
 }
 </script>

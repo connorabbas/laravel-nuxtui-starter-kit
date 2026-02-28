@@ -14,7 +14,7 @@ const updatePasswordForm = useForm({
     password_confirmation: '',
 })
 
-const submit = (): void => {
+function submit(): void {
     updatePasswordForm.put(route('settings.password.update'), {
         errorBag: 'updatePassword',
         onSuccess: () => {

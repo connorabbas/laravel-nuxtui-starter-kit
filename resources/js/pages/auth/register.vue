@@ -14,7 +14,7 @@ const registerForm = useForm({
     password_confirmation: '',
 })
 
-const submit = (): void => {
+function submit(): void {
     registerForm.post(route('register.store'), {
         onSuccess: () => {
             registerForm.reset('password', 'password_confirmation')

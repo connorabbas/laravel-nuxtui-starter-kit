@@ -26,7 +26,7 @@ const deleteAccountForm = useForm({
     password: '',
 })
 
-const updateProfile = (): void => {
+function updateProfile(): void {
     profileUpdateForm.patch(route('profile.update'), {
         onSuccess: () => {
             profileUpdateForm.defaults()
@@ -34,11 +34,11 @@ const updateProfile = (): void => {
     })
 }
 
-const resendVerificationEmail = (): void => {
+function resendVerificationEmail(): void {
     resendVerificationForm.post(route('verification.send'))
 }
 
-const deleteAccount = (): void => {
+function deleteAccount(): void {
     deleteAccountForm.delete(route('profile.destroy'), {
         onSuccess: () => {
             deleteAccountForm.reset()

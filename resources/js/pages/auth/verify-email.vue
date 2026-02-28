@@ -10,11 +10,11 @@ const props = defineProps<{
 const resendVerificationForm = useForm({})
 const logoutForm = useForm({})
 
-const resendVerificationEmail = (): void => {
+function resendVerificationEmail(): void {
     resendVerificationForm.post(route('verification.send'))
 }
 
-const submitLogout = (): void => {
+function submitLogout(): void {
     logoutForm.post(route('logout'))
 }
 </script>

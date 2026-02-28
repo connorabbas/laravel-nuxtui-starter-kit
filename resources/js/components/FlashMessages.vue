@@ -70,7 +70,7 @@ const visibleAlerts = computed<FlashAlertItem[]>(() => {
     }, [])
 })
 
-const handleAlertOpenChange = (key: FlashColor, isOpen: boolean): void => {
+function handleAlertOpenChange(key: FlashColor, isOpen: boolean): void {
     if (!isOpen) {
         dismissed[key] = true
     }

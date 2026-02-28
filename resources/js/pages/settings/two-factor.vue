@@ -59,7 +59,7 @@ const statusAlertDescription = computed<string | null>(() => {
     return null
 })
 
-const submitConfirmationCode = (): void => {
+function submitConfirmationCode(): void {
     confirmForm.code = confirmationCode.value.map((digit) => String(digit)).join('')
 
     confirmForm.post(route('two-factor.confirm'), {
@@ -71,7 +71,7 @@ const submitConfirmationCode = (): void => {
     })
 }
 
-const resetConfirmState = (): void => {
+function resetConfirmState(): void {
     confirmationCode.value = []
     confirmForm.cancel()
     confirmForm.reset('code')
@@ -84,7 +84,7 @@ watch(setupModalOpen, (open) => {
     }
 })
 
-const copySetupKey = async (): Promise<void> => {
+async function copySetupKey(): Promise<void> {
     if (!props.setupKey) {
         return
     }
@@ -92,7 +92,7 @@ const copySetupKey = async (): Promise<void> => {
     await copy(props.setupKey)
 }
 
-const enableTwoFactor = (): void => {
+function enableTwoFactor(): void {
     enableTwoFactorForm.post(route('two-factor.enable'), {
         onSuccess: () => {
             setupModalOpen.value = true
@@ -100,11 +100,11 @@ const enableTwoFactor = (): void => {
     })
 }
 
-const disableTwoFactor = (): void => {
+function disableTwoFactor(): void {
     disableTwoFactorForm.delete(route('two-factor.disable'))
 }
 
-const regenerateRecoveryCodes = (): void => {
+function regenerateRecoveryCodes(): void {
     regenerateRecoveryCodesForm.post(route('two-factor.regenerate-recovery-codes'))
 }
 </script>

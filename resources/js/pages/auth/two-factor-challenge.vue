@@ -19,7 +19,7 @@ const description = computed(() => {
     return usingRecoveryCode.value ? 'Enter one of your recovery codes to continue.' : 'Enter the code from your authenticator application.'
 })
 
-const submit = (): void => {
+function submit(): void {
     challengeForm.post(route('two-factor.login.store'), {
         onError: () => {
             challengeForm.reset('code', 'recovery_code')
@@ -27,7 +27,7 @@ const submit = (): void => {
     })
 }
 
-const toggleChallengeType = (): void => {
+function toggleChallengeType(): void {
     usingRecoveryCode.value = !usingRecoveryCode.value
     challengeForm.clearErrors()
 }

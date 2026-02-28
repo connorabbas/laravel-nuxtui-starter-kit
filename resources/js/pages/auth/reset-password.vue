@@ -19,7 +19,7 @@ const resetPasswordForm = useForm({
     password_confirmation: '',
 })
 
-const submit = (): void => {
+function submit(): void {
     resetPasswordForm.post(route('password.update'), {
         onSuccess: () => {
             resetPasswordForm.reset('password', 'password_confirmation')

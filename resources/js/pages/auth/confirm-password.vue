@@ -10,7 +10,7 @@ const confirmPasswordForm = useForm({
     password: '',
 })
 
-const submit = (): void => {
+function submit(): void {
     confirmPasswordForm.post(route('password.confirm.store'), {
         onSuccess: () => {
             confirmPasswordForm.reset()
