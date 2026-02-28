@@ -1,6 +1,22 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import FlashMessages from '@/components/FlashMessages.vue'
+import NavigationMenuItem from '@nuxt/ui'
+
+const navMenuItems: NavigationMenuItem[] = [
+    {
+        label: 'Laravel Docs',
+        icon: 'i-lucide-book-open',
+        to: 'https://laravel.com/docs/12.x',
+        target: '_blank'
+    },
+    {
+        label: 'Nuxt UI Docs',
+        icon: 'i-lucide-book-open',
+        to: 'https://ui.nuxt.com/',
+        target: '_blank'
+    }
+]
 </script>
 
 <template>
@@ -13,9 +29,8 @@ import FlashMessages from '@/components/FlashMessages.vue'
             </template>
 
             <UNavigationMenu
-                :items="[]"
-                orientation="vertical"
-                class="-mx-2.5"
+                :items="navMenuItems"
+                variant="link"
             />
 
             <template #right>
@@ -52,6 +67,14 @@ import FlashMessages from '@/components/FlashMessages.vue'
                     aria-label="GitHub"
                     color="neutral"
                     variant="ghost"
+                />
+            </template>
+
+            <template #body>
+                <UNavigationMenu
+                    :items="navMenuItems"
+                    orientation="vertical"
+                    class="-mx-2.5"
                 />
             </template>
         </UHeader>

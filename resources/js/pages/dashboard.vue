@@ -15,7 +15,7 @@ import { Head as IHead } from '@inertiajs/vue3'
 
             <UPageBody>
                 <UPageCard
-                    title="Welcome to the Laravel + NuxtUI Starter Kit"
+                    title="Welcome to the Laravel + Nuxt UI Starter Kit"
                     description="You are logged in!"
                 />
             </UPageBody>

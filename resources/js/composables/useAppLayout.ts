@@ -17,38 +17,6 @@ export function useAppLayout() {
 
     const subPageNavItems = computed<NavigationMenuItem[] | undefined>(() => {
         return undefined
-        return [
-            {
-                label: 'Overview',
-                icon: 'i-lucide-layout-grid',
-                to: route('dashboard'),
-                active: currentRoute.value === 'dashboard',
-            },
-            {
-                label: 'Profile',
-                icon: 'i-lucide-user-round',
-                to: route('profile.edit'),
-                active: currentRoute.value === 'profile.edit',
-            },
-            {
-                label: 'Password',
-                icon: 'i-lucide-key-round',
-                to: route('settings.password.edit'),
-                active: currentRoute.value === 'settings.password.edit',
-            },
-            {
-                label: 'Two-Factor',
-                icon: 'i-lucide-shield-check',
-                to: route('two-factor.show'),
-                active: currentRoute.value === 'two-factor.show',
-            },
-            {
-                label: 'Appearance',
-                icon: 'i-lucide-palette',
-                to: route('appearance.edit'),
-                active: currentRoute.value === 'appearance.edit',
-            },
-        ]
     })
 
     const appName = computed(() => page.props.name)
