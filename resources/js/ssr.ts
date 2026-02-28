@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3'
 import createServer from '@inertiajs/vue3/server'
+import ui from '@nuxt/ui/vue-plugin'
 import { createHead, renderSSRHead } from '@unhead/vue/server'
 import { renderToString } from '@vue/server-renderer'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
@@ -8,8 +9,6 @@ import { Config } from 'ziggy-js'
 import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-compat'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
-
-// TODO: SSR https://github.com/nuxt/ui/issues/5254 & https://github.com/nuxt/ui/pull/5396
 
 createServer((page) => {
     const head = createHead()
@@ -32,6 +31,7 @@ createServer((page) => {
 
             app.use(head)
             app.use(plugin)
+            app.use(ui)
 
             return app
         }

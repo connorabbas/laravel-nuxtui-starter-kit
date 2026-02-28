@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import FlashMessages from '@/components/FlashMessages.vue'
-import NavigationMenuItem from '@nuxt/ui'
+import type { NavigationMenuItem } from '@nuxt/ui'
 
 const navMenuItems: NavigationMenuItem[] = [
     {
