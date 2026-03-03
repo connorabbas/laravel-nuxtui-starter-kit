@@ -25,6 +25,16 @@ export function useAppLayout() {
         return [
             [
                 {
+                    label: 'Paginator',
+                    to: route('examples.paginator.users'),
+                    active: currentRoute.value === 'examples.paginator.users'
+                },
+                {
+                    label: 'Table',
+                    to: route('examples.table.users'),
+                    active: currentRoute.value === 'examples.table.users'
+                },
+                {
                     label: 'Home',
                     icon: 'i-lucide-house',
                     to: route('index'),

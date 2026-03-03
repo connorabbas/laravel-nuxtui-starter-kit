@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
+use App\Http\Controllers\Examples\UserDirectoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +15,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('/examples/paginator/users', [UserDirectoryController::class, 'paginator'])
+        ->name('examples.paginator.users');
+    Route::get('/examples/table/users', [UserDirectoryController::class, 'table'])
+        ->name('examples.table.users');
 
     Route::redirect('/settings', '/settings/profile')->name('settings');
 

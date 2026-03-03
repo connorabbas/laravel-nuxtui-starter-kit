@@ -7,6 +7,17 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    accounts_count?: number;
+    accounts_sum_balance?: number | string;
+    accounts_max_opened_at?: string | null;
+    accounts?: Array<{
+        id: number;
+        name: string;
+        provider: string | null;
+        status: string;
+        balance: number | string;
+        opened_at: string | null;
+    }>;
 }
 
 export interface AuthProps {

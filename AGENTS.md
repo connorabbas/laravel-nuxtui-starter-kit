@@ -76,6 +76,13 @@ Practical guide for coding agents operating in this repository.
 - For user-facing messages/errors, use translation helpers like `__()`.
 - Prefer named routes and `route()` URL generation.
 
+## Data Contracts
+
+- For structured data contracts in application code, use DTO/value object classes (prefer `spatie/laravel-data` `Data` objects).
+- Do not use associative arrays for internal structured payloads.
+- Flat/list arrays are allowed when type-hinted with generics (for example `array<int, FooData>`).
+- Associative arrays are allowed only at framework boundaries where required (for example `Inertia::render(...)` props, Form Request `rules()`, config files, validation message maps).
+
 ## PHP Imports and Organization
 
 - Keep `use` imports clean and consistent.
@@ -355,6 +362,8 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - Always create Form Request classes for validation rather than inline validation in controllers. Include both validation rules and custom error messages.
 - Check sibling Form Requests to see if the application uses array or string based validation rules.
+- Keep controllers as pure HTTP transport layers: no private helper methods, no business logic, and no configuration assembly.
+- Put business logic and transformation/configuration logic in services or DTO classes.
 
 ## Authentication & Authorization
 
