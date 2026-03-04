@@ -12,7 +12,7 @@ docker compose exec laravel php artisan down || true
 
 # Pull latest code
 echo ":: Fetching latest from Git"
-git pull origin master
+git pull origin main
 
 # Rebuild & restart container
 echo ":: Rebuilding app image & restarting"
