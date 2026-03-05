@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Http\Requests\AuthenticatedFormRequest;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Foundation\Http\FormRequest;
 
-class PasswordUpdateRequest extends FormRequest
+class PasswordUpdateRequest extends AuthenticatedFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
