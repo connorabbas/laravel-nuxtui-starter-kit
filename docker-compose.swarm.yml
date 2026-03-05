@@ -1,0 +1,81 @@
+services:
+  laravel:
+    image: '${IMAGE_REPOSITORY}:${IMAGE_TAG}'
+    env_file: '.env'
+    environment:
+      PHP_OPCACHE_ENABLE: '1'
+      SSL_MODE: 'mixed'
+    volumes:
+      - 'storage-public:/var/www/html/storage/app/public/'
+      - 'storage-sessions:/var/www/html/storage/framework/sessions'
+      - 'storage-logs:/var/www/html/storage/logs'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/healthcheck || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - proxy
+      - web
+    deploy:
+      replicas: ${APP_REPLICAS:-2}
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik_network'
+        - 'traefik.http.routers.laravel-nuxtui-starter.rule=Host(`${APP_DOMAIN}`)'
+        - 'traefik.http.routers.laravel-nuxtui-starter.entrypoints=websecure'
+        - 'traefik.http.routers.laravel-nuxtui-starter.tls=true'
+        - 'traefik.http.routers.laravel-nuxtui-starter.tls.certresolver=letsencrypt'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.server.port=8080'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.path=/healthcheck'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.interval=30s'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.timeout=5s'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.scheme=http'
+
+  pgsql:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - web
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE}', '-U', '${DB_USERNAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+
+volumes:
+  postgres-data:
+  storage-public:
+  storage-sessions:
+  storage-logs:
+
+networks:
+  web:
+    driver: overlay
+  proxy:
+    name: traefik_network
+    external: true

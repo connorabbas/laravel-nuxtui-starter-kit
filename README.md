@@ -142,6 +142,35 @@ php artisan test --compact tests/Feature/Settings/ProfileUpdateTest.php --filter
 
 ---
 
+## Docker Swarm Deployment (Single VPS, Zero-Downtime Rollouts)
+
+This repository includes a first-pass Swarm deployment setup inspired by the Server Side Up Spin deployment model:
+
+- `docker-compose.swarm.yml` for Swarm service definitions and rolling updates
+- `.github/workflows/swarm-deploy.yml` for CI build + deploy to Swarm
+- `docker-swarm-deploy.sh` for manual deploys from the Swarm manager
+
+### Required GitHub Secrets
+
+- `SWARM_STACK_NAME`
+- `SSH_DEPLOY_PRIVATE_KEY`
+- `SSH_DEPLOY_USER`
+- `SSH_REMOTE_HOSTNAME`
+- `SSH_REMOTE_KNOWN_HOSTS`
+- `PRODUCTION_ENV_FILE_BASE64` (base64-encoded production `.env`)
+
+### Required Runtime Variables
+
+The Swarm stack expects `IMAGE_REPOSITORY` and `IMAGE_TAG` to be available at deploy time.
+
+### Notes
+
+- This setup uses rolling updates (`start-first`) + health checks and automatic rollback on failure.
+- Do not use `php artisan down` in this deployment flow.
+- For Swarm + Traefik, `traefik_network` must exist as an external overlay network.
+
+---
+
 ## How to Use Flash Messages
 
 From controllers, redirect or flash with any supported key:
