@@ -5,10 +5,6 @@ services:
     environment:
       PHP_OPCACHE_ENABLE: '1'
       SSL_MODE: 'mixed'
-    volumes:
-      - 'storage-public:/var/www/html/storage/app/public/'
-      - 'storage-sessions:/var/www/html/storage/framework/sessions'
-      - 'storage-logs:/var/www/html/storage/logs'
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/up && php artisan inertia:check-ssr || exit 1']
       interval: 30s
@@ -69,7 +65,6 @@ services:
 
 volumes:
   postgres-data:
-  #storage-public: # if using local storage public uploads
 
 networks:
   web:

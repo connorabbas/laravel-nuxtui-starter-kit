@@ -1,6 +1,6 @@
 .git
-tests
 .env*
+tests
 Dockerfile*
 docker-*.yml
 *.md
