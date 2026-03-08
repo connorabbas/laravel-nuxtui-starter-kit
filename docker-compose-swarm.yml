@@ -69,9 +69,7 @@ services:
 
 volumes:
   postgres-data:
-  storage-public:
-  storage-sessions:
-  storage-logs:
+  #storage-public: # if using local storage public uploads
 
 networks:
   web:
