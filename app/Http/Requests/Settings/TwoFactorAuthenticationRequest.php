@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Settings;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\AuthenticatedFormRequest;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\InteractsWithTwoFactorState;
 
-class TwoFactorAuthenticationRequest extends FormRequest
+class TwoFactorAuthenticationRequest extends AuthenticatedFormRequest
 {
     use InteractsWithTwoFactorState;
 

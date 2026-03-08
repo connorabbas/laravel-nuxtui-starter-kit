@@ -11,14 +11,14 @@ import DefaultLayout from '@/layouts/default.vue'
                 :links="[
                     {
                         label: 'Get started',
-                        to: 'https://ui.nuxt.com/docs/getting-started/installation/vue',
+                        to: 'https://ui.nuxt.com/docs/components',
                         target: '_blank',
                         trailingIcon: 'i-lucide-arrow-right',
                         size: 'xl'
                     },
                     {
                         label: 'Use this template',
-                        to: 'https://github.com/nuxt-ui-templates/starter-laravel',
+                        to: 'https://github.com/connorabbas/laravel-nuxtui-starter-kit',
                         target: '_blank',
                         icon: 'simple-icons:github',
                         size: 'xl',
@@ -78,14 +78,14 @@ import DefaultLayout from '@/layouts/default.vue'
                     :links="[
                         {
                             label: 'Start building',
-                            to: 'https://ui.nuxt.com/docs/getting-started/installation/vue',
+                            to: 'https://ui.nuxt.com/docs/components',
                             target: '_blank',
                             trailingIcon: 'i-lucide-arrow-right',
                             color: 'neutral'
                         },
                         {
                             label: 'View on GitHub',
-                            to: 'https://github.com/nuxt-ui-templates/starter-laravel',
+                            to: 'https://github.com/connorabbas/laravel-nuxtui-starter-kit',
                             target: '_blank',
                             icon: 'simple-icons:github',
                             color: 'neutral',
