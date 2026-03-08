@@ -24,7 +24,7 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
     {
         $request->ensureStateIsValid();
 
-        $user = $request->user();
+        $user = $request->authenticatedUser();
         $hasSecret = ! is_null($user->two_factor_secret);
 
         return Inertia::render('settings/two-factor', [
