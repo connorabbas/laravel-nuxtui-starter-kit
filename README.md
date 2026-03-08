@@ -142,7 +142,56 @@ php artisan test --compact tests/Feature/Settings/ProfileUpdateTest.php --filter
 
 ---
 
-## Docker Swarm Deployment (Single VPS, Zero to Hero)
+## How to Use Flash Messages
+
+From controllers, redirect or flash with any supported key:
+
+```php
+// In your controller...
+
+// Chained to session helper
+session()->flash('flash_success', 'Success - Resource created!');
+
+// Or with a redirect
+try {
+    // ...
+} catch (Throwable $e) {
+    report($e);
+    return redirect()
+        ->route('example-route')
+        ->with('flash_error', 'Error - Update failed, we experienced an issue.');
+}
+```
+
+Flash messages are auto-shared and auto-rendered in the UI.
+
+---
+
+## How to Trigger a Toast-Friendly Error
+
+For mutation requests, throw an exception (or abort) and the global error handler will return toast-ready metadata.
+
+You can also use the included `ErrorToastException` for custom messages:
+
+```php
+// In your controller...
+
+use App\Exceptions\ErrorToastException;
+
+try {
+    // ...
+} catch (ExceptionWarrantingCustomErrorDetails $e) {
+    report($e);
+    // Will trigger an "error" severity level toast message on the front-end
+    throw new ErrorToastException('Specific error message...');
+}
+```
+
+The frontend listens to Inertia router `invalid`/`exception` events and shows a toast automatically.
+
+---
+
+## Docker Swarm Deployment (Single VPS)
 
 This project deploys with Docker Swarm using immutable images from GHCR.
 
@@ -157,7 +206,7 @@ Deployment artifacts in this repo:
 - `docker-compose-swarm.yml` (Swarm service definition)
 - `.github/workflows/swarm-deploy.yml` (verify, build, deploy)
 
-### Deployment model (Option 1)
+### Deployment model
 
 - CI builds and pushes `ghcr.io/<owner>/<repo>:<git-sha>`
 - CI deploys the stack through the Server Side Up Swarm deploy action
@@ -178,21 +227,15 @@ Initialize Swarm (once):
 docker swarm init
 ```
 
-Create Traefik overlay network (once):
-
-```bash
-docker network create --driver overlay --attachable traefik_proxy
-```
-
 ### 2) Deploy Traefik (once)
 
-Use this stack as your base: `https://github.com/connorabbas/traefik-docker-compose/blob/master/docker-compose-swarm.yml`
+Use [this stack](https://github.com/connorabbas/traefik-docker-compose/blob/master/docker-compose-swarm.yml) as your base.
 
 On the VPS:
 
 ```bash
-# Example
-export LETSENCRYPT_EMAIL="you@example.com"
+# Example deploy (use docker secrets instead of .env var export if desired)
+set -a && source .env && set +a
 docker stack deploy -c docker-compose-swarm.yml traefik
 ```
 
@@ -285,12 +328,6 @@ base64 < .env.production | pbcopy
 base64 -w 0 .env.production
 ```
 
-Your original command also works on macOS:
-
-```bash
-cat .env.production | base64 | pbcopy
-```
-
 ### 6) What files must exist on the server?
 
 For automated CI/CD in this setup: none from this app repository.
@@ -350,50 +387,3 @@ Notes:
 - `traefik_proxy` must exist and be shared by Traefik + app stack
 
 ---
-
-## How to Use Flash Messages
-
-From controllers, redirect or flash with any supported key:
-
-```php
-// In your controller...
-
-// Chained to session helper
-session()->flash('flash_success', 'Success - Resource created!');
-
-// Or with a redirect
-try {
-    // ...
-} catch (Throwable $e) {
-    report($e);
-    return redirect()
-        ->route('example-route')
-        ->with('flash_error', 'Error - Update failed, we experienced an issue.');
-}
-```
-
-Flash messages are auto-shared and auto-rendered in the UI.
-
----
-
-## How to Trigger a Toast-Friendly Error
-
-For mutation requests, throw an exception (or abort) and the global error handler will return toast-ready metadata.
-
-You can also use the included `ErrorToastException` for custom messages:
-
-```php
-// In your controller...
-
-use App\Exceptions\ErrorToastException;
-
-try {
-    // ...
-} catch (ExceptionWarrantingCustomErrorDetails $e) {
-    report($e);
-    // Will trigger an "error" severity level toast message on the front-end
-    throw new ErrorToastException('Specific error message...');
-}
-```
-
-The frontend listens to Inertia router `invalid`/`exception` events and shows a toast automatically.
