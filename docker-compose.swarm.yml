@@ -34,13 +34,13 @@ services:
         max_attempts: 3
       labels:
         - 'traefik.enable=true'
-        - 'traefik.docker.network=traefik_network'
+        - 'traefik.docker.network=traefik_proxy'
         - 'traefik.http.routers.laravel-nuxtui-starter.rule=Host(`${APP_DOMAIN}`)'
         - 'traefik.http.routers.laravel-nuxtui-starter.entrypoints=websecure'
         - 'traefik.http.routers.laravel-nuxtui-starter.tls=true'
         - 'traefik.http.routers.laravel-nuxtui-starter.tls.certresolver=letsencrypt'
         - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.server.port=8080'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.path=/healthcheck'
+        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.path=/up'
         - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.interval=30s'
         - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.timeout=5s'
         - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.scheme=http'
@@ -77,5 +77,5 @@ networks:
   web:
     driver: overlay
   proxy:
-    name: traefik_network
+    name: traefik_proxy
     external: true

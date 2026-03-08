@@ -167,7 +167,7 @@ The Swarm stack expects `IMAGE_REPOSITORY` and `IMAGE_TAG` to be available at de
 
 - This setup uses rolling updates (`start-first`) + health checks and automatic rollback on failure.
 - Do not use `php artisan down` in this deployment flow.
-- For Swarm + Traefik, `traefik_network` must exist as an external overlay network.
+- For Swarm + Traefik, `traefik_proxy` must exist as an external overlay network.
 
 ---
 
