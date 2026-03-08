@@ -10,7 +10,7 @@ services:
       - 'storage-sessions:/var/www/html/storage/framework/sessions'
       - 'storage-logs:/var/www/html/storage/logs'
     healthcheck:
-      test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/healthcheck || exit 1']
+      test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/up && php artisan inertia:check-ssr || exit 1']
       interval: 30s
       timeout: 5s
       retries: 3

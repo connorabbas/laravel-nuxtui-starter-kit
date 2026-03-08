@@ -88,7 +88,7 @@ jobs:
         uses: serversideup/github-action-docker-swarm-deploy@v3
         with:
           stack_name: ${{ secrets.SWARM_STACK_NAME }}
-          docker_compose_file_path: '-c docker-compose.swarm.yml'
+          docker_compose_file_path: '-c docker-compose-swarm.yml'
           ssh_deploy_private_key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
           ssh_deploy_user: ${{ secrets.SSH_DEPLOY_USER }}
           ssh_remote_hostname: ${{ secrets.SSH_REMOTE_HOSTNAME }}
@@ -96,5 +96,25 @@ jobs:
           ssh_remote_known_hosts: ${{ secrets.SSH_REMOTE_KNOWN_HOSTS }}
           registry: ghcr.io
           registry-username: ${{ github.repository_owner }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
+
+      - name: Run Laravel post-deploy commands
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_REMOTE_HOSTNAME }}
+          username: ${{ secrets.SSH_DEPLOY_USER }}
+          key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
+          port: 22
+          script: |
+            APP_CONTAINER_ID=$(docker ps --filter "label=com.docker.swarm.service.name=${{ secrets.SWARM_STACK_NAME }}_laravel" --format '{{.ID}}' | head -n 1)
+
+            if [ -z "$APP_CONTAINER_ID" ]; then
+              echo "Could not find a running container for ${{ secrets.SWARM_STACK_NAME }}_laravel"
+              exit 1
+            fi
+
+            docker exec "$APP_CONTAINER_ID" php artisan migrate --force
+            docker exec "$APP_CONTAINER_ID" php artisan optimize:clear
+            docker exec "$APP_CONTAINER_ID" php artisan optimize
+            docker exec "$APP_CONTAINER_ID" php artisan inertia:check-ssr

@@ -142,32 +142,212 @@ php artisan test --compact tests/Feature/Settings/ProfileUpdateTest.php --filter
 
 ---
 
-## Docker Swarm Deployment (Single VPS, Zero-Downtime Rollouts)
+## Docker Swarm Deployment (Single VPS, Zero to Hero)
 
-This repository includes a first-pass Swarm deployment setup inspired by the Server Side Up Spin deployment model:
+This project deploys with Docker Swarm using immutable images from GHCR.
 
-- `docker-compose.swarm.yml` for Swarm service definitions and rolling updates
-- `.github/workflows/swarm-deploy.yml` for CI build + deploy to Swarm
-- `docker-swarm-deploy.sh` for manual deploys from the Swarm manager
+Deployment is CI/CD-only:
 
-### Required GitHub Secrets
+- Stack rollout is handled by `serversideup/github-action-docker-swarm-deploy`
+- Laravel-specific post-deploy commands run in a dedicated CI SSH step
+- No manual SSH deployment process is required
 
-- `SWARM_STACK_NAME`
-- `SSH_DEPLOY_PRIVATE_KEY`
-- `SSH_DEPLOY_USER`
-- `SSH_REMOTE_HOSTNAME`
+Deployment artifacts in this repo:
+
+- `docker-compose-swarm.yml` (Swarm service definition)
+- `.github/workflows/swarm-deploy.yml` (verify, build, deploy)
+
+### Deployment model (Option 1)
+
+- CI builds and pushes `ghcr.io/<owner>/<repo>:<git-sha>`
+- CI deploys the stack through the Server Side Up Swarm deploy action
+- CI then runs post-deploy Laravel commands over SSH
+- The server does not need a checked-out app repository for automated deployments
+
+### 1) VPS prerequisites
+
+Assumptions:
+
+- Docker Engine is installed
+- Your DNS `A` record for the app domain points to the VPS
+- Ports `22`, `80`, and `443` are open
+
+Initialize Swarm (once):
+
+```bash
+docker swarm init
+```
+
+Create Traefik overlay network (once):
+
+```bash
+docker network create --driver overlay --attachable traefik_proxy
+```
+
+### 2) Deploy Traefik (once)
+
+Use this stack as your base: `https://github.com/connorabbas/traefik-docker-compose/blob/master/docker-compose-swarm.yml`
+
+On the VPS:
+
+```bash
+# Example
+export LETSENCRYPT_EMAIL="you@example.com"
+docker stack deploy -c docker-compose-swarm.yml traefik
+```
+
+Verify:
+
+```bash
+docker service ls
+docker service ps traefik_traefik
+```
+
+### 3) Create deploy user (recommended)
+
+For this CI/CD flow, GitHub Actions is the SSH client.
+
+- The private key is stored in GitHub secret: `SSH_DEPLOY_PRIVATE_KEY`
+- The matching public key is added to the VPS user: `~/.ssh/authorized_keys`
+
+You can generate the keypair anywhere, but generating on your local machine is recommended so the private key is never created on the VPS.
+
+On the VPS:
+
+```bash
+sudo adduser --disabled-password --gecos "" deploy
+sudo usermod -aG docker deploy
+sudo mkdir -p /home/deploy/.ssh
+sudo chmod 700 /home/deploy/.ssh
+sudo chown -R deploy:deploy /home/deploy/.ssh
+```
+
+From your local machine, generate keypair:
+
+```bash
+ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519_swarm_deploy -C deploy
+```
+
+Add public key to server:
+
+```bash
+cat ~/.ssh/id_ed25519_swarm_deploy.pub | ssh root@<server-ip> "cat >> /home/deploy/.ssh/authorized_keys"
+ssh root@<server-ip> "chown deploy:deploy /home/deploy/.ssh/authorized_keys && chmod 600 /home/deploy/.ssh/authorized_keys"
+```
+
+Verify deploy user can access Docker without sudo:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_swarm_deploy deploy@<server-ip> "docker info --format '{{.Swarm.LocalNodeState}}'"
+```
+
+After saving the private key in GitHub Actions secrets, you may remove your local private key if you do not need it for manual SSH.
+
+### 4) Prepare GitHub Actions secrets
+
+Required secrets:
+
+- `SWARM_STACK_NAME` (example: `laravel-nuxtui`)
+- `SSH_DEPLOY_PRIVATE_KEY` (contents of `~/.ssh/id_ed25519_swarm_deploy`)
+- `SSH_DEPLOY_USER` (example: `deploy`)
+- `SSH_REMOTE_HOSTNAME` (domain or IP)
 - `SSH_REMOTE_KNOWN_HOSTS`
-- `PRODUCTION_ENV_FILE_BASE64` (base64-encoded production `.env`)
+- `PRODUCTION_ENV_FILE_BASE64`
 
-### Required Runtime Variables
+Generate `SSH_REMOTE_KNOWN_HOSTS` from local machine:
 
-The Swarm stack expects `IMAGE_REPOSITORY` and `IMAGE_TAG` to be available at deploy time.
+```bash
+ssh-keyscan -p 22 -H <server-hostname-or-ip> 2>/dev/null | sort -u
+```
 
-### Notes
+`SSH_REMOTE_KNOWN_HOSTS` lets CI verify it is connecting to your real server (host key pinning), not an impostor.
 
-- This setup uses rolling updates (`start-first`) + health checks and automatic rollback on failure.
-- Do not use `php artisan down` in this deployment flow.
-- For Swarm + Traefik, `traefik_proxy` must exist as an external overlay network.
+### 5) Build production env file locally
+
+Create `.env.production` on your local machine (never commit it).
+
+It should include your production app/runtime settings such as:
+
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_DOMAIN=example.com`
+- `APP_URL=https://example.com`
+- `APP_KEY=...`
+- `DB_*`, mail, queue/cache/session settings, etc.
+
+Base64 encode it for GitHub secret `PRODUCTION_ENV_FILE_BASE64`:
+
+```bash
+# macOS
+base64 < .env.production | pbcopy
+
+# Linux (single-line output)
+base64 -w 0 .env.production
+```
+
+Your original command also works on macOS:
+
+```bash
+cat .env.production | base64 | pbcopy
+```
+
+### 6) What files must exist on the server?
+
+For automated CI/CD in this setup: none from this app repository.
+
+You only need:
+
+- Docker + Swarm initialized
+- Traefik stack running
+- `traefik_proxy` overlay network
+- SSH access for deploy user
+
+The compose file and post-deploy commands run from the GitHub runner, not from the server.
+
+### 7) Automated deployment flow
+
+On push to `main`, the workflow:
+
+1. Runs tests, lint, and type checks
+2. Builds and pushes image to GHCR (`:sha` and `:main`)
+3. Uses `serversideup/github-action-docker-swarm-deploy` for remote `docker stack deploy`
+4. Decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
+5. Runs Laravel post-deploy commands over SSH (`appleboy/ssh-action`)
+
+Post-deploy commands:
+
+- post-deploy commands in app container:
+  - `php artisan migrate --force`
+  - `php artisan optimize:clear`
+  - `php artisan optimize`
+  - `php artisan inertia:check-ssr`
+
+### 8) SSR process notes
+
+- SSR is run in the app container using s6 overlay (`php artisan inertia:start-ssr`)
+- This is a good fit for the `serversideup/php:*-fpm-nginx` base image
+- Container health checks now validate both app readiness (`/up`) and SSR readiness
+
+### 9) Rollback expectations
+
+- Swarm can roll back failed rollouts when tasks fail health checks during update
+- Swarm rollback does not revert destructive database migrations
+- Keep migrations forward-safe and deploy them with care
+
+### 10) Common operations
+
+```bash
+docker service ls
+docker service ps <stack>_laravel --no-trunc
+docker service logs -f <stack>_laravel
+docker stack services <stack>
+```
+
+Notes:
+
+- This stack uses rolling updates (`start-first`) and rollback on failure
+- Do not use `php artisan down` in this deployment model
+- `traefik_proxy` must exist and be shared by Traefik + app stack
 
 ---
 
