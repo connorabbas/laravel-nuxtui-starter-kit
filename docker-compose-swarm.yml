@@ -5,6 +5,9 @@ services:
     environment:
       PHP_OPCACHE_ENABLE: '1'
       SSL_MODE: 'mixed'
+      AUTORUN_ENABLED: 'true'
+      AUTORUN_DEBUG: 'true'
+      AUTORUN_LARAVEL_MIGRATION_ISOLATION: 'true'
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/up && php artisan inertia:check-ssr || exit 1']
       interval: 30s

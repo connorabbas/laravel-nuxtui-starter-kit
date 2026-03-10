@@ -98,13 +98,3 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
-
-      - name: Run Laravel migrations
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: |
-          docker --host "ssh://${{ secrets.SSH_DEPLOY_USER }}@${{ secrets.SSH_REMOTE_HOSTNAME }}:22" run --rm \
-            --env-file .env \
-            --network "${{ secrets.SWARM_STACK_NAME }}_web" \
-            "${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
-            php artisan migrate --force

@@ -198,7 +198,7 @@ This project deploys with Docker Swarm using immutable images from GHCR.
 Deployment is CI/CD-only:
 
 - Stack rollout is handled by `serversideup/github-action-docker-swarm-deploy`
-- Laravel-specific post-deploy commands run in a dedicated CI SSH step
+- Laravel startup artisan commands are handled inside the app container by Server Side Up Laravel Automations
 - No manual SSH deployment process is required
 
 Deployment artifacts in this repo:
@@ -211,8 +211,7 @@ Deployment artifacts in this repo:
 - CI builds and pushes `ghcr.io/<owner>/<repo>:<git-sha>`
 - CI deploys the stack through the Server Side Up Swarm deploy action
 - The deploy action runs `docker stack deploy --detach=false`, so the workflow waits for the service update before moving on
-- CI runs migrations in a one-off container against the Swarm `web` network using the same newly deployed image
-- The shared `release` image runs `php artisan optimize` during startup before PHP-FPM starts
+- The app container uses Server Side Up Laravel Automations for migrations, storage symlink creation, and optimizations during startup
 - The `ssr-release` image extends `release` and adds the SSR runtime plus `inertia:start-ssr`
 - SSR-specific s6 services are only copied into `ssr-release`, so the plain `release` target does not start SSR
 - The stack is configured for a single always-on app replica, with `start-first` updates creating temporary overlap during deploys
@@ -344,7 +343,7 @@ You only need:
 - `traefik_proxy` overlay network
 - SSH access for deploy user
 
-The compose file and post-deploy commands run from the GitHub runner, not from the server.
+The compose file runs from the GitHub runner, while Laravel startup commands run inside the app container on the server.
 
 ### 7) Automated deployment flow
 
@@ -354,34 +353,66 @@ On push to `main`, the workflow:
 2. Builds and pushes image to GHCR (`:sha` and `:main`)
 3. Uses `serversideup/github-action-docker-swarm-deploy` for remote `docker stack deploy`
 4. Decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
-5. Runs `php artisan migrate --force` in a one-off container using the newly deployed image
-6. New app tasks run `php artisan optimize` during container startup before they become healthy
+5. New app tasks run Laravel Automations during startup before they become healthy
 
-Deploy commands:
+### 8) Safe vs dangerous database changes
 
-- one-off migration container:
-  - `php artisan migrate --force`
-- per-app-container startup:
-  - `php artisan optimize`
+This stack uses `start-first` rolling updates, so the previous app task and the new app task may overlap briefly during deployment.
 
-### 8) SSR process notes
+That means your database schema must remain compatible with both the current release and the previous release during rollout.
+
+Safe changes for the standard deployment flow:
+
+- adding a new table
+- adding a new nullable column
+- adding a new column with a default value
+- adding an index
+
+Dangerous changes that should not be shipped as a single rolling deploy:
+
+- dropping a column
+- renaming a column
+- changing a column type
+- adding stricter constraints that old code cannot satisfy
+
+### 9) Expand and Contract pattern
+
+For dangerous schema changes, adopt the Expand and Contract pattern across multiple deployments.
+
+Typical sequence:
+
+1. Expand: add the new schema shape without removing the old one
+2. Transition: deploy code that can work with both shapes and backfill data if needed
+3. Contract: remove the old schema only after the older app version is no longer running anywhere
+
+Example for renaming a column:
+
+1. add the new column as nullable
+2. write to both old and new columns while continuing to read from the old column
+3. backfill existing rows
+4. switch reads to the new column in a later deploy
+5. drop the old column in a final cleanup deploy
+
+Use the normal rolling deployment flow only for backward-compatible migrations. If a release includes a destructive schema change that cannot be made backward-compatible, plan a maintenance deployment instead.
+
+`AUTORUN_LARAVEL_MIGRATION_ISOLATION=true` prevents multiple new tasks from running migrations at the same time, but it does not make destructive schema changes safe during old/new app overlap.
+
+### 10) SSR process notes
 
 - SSR is run in the app container using s6 overlay (`php artisan inertia:start-ssr`)
 - This is a good fit for the `serversideup/php:*-fpm-nginx` base image
 - Container health checks now validate both app readiness (`/up`) and SSR readiness
-- The shared production image adds a custom s6 oneshot that runs `php artisan optimize` before `php-fpm`
-- The SSR image builds on that shared production image and wires `inertia-ssr` to wait for the same optimize step
-- The repo mirrors the container's s6 layout with separate common and SSR-only trees so each image target copies only the services it needs
-- The stack `web` network is marked attachable so the one-off migration container can join it during deploy
+- Laravel Automations handle startup commands like `migrate`, `storage:link`, and `optimize`
+- The repo keeps a minimal SSR-only s6 overlay so the `ssr-release` image starts `inertia:start-ssr` without custom startup hooks for other Laravel commands
 
-### 9) Rollback expectations
+### 11) Rollback expectations
 
 - Swarm can roll back failed rollouts when tasks fail health checks during update
 - Swarm rollback does not revert destructive database migrations
 - Keep migrations backward-compatible during rolling deploys so old and new app tasks can overlap safely
 - For breaking schema changes, use an expand/contract migration strategy across multiple deploys
 
-### 10) Common operations
+### 12) Common operations
 
 ```bash
 docker service ls
