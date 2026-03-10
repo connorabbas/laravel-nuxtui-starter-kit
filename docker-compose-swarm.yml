@@ -15,7 +15,7 @@ services:
       - proxy
       - web
     deploy:
-      replicas: ${APP_REPLICAS:-2}
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 5s
@@ -30,16 +30,16 @@ services:
         max_attempts: 3
       labels:
         - 'traefik.enable=true'
-        - 'traefik.docker.network=traefik_proxy'
-        - 'traefik.http.routers.laravel-nuxtui-starter.rule=Host(`${APP_DOMAIN}`)'
-        - 'traefik.http.routers.laravel-nuxtui-starter.entrypoints=websecure'
-        - 'traefik.http.routers.laravel-nuxtui-starter.tls=true'
-        - 'traefik.http.routers.laravel-nuxtui-starter.tls.certresolver=letsencrypt'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.server.port=8080'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.path=/up'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.interval=30s'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.timeout=5s'
-        - 'traefik.http.services.laravel-nuxtui-starter.loadbalancer.healthcheck.scheme=http'
+        - 'traefik.swarm.network=traefik_proxy'
+        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${APP_DOMAIN}`)'
+        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure'
+        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true'
+        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt'
+        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8080'
+        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.path=/up'
+        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.interval=30s'
+        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.timeout=5s'
+        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.scheme=http'
 
   pgsql:
     image: postgres:17
@@ -69,6 +69,7 @@ volumes:
 networks:
   web:
     driver: overlay
+    attachable: true
   proxy:
     name: traefik_proxy
     external: true

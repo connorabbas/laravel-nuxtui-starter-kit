@@ -99,22 +99,12 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
 
-      - name: Run Laravel post-deploy commands
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_REMOTE_HOSTNAME }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
-          port: 22
-          script: |
-            APP_CONTAINER_ID=$(docker ps --filter "label=com.docker.swarm.service.name=${{ secrets.SWARM_STACK_NAME }}_laravel" --format '{{.ID}}' | head -n 1)
-
-            if [ -z "$APP_CONTAINER_ID" ]; then
-              echo "Could not find a running container for ${{ secrets.SWARM_STACK_NAME }}_laravel"
-              exit 1
-            fi
-
-            docker exec "$APP_CONTAINER_ID" php artisan migrate --force
-            docker exec "$APP_CONTAINER_ID" php artisan optimize:clear
-            docker exec "$APP_CONTAINER_ID" php artisan optimize
-            docker exec "$APP_CONTAINER_ID" php artisan inertia:check-ssr
+      - name: Run Laravel migrations
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          docker --host "ssh://${{ secrets.SSH_DEPLOY_USER }}@${{ secrets.SSH_REMOTE_HOSTNAME }}:22" run --rm \
+            --env-file .env \
+            --network "${{ secrets.SWARM_STACK_NAME }}_web" \
+            "${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
+            php artisan migrate --force

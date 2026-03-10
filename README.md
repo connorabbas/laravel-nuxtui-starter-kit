@@ -210,7 +210,12 @@ Deployment artifacts in this repo:
 
 - CI builds and pushes `ghcr.io/<owner>/<repo>:<git-sha>`
 - CI deploys the stack through the Server Side Up Swarm deploy action
-- CI then runs post-deploy Laravel commands over SSH
+- The deploy action runs `docker stack deploy --detach=false`, so the workflow waits for the service update before moving on
+- CI runs migrations in a one-off container against the Swarm `web` network using the same newly deployed image
+- The shared `release` image runs `php artisan optimize` during startup before PHP-FPM starts
+- The `ssr-release` image extends `release` and adds the SSR runtime plus `inertia:start-ssr`
+- SSR-specific s6 services are only copied into `ssr-release`, so the plain `release` target does not start SSR
+- The stack is configured for a single always-on app replica, with `start-first` updates creating temporary overlap during deploys
 - The server does not need a checked-out app repository for automated deployments
 
 ### 1) VPS prerequisites
@@ -349,27 +354,32 @@ On push to `main`, the workflow:
 2. Builds and pushes image to GHCR (`:sha` and `:main`)
 3. Uses `serversideup/github-action-docker-swarm-deploy` for remote `docker stack deploy`
 4. Decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
-5. Runs Laravel post-deploy commands over SSH (`appleboy/ssh-action`)
+5. Runs `php artisan migrate --force` in a one-off container using the newly deployed image
+6. New app tasks run `php artisan optimize` during container startup before they become healthy
 
-Post-deploy commands:
+Deploy commands:
 
-- post-deploy commands in app container:
+- one-off migration container:
   - `php artisan migrate --force`
-  - `php artisan optimize:clear`
+- per-app-container startup:
   - `php artisan optimize`
-  - `php artisan inertia:check-ssr`
 
 ### 8) SSR process notes
 
 - SSR is run in the app container using s6 overlay (`php artisan inertia:start-ssr`)
 - This is a good fit for the `serversideup/php:*-fpm-nginx` base image
 - Container health checks now validate both app readiness (`/up`) and SSR readiness
+- The shared production image adds a custom s6 oneshot that runs `php artisan optimize` before `php-fpm`
+- The SSR image builds on that shared production image and wires `inertia-ssr` to wait for the same optimize step
+- The repo mirrors the container's s6 layout with separate common and SSR-only trees so each image target copies only the services it needs
+- The stack `web` network is marked attachable so the one-off migration container can join it during deploy
 
 ### 9) Rollback expectations
 
 - Swarm can roll back failed rollouts when tasks fail health checks during update
 - Swarm rollback does not revert destructive database migrations
-- Keep migrations forward-safe and deploy them with care
+- Keep migrations backward-compatible during rolling deploys so old and new app tasks can overlap safely
+- For breaking schema changes, use an expand/contract migration strategy across multiple deploys
 
 ### 10) Common operations
 
@@ -382,7 +392,9 @@ docker stack services <stack>
 
 Notes:
 
-- This stack uses rolling updates (`start-first`) and rollback on failure
+- This stack uses `replicas: 1` with `start-first` updates and rollback on failure
+- Zero-downtime depends on the VPS having enough spare capacity to briefly run both the old and new app task during a deployment
+- This gives deploy-time zero-downtime, but not the redundancy of multiple always-on replicas
 - Do not use `php artisan down` in this deployment model
 - `traefik_proxy` must exist and be shared by Traefik + app stack
 

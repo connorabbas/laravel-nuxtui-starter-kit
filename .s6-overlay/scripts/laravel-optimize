@@ -1,0 +1,6 @@
+#!/command/with-contenv sh
+set -eu
+
+cd /var/www/html
+
+php artisan optimize
