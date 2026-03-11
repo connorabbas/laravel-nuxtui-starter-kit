@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { useToast } from '@nuxt/ui/composables'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
 import SettingsLayout from '@/layouts/settings.vue'

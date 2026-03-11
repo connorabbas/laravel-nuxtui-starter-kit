@@ -2,6 +2,7 @@ import '../css/tailwind.css'
 import '../css/app.css'
 
 import { createInertiaApp, router } from '@inertiajs/vue3'
+import { useToast } from '@nuxt/ui/composables'
 import ui from '@nuxt/ui/vue-plugin'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import type { DefineComponent } from 'vue'

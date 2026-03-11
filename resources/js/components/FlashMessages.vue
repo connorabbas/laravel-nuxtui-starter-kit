@@ -108,7 +108,7 @@ onUnmounted(() => {
             :icon="alert.icon"
             variant="subtle"
             close
-            @update:open="(isOpen) => handleAlertOpenChange(alert.key, isOpen)"
+            @update:open="handleAlertOpenChange(alert.key, $event)"
         />
     </div>
 </template>
