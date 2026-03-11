@@ -308,19 +308,33 @@ cat ~/.ssh/id_ed25519_swarm_deploy.pub
 
 ### 5) Install the public key on the VPS
 
-If your machine has `ssh-copy-id`, use it:
+From your local machine, print your public key so you can copy it:
 
 ```bash
-ssh-copy-id -i ~/.ssh/id_ed25519_swarm_deploy.pub deploy@<server-ip>
+cat ~/.ssh/id_ed25519_swarm_deploy.pub
 ```
 
-If `ssh-copy-id` is not available, use this fallback command:
+SSH into the VPS as `root` or an existing sudo-enabled user:
 
 ```bash
-cat ~/.ssh/id_ed25519_swarm_deploy.pub | ssh root@<server-ip> \
-  "sudo tee -a /home/deploy/.ssh/authorized_keys >/dev/null && \
-   sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys && \
-   sudo chmod 600 /home/deploy/.ssh/authorized_keys"
+ssh root@<server-ip>
+# or
+ssh <sudo-user>@<server-ip>
+```
+
+On the VPS, open the deploy user's authorized keys file:
+
+```bash
+sudo nano /home/deploy/.ssh/authorized_keys
+```
+
+Paste the public key as a single line, then save and exit.
+
+Ensure ownership and permissions are correct:
+
+```bash
+sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
 ```
 
 Verify that SSH login works with the new key:
@@ -365,7 +379,7 @@ Required secrets:
 Suggested secret values:
 
 - `SSH_DEPLOY_PRIVATE_KEY`: contents of `~/.ssh/id_ed25519_swarm_deploy`
-- `SSH_DEPLOY_USER`: `deploy`
+- `SSH_DEPLOY_USER`: `deploy` (created in previous step)
 - `SSH_REMOTE_HOSTNAME`: your server IP or hostname
 
 Copy the private key to your clipboard:
