@@ -204,12 +204,13 @@ Deployment is CI/CD-only:
 Deployment artifacts in this repo:
 
 - `docker-compose-swarm.yml` (Swarm service definition)
-- `.github/workflows/swarm-deploy.yml` (verify, build, deploy)
+- `.github/workflows/ci.yml` (lint, static analysis, tests, frontend build)
+- `.github/workflows/cd.yml` (image build and Swarm deployment)
 
 ### Deployment model
 
-- CI builds and pushes image `ghcr.io/<owner>/<repo>:<git-sha>`
-- CI deploys the stack through the Server Side Up Swarm deploy action
+- CD builds and pushes image `ghcr.io/<owner>/<repo>:<git-sha>`
+- CD deploys the stack through the Server Side Up Swarm deploy action
 - The deploy action runs `docker stack deploy --detach=false`, so the workflow waits for the service update before moving on
 - The app container uses Server Side Up Laravel Automations for migrations, storage symlink creation, and optimizations during startup
 - The `ssr-release` image extends `release` and adds the SSR runtime plus `inertia:start-ssr`
@@ -429,13 +430,16 @@ The compose file runs from the GitHub runner, while Laravel startup commands run
 
 ### 9) Automated deployment flow
 
-On push to `main`, the workflow:
+After a pull request is merged into `main` or `master`:
 
-1. Runs tests, lint, and type checks
-2. Builds and pushes image to GHCR (`:sha` and `:main`)
-3. Uses `serversideup/github-action-docker-swarm-deploy` for remote `docker stack deploy`
-4. Decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
+1. CI has already run tests, lint, type checks, static analysis, and frontend build on the PR
+2. CD builds and pushes image to GHCR (`:sha` and `:latest`)
+3. CD uses `[serversideup/github-action-docker-swarm-deploy](https://github.com/serversideup/github-action-docker-swarm-deploy)` for remote `docker stack deploy`
+4. CD decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
 5. New app tasks run Laravel Automations during startup before they become healthy
+
+Use branch protection to require all CI checks before merging into `main` or `master`, so CD only runs for validated code.
+CD is intentionally merge-driven in this setup (no manual `workflow_dispatch` trigger).
 
 ### 10) Safe vs dangerous database changes
 
