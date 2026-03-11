@@ -34,15 +34,15 @@ services:
       labels:
         - 'traefik.enable=true'
         - 'traefik.swarm.network=traefik_proxy'
-        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${APP_DOMAIN}`)'
-        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure'
-        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true'
-        - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=letsencrypt'
-        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8080'
-        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.path=/up'
-        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.interval=30s'
-        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.timeout=5s'
-        - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.healthcheck.scheme=http'
+        - 'traefik.http.routers.${SWARM_STACK_NAME }.rule=Host(`${APP_DOMAIN}`)'
+        - 'traefik.http.routers.${SWARM_STACK_NAME }.entrypoints=websecure'
+        - 'traefik.http.routers.${SWARM_STACK_NAME }.tls=true'
+        - 'traefik.http.routers.${SWARM_STACK_NAME }.tls.certresolver=letsencrypt'
+        - 'traefik.http.services.${SWARM_STACK_NAME }.loadbalancer.server.port=8080'
+        - 'traefik.http.services.${SWARM_STACK_NAME }.loadbalancer.healthcheck.path=/up'
+        - 'traefik.http.services.${SWARM_STACK_NAME }.loadbalancer.healthcheck.interval=30s'
+        - 'traefik.http.services.${SWARM_STACK_NAME }.loadbalancer.healthcheck.timeout=5s'
+        - 'traefik.http.services.${SWARM_STACK_NAME }.loadbalancer.healthcheck.scheme=http'
 
   pgsql:
     image: postgres:17

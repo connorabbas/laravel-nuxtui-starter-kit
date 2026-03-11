@@ -198,7 +198,7 @@ This project deploys with Docker Swarm using immutable images from GHCR.
 Deployment is CI/CD-only:
 
 - Stack rollout is handled by `serversideup/github-action-docker-swarm-deploy`
-- Laravel startup artisan commands are handled inside the app container by Server Side Up Laravel Automations
+- Laravel startup artisan commands are handled inside the app container by Server Side Up [Laravel Automations](https://serversideup.net/open-source/docker-php/docs/framework-guides/laravel/automations)
 - No manual SSH deployment process is required
 
 Deployment artifacts in this repo:
@@ -208,12 +208,12 @@ Deployment artifacts in this repo:
 
 ### Deployment model
 
-- CI builds and pushes `ghcr.io/<owner>/<repo>:<git-sha>`
+- CI builds and pushes image `ghcr.io/<owner>/<repo>:<git-sha>`
 - CI deploys the stack through the Server Side Up Swarm deploy action
 - The deploy action runs `docker stack deploy --detach=false`, so the workflow waits for the service update before moving on
 - The app container uses Server Side Up Laravel Automations for migrations, storage symlink creation, and optimizations during startup
 - The `ssr-release` image extends `release` and adds the SSR runtime plus `inertia:start-ssr`
-- SSR-specific s6 services are only copied into `ssr-release`, so the plain `release` target does not start SSR
+- SSR-specific s6 services are only copied into `ssr-release`, so the plain `release` target does not start the Inertia Node.js SSR process
 - The stack is configured for a single always-on app replica, with `start-first` updates creating temporary overlap during deploys
 - The server does not need a checked-out app repository for automated deployments
 
@@ -250,47 +250,107 @@ docker service ls
 docker service ps traefik_traefik
 ```
 
-### 3) Create deploy user (recommended)
+### 3) Create the deploy user on the VPS
 
 For this CI/CD flow, GitHub Actions is the SSH client.
 
-- The private key is stored in GitHub secret: `SSH_DEPLOY_PRIVATE_KEY`
-- The matching public key is added to the VPS user: `~/.ssh/authorized_keys`
+- `SSH_DEPLOY_PRIVATE_KEY` stores the private key in GitHub Actions
+- the matching public key is added to `/home/deploy/.ssh/authorized_keys` on the VPS
+- the `deploy` user must be able to run Docker commands without `sudo`
 
-You can generate the keypair anywhere, but generating on your local machine is recommended so the private key is never created on the VPS.
+Use either `root` or an existing sudo-enabled user to connect to the VPS first:
 
-On the VPS:
+```bash
+ssh root@<server-ip>
+```
+
+Create the `deploy` user and allow it to talk to Docker:
 
 ```bash
 sudo adduser --disabled-password --gecos "" deploy
 sudo usermod -aG docker deploy
-sudo mkdir -p /home/deploy/.ssh
-sudo chmod 700 /home/deploy/.ssh
-sudo chown -R deploy:deploy /home/deploy/.ssh
 ```
 
-From your local machine, generate keypair:
+Create the SSH directory with the correct ownership and permissions:
 
 ```bash
-ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519_swarm_deploy -C deploy
+sudo install -d -m 700 -o deploy -g deploy /home/deploy/.ssh
+sudo touch /home/deploy/.ssh/authorized_keys
+sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
 ```
 
-Add public key to server:
+Why this matters:
+
+- `700` on `.ssh` keeps the directory private to the `deploy` user
+- `600` on `authorized_keys` prevents SSH from rejecting the file as insecure
+- Docker group access lets GitHub Actions run `docker stack deploy` remotely
+
+### 4) Generate the SSH keypair on your local machine
+
+Generate a dedicated deploy key locally so the private key never lives on the VPS:
 
 ```bash
-cat ~/.ssh/id_ed25519_swarm_deploy.pub | ssh root@<server-ip> "cat >> /home/deploy/.ssh/authorized_keys"
-ssh root@<server-ip> "chown deploy:deploy /home/deploy/.ssh/authorized_keys && chmod 600 /home/deploy/.ssh/authorized_keys"
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_swarm_deploy -C "deploy"
 ```
 
-Verify deploy user can access Docker without sudo:
+This creates:
+
+- private key: `~/.ssh/id_ed25519_swarm_deploy`
+- public key: `~/.ssh/id_ed25519_swarm_deploy.pub`
+
+Inspect the public key if you want to confirm what will be added to the server:
+
+```bash
+cat ~/.ssh/id_ed25519_swarm_deploy.pub
+```
+
+### 5) Install the public key on the VPS
+
+If your machine has `ssh-copy-id`, use it:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519_swarm_deploy.pub deploy@<server-ip>
+```
+
+If `ssh-copy-id` is not available, use this fallback command:
+
+```bash
+cat ~/.ssh/id_ed25519_swarm_deploy.pub | ssh root@<server-ip> \
+  "sudo tee -a /home/deploy/.ssh/authorized_keys >/dev/null && \
+   sudo chown deploy:deploy /home/deploy/.ssh/authorized_keys && \
+   sudo chmod 600 /home/deploy/.ssh/authorized_keys"
+```
+
+Verify that SSH login works with the new key:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_swarm_deploy deploy@<server-ip>
+```
+
+Once logged in as `deploy`, verify Docker access works without `sudo`:
+
+```bash
+docker info --format '{{.Swarm.LocalNodeState}}'
+docker ps
+exit
+```
+
+You can also test both SSH and Docker in one command from your local machine:
 
 ```bash
 ssh -i ~/.ssh/id_ed25519_swarm_deploy deploy@<server-ip> "docker info --format '{{.Swarm.LocalNodeState}}'"
 ```
 
-After saving the private key in GitHub Actions secrets, you may remove your local private key if you do not need it for manual SSH.
+Expected output after `docker info` is usually `active` if Swarm is initialized.
 
-### 4) Prepare GitHub Actions secrets
+If SSH works but Docker fails with a permissions error, log out and back in again so the new group membership is applied:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_swarm_deploy deploy@<server-ip>
+```
+
+### 6) Prepare GitHub Actions secrets
 
 Required secrets:
 
@@ -301,15 +361,37 @@ Required secrets:
 - `SSH_REMOTE_KNOWN_HOSTS`
 - `PRODUCTION_ENV_FILE_BASE64`
 
-Generate `SSH_REMOTE_KNOWN_HOSTS` from local machine:
+Suggested secret values:
+
+- `SSH_DEPLOY_PRIVATE_KEY`: contents of `~/.ssh/id_ed25519_swarm_deploy`
+- `SSH_DEPLOY_USER`: `deploy`
+- `SSH_REMOTE_HOSTNAME`: your server IP or hostname
+
+Copy the private key to your clipboard:
+
+```bash
+cat ~/.ssh/id_ed25519_swarm_deploy
+```
+
+Then paste the full contents, including the `BEGIN` and `END` lines, into the `SSH_DEPLOY_PRIVATE_KEY` GitHub secret.
+
+Generate `SSH_REMOTE_KNOWN_HOSTS` from your local machine:
 
 ```bash
 ssh-keyscan -p 22 -H <server-hostname-or-ip> 2>/dev/null | sort -u
 ```
 
+Copy that output into the `SSH_REMOTE_KNOWN_HOSTS` GitHub secret.
+
 `SSH_REMOTE_KNOWN_HOSTS` lets CI verify it is connecting to your real server (host key pinning), not an impostor.
 
-### 5) Build production env file locally
+Common setup issues:
+
+- `Permission denied (publickey)`: the public key was not added correctly, or `/home/deploy/.ssh` permissions are too open
+- `Got permission denied while trying to connect to the Docker daemon socket`: the `deploy` user is not in the `docker` group yet, or you need to log out and back in
+- host key verification errors: regenerate `SSH_REMOTE_KNOWN_HOSTS` with `ssh-keyscan` and update the GitHub secret
+
+### 7) Build production env file locally
 
 Create `.env.production` on your local machine (never commit it).
 
@@ -332,7 +414,7 @@ base64 < .env.production | pbcopy
 base64 -w 0 .env.production
 ```
 
-### 6) What files must exist on the server?
+### 8) What files must exist on the server?
 
 For automated CI/CD in this setup: none from this app repository.
 
@@ -345,7 +427,7 @@ You only need:
 
 The compose file runs from the GitHub runner, while Laravel startup commands run inside the app container on the server.
 
-### 7) Automated deployment flow
+### 9) Automated deployment flow
 
 On push to `main`, the workflow:
 
@@ -355,7 +437,7 @@ On push to `main`, the workflow:
 4. Decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
 5. New app tasks run Laravel Automations during startup before they become healthy
 
-### 8) Safe vs dangerous database changes
+### 10) Safe vs dangerous database changes
 
 This stack uses `start-first` rolling updates, so the previous app task and the new app task may overlap briefly during deployment.
 
@@ -375,7 +457,7 @@ Dangerous changes that should not be shipped as a single rolling deploy:
 - changing a column type
 - adding stricter constraints that old code cannot satisfy
 
-### 9) Expand and Contract pattern
+### 11) Expand and Contract pattern
 
 For dangerous schema changes, adopt the Expand and Contract pattern across multiple deployments.
 
@@ -397,7 +479,7 @@ Use the normal rolling deployment flow only for backward-compatible migrations. 
 
 `AUTORUN_LARAVEL_MIGRATION_ISOLATION=true` prevents multiple new tasks from running migrations at the same time, but it does not make destructive schema changes safe during old/new app overlap.
 
-### 10) SSR process notes
+### 12) SSR process notes
 
 - SSR is run in the app container using s6 overlay (`php artisan inertia:start-ssr`)
 - This is a good fit for the `serversideup/php:*-fpm-nginx` base image
@@ -405,14 +487,14 @@ Use the normal rolling deployment flow only for backward-compatible migrations. 
 - Laravel Automations handle startup commands like `migrate`, `storage:link`, and `optimize`
 - The repo keeps a minimal SSR-only s6 overlay so the `ssr-release` image starts `inertia:start-ssr` without custom startup hooks for other Laravel commands
 
-### 11) Rollback expectations
+### 13) Rollback expectations
 
 - Swarm can roll back failed rollouts when tasks fail health checks during update
 - Swarm rollback does not revert destructive database migrations
 - Keep migrations backward-compatible during rolling deploys so old and new app tasks can overlap safely
 - For breaking schema changes, use an expand/contract migration strategy across multiple deploys
 
-### 12) Common operations
+### 14) Common operations
 
 ```bash
 docker service ls

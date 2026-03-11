@@ -83,7 +83,7 @@ COPY --chown=www-data:www-data --from=build-assets /var/www/html/public/build ./
 COPY --chown=www-data:www-data . .
 USER www-data
 
-# SSR Production Image - Include Node.js and s6 overlay config to run the inertia SSR artisan command
+# SSR Production Image - Include Node.js and s6 overlay config to run the Inertia SSR artisan command
 FROM release AS ssr-release
 USER root
 COPY --from=node /usr/lib /usr/lib
