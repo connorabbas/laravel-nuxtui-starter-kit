@@ -197,8 +197,9 @@ This project deploys with Docker Swarm using immutable images from GHCR.
 
 Deployment is CI/CD-only:
 
-- Stack rollout is handled by `serversideup/github-action-docker-swarm-deploy`
-- Laravel startup artisan commands are handled inside the app container by Server Side Up [Laravel Automations](https://serversideup.net/open-source/docker-php/docs/framework-guides/laravel/automations)
+- Image builds are handled by [serversideup/github-action-docker-build](https://github.com/serversideup/github-action-docker-build)
+- Stack rollout is handled by [serversideup/github-action-docker-swarm-deploy](https://github.com/serversideup/github-action-docker-swarm-deploy)
+- Laravel startup artisan commands are handled inside the app container by [Server Side Up Laravel Automations](https://serversideup.net/open-source/docker-php/docs/framework-guides/laravel/automations)
 - No manual SSH deployment process is required
 
 Deployment artifacts in this repo:
@@ -300,12 +301,6 @@ This creates:
 - private key: `~/.ssh/id_ed25519_swarm_deploy`
 - public key: `~/.ssh/id_ed25519_swarm_deploy.pub`
 
-Inspect the public key if you want to confirm what will be added to the server:
-
-```bash
-cat ~/.ssh/id_ed25519_swarm_deploy.pub
-```
-
 ### 5) Install the public key on the VPS
 
 From your local machine, print your public key so you can copy it:
@@ -375,6 +370,9 @@ Required secrets:
 - `SSH_REMOTE_HOSTNAME` (domain or IP)
 - `SSH_REMOTE_KNOWN_HOSTS`
 - `PRODUCTION_ENV_FILE_BASE64`
+
+Example reference (`/settings/secrets/actions` page within your repository):  
+![Repository Actions Secrets Example](./storage/repository_secrets_example.png)
 
 Suggested secret values:
 
@@ -447,13 +445,26 @@ The compose file runs from the GitHub runner, while Laravel startup commands run
 After a pull request is merged into `main` or `master`:
 
 1. CI has already run tests, lint, type checks, static analysis, and frontend build on the PR
-2. CD builds and pushes image to GHCR (`:sha` and `:latest`)
-3. CD uses `[serversideup/github-action-docker-swarm-deploy](https://github.com/serversideup/github-action-docker-swarm-deploy)` for remote `docker stack deploy`
+2. CD uses [serversideup/github-action-docker-build](https://github.com/serversideup/github-action-docker-build) to build and push images to GHCR (`:sha` and `:latest`)
+3. CD uses [serversideup/github-action-docker-swarm-deploy](https://github.com/serversideup/github-action-docker-swarm-deploy) for remote `docker stack deploy`
 4. CD decodes `PRODUCTION_ENV_FILE_BASE64` during deploy
 5. New app tasks run Laravel Automations during startup before they become healthy
 
 Use branch protection to require all CI checks before merging into `main` or `master`, so CD only runs for validated code.
 CD is intentionally merge-driven in this setup (no manual `workflow_dispatch` trigger).
+
+> [!IMPORTANT]
+> When using `AUTORUN_LARAVEL_MIGRATION_ISOLATION=true` and `CACHE_STORE=database`, the database must already contain the cache tables (`cache` and `cache_locks`) before startup migrations run.
+>
+> On a brand-new database, isolation can fail with:
+> `SQLSTATE[42P01]: Undefined table: relation "cache_locks" does not exist`
+>
+> Recommended bootstrap flow for first deploy:
+> 1. Set `AUTORUN_LARAVEL_MIGRATION_ISOLATION=false`
+> 2. Deploy once so Laravel creates migration + cache tables
+> 3. Re-enable `AUTORUN_LARAVEL_MIGRATION_ISOLATION=true` for subsequent deploys
+>
+> Alternative: pre-create cache tables ahead of first deploy.
 
 ### 10) Safe vs dangerous database changes
 
@@ -499,20 +510,11 @@ Use the normal rolling deployment flow only for backward-compatible migrations. 
 
 ### 12) SSR process notes
 
-- SSR is run in the app container using s6 overlay (`php artisan inertia:start-ssr`)
-- This is a good fit for the `serversideup/php:*-fpm-nginx` base image
-- Container health checks now validate both app readiness (`/up`) and SSR readiness
-- Laravel Automations handle startup commands like `migrate`, `storage:link`, and `optimize`
-- The repo keeps a minimal SSR-only s6 overlay so the `ssr-release` image starts `inertia:start-ssr` without custom startup hooks for other Laravel commands
+- SSR is optional, you can target the standard `release` for the image build within `.github/workflows/cd.yml` instead of using the default `ssr-release`
+- SSR is enabled in the app container using a longrun s6 overlay process (`php artisan inertia:start-ssr`)
+- Container health checks validate both app readiness (`/up`) and SSR readiness (`php artisan inertia:check-ssr`)
 
-### 13) Rollback expectations
-
-- Swarm can roll back failed rollouts when tasks fail health checks during update
-- Swarm rollback does not revert destructive database migrations
-- Keep migrations backward-compatible during rolling deploys so old and new app tasks can overlap safely
-- For breaking schema changes, use an expand/contract migration strategy across multiple deploys
-
-### 14) Common operations
+### 13) Common operations
 
 ```bash
 docker service ls
@@ -527,6 +529,6 @@ Notes:
 - Zero-downtime depends on the VPS having enough spare capacity to briefly run both the old and new app task during a deployment
 - This gives deploy-time zero-downtime, but not the redundancy of multiple always-on replicas
 - Do not use `php artisan down` in this deployment model
-- `traefik_proxy` must exist and be shared by Traefik + app stack
+- `traefik_proxy` must exist as an overlay network
 
 ---

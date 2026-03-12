@@ -7,7 +7,7 @@ services:
       SSL_MODE: 'mixed'
       AUTORUN_ENABLED: 'true'
       AUTORUN_DEBUG: 'true'
-      AUTORUN_LARAVEL_MIGRATION_ISOLATION: 'true'
+      #AUTORUN_LARAVEL_MIGRATION_ISOLATION: 'true' # apply after initial deployment, otherwise cache_locks table won't exist yet
     healthcheck:
       test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:8080/up && php artisan inertia:check-ssr || exit 1']
       interval: 30s
@@ -34,15 +34,15 @@ services:
       labels:
         - 'traefik.enable=true'
         - 'traefik.swarm.network=traefik_proxy'
-        - 'traefik.http.routers.${SWARM_STACK_NAME}.rule=Host(`${APP_DOMAIN}`)'
-        - 'traefik.http.routers.${SWARM_STACK_NAME}.entrypoints=websecure'
-        - 'traefik.http.routers.${SWARM_STACK_NAME}.tls=true'
-        - 'traefik.http.routers.${SWARM_STACK_NAME}.tls.certresolver=letsencrypt'
-        - 'traefik.http.services.${SWARM_STACK_NAME}.loadbalancer.server.port=8080'
-        - 'traefik.http.services.${SWARM_STACK_NAME}.loadbalancer.healthcheck.path=/up'
-        - 'traefik.http.services.${SWARM_STACK_NAME}.loadbalancer.healthcheck.interval=30s'
-        - 'traefik.http.services.${SWARM_STACK_NAME}.loadbalancer.healthcheck.timeout=5s'
-        - 'traefik.http.services.${SWARM_STACK_NAME}.loadbalancer.healthcheck.scheme=http'
+        - 'traefik.http.routers.${SWARM_STACK_NAME:-swarm-stack-service}.rule=Host(`${APP_DOMAIN}`)'
+        - 'traefik.http.routers.${SWARM_STACK_NAME:-swarm-stack-service}.entrypoints=websecure'
+        - 'traefik.http.routers.${SWARM_STACK_NAME:-swarm-stack-service}.tls=true'
+        - 'traefik.http.routers.${SWARM_STACK_NAME:-swarm-stack-service}.tls.certresolver=letsencrypt'
+        - 'traefik.http.services.${SWARM_STACK_NAME:-swarm-stack-service}.loadbalancer.server.port=8080'
+        - 'traefik.http.services.${SWARM_STACK_NAME:-swarm-stack-service}.loadbalancer.healthcheck.path=/up'
+        - 'traefik.http.services.${SWARM_STACK_NAME:-swarm-stack-service}.loadbalancer.healthcheck.interval=30s'
+        - 'traefik.http.services.${SWARM_STACK_NAME:-swarm-stack-service}.loadbalancer.healthcheck.timeout=5s'
+        - 'traefik.http.services.${SWARM_STACK_NAME:-swarm-stack-service}.loadbalancer.healthcheck.scheme=http'
 
   pgsql:
     image: postgres:17
