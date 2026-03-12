@@ -1,5 +1,7 @@
 name: CD
 
+# TODO: Look into auto-pruning containers from registry and the host VPS
+
 on:
   pull_request:
     types:
