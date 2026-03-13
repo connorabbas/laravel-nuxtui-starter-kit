@@ -68,3 +68,21 @@ jobs:
           registry-username: ${{ github.repository_owner }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
+
+  prune-docker-host:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Prune unused Docker images on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_REMOTE_HOSTNAME }}
+          username: ${{ secrets.SSH_DEPLOY_USER }}
+          key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker image prune -af
+          # Alternative (more aggressive):
+          # docker system prune -af --volumes
