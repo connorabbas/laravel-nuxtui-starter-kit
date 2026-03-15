@@ -1,7 +1,5 @@
 name: CD
 
-# TODO: Look into auto-pruning containers from registry and the host VPS
-
 on:
   pull_request:
     types:
@@ -69,20 +67,93 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
 
-  prune-docker-host:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    needs: deploy
+  # prune-docker-host:
+  #   if: github.event.pull_request.merged == true
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
 
-    steps:
-      - name: Prune unused Docker images on VPS
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_REMOTE_HOSTNAME }}
-          username: ${{ secrets.SSH_DEPLOY_USER }}
-          key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
-          port: 22
-          script: |
-            docker image prune -af
-          # Alternative (more aggressive):
-          # docker system prune -af --volumes
+  #   steps:
+  #     - name: Prune unused Docker images on VPS
+  #       uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.SSH_REMOTE_HOSTNAME }}
+  #         username: ${{ secrets.SSH_DEPLOY_USER }}
+  #         key: ${{ secrets.SSH_DEPLOY_PRIVATE_KEY }}
+  #         port: 22
+  #         script: |
+  #           docker image prune -af
+  #         # Alternative (more aggressive):
+  #         # docker system prune -af
+  #         # Alternative (most aggressive, include volumes):
+  #         # docker system prune -af --volumes
+
+  # prune-ghcr:
+  #   if: github.event.pull_request.merged == true
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   continue-on-error: true
+
+  #   steps:
+  #     - name: Prune GHCR images (keep last 3)
+  #       uses: actions/github-script@v7
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           const owner = context.repo.owner
+  #           const packageName = context.repo.repo
+  #           const keepCount = 3
+
+  #           const user = await github.rest.users.getByUsername({ username: owner })
+  #           const isOrg = user.data.type === 'Organization'
+
+  #           const listFn = isOrg
+  #             ? github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg
+  #             : github.rest.packages.getAllPackageVersionsForPackageOwnedByUser
+
+  #           const deleteFn = isOrg
+  #             ? github.rest.packages.deletePackageVersionForOrg
+  #             : github.rest.packages.deletePackageVersionForUser
+
+  #           const versions = await github.paginate(listFn, {
+  #             ...(isOrg ? { org: owner } : { username: owner }),
+  #             package_type: 'container',
+  #             package_name: packageName,
+  #             per_page: 100,
+  #           })
+
+  #           if (versions.length <= keepCount) {
+  #             core.info(`Only ${versions.length} package versions found; nothing to delete.`)
+  #             return
+  #           }
+
+  #           const keepVersions = versions.slice(0, keepCount)
+  #           const deleteCandidates = versions.slice(keepCount)
+  #           const currentTag = process.env.IMAGE_TAG
+
+  #           core.info(`Keeping newest ${keepCount} versions by default.`)
+
+  #           for (const version of keepVersions) {
+  #             const tags = version.metadata?.container?.tags ?? []
+  #             core.info(`Keeping version ${version.id} tags=[${tags.join(', ')}]`)
+  #           }
+
+  #           for (const version of deleteCandidates) {
+  #             const tags = version.metadata?.container?.tags ?? []
+  #             const keepForSafety = tags.includes('latest') || tags.includes(currentTag)
+
+  #             if (keepForSafety) {
+  #               core.info(`Skipping protected version ${version.id} tags=[${tags.join(', ')}]`)
+  #               continue
+  #             }
+
+  #             core.info(`Deleting version ${version.id} tags=[${tags.join(', ')}]`)
+
+  #             await deleteFn({
+  #               ...(isOrg ? { org: owner } : { username: owner }),
+  #               package_type: 'container',
+  #               package_name: packageName,
+  #               package_version_id: version.id,
+  #             })
+  #           }
+  #       env:
+  #         IMAGE_TAG: ${{ env.IMAGE_TAG }}
