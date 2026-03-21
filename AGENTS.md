@@ -4,7 +4,7 @@ Practical guide for coding agents operating in this repository.
 
 ## Project Snapshot
 
-- Stack: Laravel 12 (PHP 8.4) + Inertia v2 + Vue 3 + TypeScript + Nuxt UI v4.
+- Stack: Laravel 13 (PHP 8.3) + Inertia v2 + Vue 3 + TypeScript + Nuxt UI v4.
 - Auth: Laravel Fortify.
 - Bundler: Vite.
 - Package manager: `npm` (not `yarn`/`pnpm`).
@@ -56,7 +56,7 @@ Practical guide for coding agents operating in this repository.
 
 ## Architecture and File Layout
 
-- Follow existing Laravel 12 structure (`bootstrap/app.php` middleware config).
+- Follow existing Laravel 13 structure (`bootstrap/app.php` middleware config).
 - Keep Inertia pages in `resources/js/pages`.
 - Keep layouts in `resources/js/layouts`.
 - Keep shared TS types in `resources/js/types`.
@@ -392,14 +392,14 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 === laravel/v12 rules ===
 
-# Laravel 12
+# Laravel 13
 
 - CRITICAL: ALWAYS use `search-docs` tool for version-specific Laravel documentation and updated code examples.
 - Since Laravel 11, Laravel has a new streamlined file structure which this project uses.
 
-## Laravel 12 Structure
+## Laravel 13 Structure
 
-- In Laravel 12, middleware are no longer registered in `app/Http/Kernel.php`.
+- In Laravel 13, middleware are no longer registered in `app/Http/Kernel.php`.
 - Middleware are configured declaratively in `bootstrap/app.php` using `Application::configure()->withMiddleware()`.
 - `bootstrap/app.php` is the file to register middleware, exceptions, and routing files.
 - `bootstrap/providers.php` contains application specific service providers.
@@ -409,7 +409,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Database
 
 - When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped and lost.
-- Laravel 12 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
+- Laravel 13 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
 
 ### Models
 

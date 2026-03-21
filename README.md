@@ -13,7 +13,7 @@ This Laravel starter kit is inspired by [laravel/vue-starter-kit](https://github
 
 ## Features
 
-- Laravel 12 + PHP 8.3+
+- Laravel 13 + PHP 8.3+
 - Inertia.js v2
 - Vue 3 with TypeScript (`strict: true`)
 - Nuxt UI v4 components and theming
