@@ -3,7 +3,7 @@ import { Head as IHead, useForm, usePage } from '@inertiajs/vue3'
 import { useToast } from '@nuxt/ui/composables'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
-import SettingsLayout from '@/layouts/settings.vue'
+import SettingsLayout from '@/layouts/Settings.vue'
 
 const props = defineProps<{
     mustVerifyEmail: boolean

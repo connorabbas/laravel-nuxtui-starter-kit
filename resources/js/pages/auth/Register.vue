@@ -1,32 +1,27 @@
 <script setup lang="ts">
-import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
-import AuthLayout from '@/layouts/auth.vue'
-
-const props = defineProps<{
-    token: string
-    email: string
-}>()
+import AuthLayout from '@/layouts/Auth.vue'
 
 const showPassword = ref(false)
 const showPasswordConfirmation = ref(false)
 
-const resetPasswordForm = useForm({
-    token: props.token,
-    email: props.email,
+const registerForm = useForm({
+    name: '',
+    email: '',
     password: '',
     password_confirmation: '',
 })
 
 function submit(): void {
-    resetPasswordForm.post(route('password.update'), {
+    registerForm.post(route('register.store'), {
         onSuccess: () => {
-            resetPasswordForm.reset('password', 'password_confirmation')
+            registerForm.reset('password', 'password_confirmation')
         },
         onError: (errors) => {
             if (errors.password || errors.password_confirmation) {
-                resetPasswordForm.reset('password', 'password_confirmation')
+                registerForm.reset('password', 'password_confirmation')
             }
         },
     })
@@ -36,14 +31,14 @@ function submit(): void {
 <template>
     <AuthLayout>
         <div class="space-y-6">
-            <IHead title="Reset password" />
+            <IHead title="Register" />
 
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
-                    Set a new password
+                    Create an account
                 </h1>
                 <p class="text-muted text-sm">
-                    Choose a secure password for your account.
+                    Enter your details below to create your account
                 </p>
             </div>
 
@@ -52,35 +47,54 @@ function submit(): void {
                 @submit.prevent="submit"
             >
                 <UFormField
-                    name="email"
-                    label="Email address"
+                    name="name"
+                    label="Name"
                     required
-                    :error="resetPasswordForm.errors?.email"
+                    :error="registerForm.errors?.name"
                 >
                     <UInput
-                        id="email"
-                        v-model="resetPasswordForm.email"
-                        name="email"
-                        type="email"
-                        autocomplete="email"
+                        id="name"
+                        v-model="registerForm.name"
+                        name="name"
+                        type="text"
+                        placeholder="Full name"
+                        autocomplete="name"
+                        autofocus
                         class="w-full"
                     />
                 </UFormField>
 
                 <UFormField
+                    name="email"
+                    label="Email address"
+                    required
+                    :error="registerForm.errors?.email"
+                >
+                    <UInput
+                        id="email"
+                        v-model="registerForm.email"
+                        name="email"
+                        type="email"
+                        placeholder="email@example.com"
+                        autocomplete="email"
+                        class="w-full"
+                    />
+                </UFormField>
+
+                <!-- Optionally add a strength indicator: https://ui.nuxt.com/docs/components/input#with-password-strength-indicator -->
+                <UFormField
                     name="password"
                     label="Password"
                     required
-                    :error="resetPasswordForm.errors?.password"
+                    :error="registerForm.errors?.password"
                 >
                     <UInput
                         id="password"
-                        v-model="resetPasswordForm.password"
+                        v-model="registerForm.password"
                         name="password"
                         :type="showPassword ? 'text' : 'password'"
-                        placeholder="New password"
+                        placeholder="Password"
                         autocomplete="new-password"
-                        autofocus
                         :ui="{ trailing: 'pe-1' }"
                         class="w-full"
                     >
@@ -103,14 +117,14 @@ function submit(): void {
                     name="password_confirmation"
                     label="Confirm password"
                     required
-                    :error="resetPasswordForm.errors?.password_confirmation"
+                    :error="registerForm.errors?.password_confirmation"
                 >
                     <UInput
                         id="password_confirmation"
-                        v-model="resetPasswordForm.password_confirmation"
+                        v-model="registerForm.password_confirmation"
                         name="password_confirmation"
                         :type="showPasswordConfirmation ? 'text' : 'password'"
-                        placeholder="Confirm new password"
+                        placeholder="Confirm password"
                         autocomplete="new-password"
                         :ui="{ trailing: 'pe-1' }"
                         class="w-full"
@@ -133,12 +147,22 @@ function submit(): void {
                 <UButton
                     type="submit"
                     block
-                    :loading="resetPasswordForm.processing"
-                    :disabled="resetPasswordForm.processing"
+                    :loading="registerForm.processing"
+                    :disabled="registerForm.processing"
                 >
-                    Reset password
+                    Create account
                 </UButton>
             </form>
+
+            <p class="text-toned text-center text-sm">
+                Already registered?
+                <Link
+                    :href="route('login')"
+                    class="text-primary font-medium hover:underline"
+                >
+                    Log in
+                </Link>
+            </p>
         </div>
     </AuthLayout>
 </template>

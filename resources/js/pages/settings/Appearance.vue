@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head as IHead } from '@inertiajs/vue3'
-import SettingsLayout from '@/layouts/settings.vue'
+import SettingsLayout from '@/layouts/Settings.vue'
 </script>
 
 <template>

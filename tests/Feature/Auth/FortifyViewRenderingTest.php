@@ -10,7 +10,7 @@ test('login screen renders the inertia auth login page', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/login', false)
+                ->component('auth/Login', false)
                 ->where('canResetPassword', true)
                 ->where('canRegister', true)
         );
@@ -21,7 +21,7 @@ test('registration screen renders the inertia auth register page', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/register', false)
+                ->component('auth/Register', false)
         );
 });
 
@@ -30,7 +30,7 @@ test('forgot password screen renders the inertia auth forgot password page', fun
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/forgot-password', false)
+                ->component('auth/ForgotPassword', false)
         );
 });
 
@@ -42,7 +42,7 @@ test('reset password screen renders the inertia auth reset password page', funct
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/reset-password', false)
+                ->component('auth/ResetPassword', false)
                 ->where('token', $token)
                 ->where('email', $email)
         );
@@ -56,7 +56,7 @@ test('email verification notice screen renders the inertia auth verify email pag
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/verify-email', false)
+                ->component('auth/VerifyEmail', false)
         );
 });
 
@@ -68,7 +68,7 @@ test('confirm password screen renders the inertia auth confirm password page', f
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/confirm-password', false)
+                ->component('auth/ConfirmPassword', false)
         );
 });
 
@@ -80,6 +80,6 @@ test('two factor challenge screen renders the inertia auth two factor challenge 
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('auth/two-factor-challenge', false)
+                ->component('auth/TwoFactorChallenge', false)
         );
 });

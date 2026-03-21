@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('index');
+    return Inertia::render('Index');
 })->name('index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('dashboard');
+        return Inertia::render('Dashboard');
     })->name('dashboard');
 
     Route::get('/examples/paginator/users', [UserDirectoryController::class, 'paginator'])
@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/password', [PasswordController::class, 'update'])->name('settings.password.update');
 
     Route::get('/settings/appearance', function () {
-        return Inertia::render('settings/appearance');
+        return Inertia::render('settings/Appearance');
     })->name('appearance.edit');
 
     Route::get('/settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])->name('two-factor.show');

@@ -5,9 +5,14 @@
     "guidelines": true,
     "herd_mcp": false,
     "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
+        "laravel/fortify"
+    ],
     "sail": false,
     "skills": [
         "pest-testing",
-        "inertia-vue-development"
+        "inertia-vue-development",
+        "fortify-development"
     ]
 }

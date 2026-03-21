@@ -27,7 +27,7 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
         $user = $request->authenticatedUser();
         $hasSecret = ! is_null($user->two_factor_secret);
 
-        return Inertia::render('settings/two-factor', [
+        return Inertia::render('settings/TwoFactor', [
             'status' => $request->session()->get('status'),
             'requiresConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
             'twoFactorEnabled' => $user->hasEnabledTwoFactorAuthentication(),

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/app/index.vue'
+import AppLayout from '@/layouts/app/Index.vue'
 import { Head as IHead } from '@inertiajs/vue3'
 </script>
 
