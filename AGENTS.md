@@ -132,7 +132,7 @@ Practical guide for coding agents operating in this repository.
 - PHP classes: `PascalCase`
 - PHP methods/properties/variables: `camelCase`
 - TS interfaces/types/components: `PascalCase`
-- Vue page/layout filenames in this repo are lowercase (for example `index.vue`, `default.vue`).
+- Vue page/layout component filenames: `PascalCase`.
 - Route and test names should be descriptive and behavior-oriented.
 
 ## Error Handling Expectations
