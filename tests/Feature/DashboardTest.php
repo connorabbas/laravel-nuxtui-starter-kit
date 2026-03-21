@@ -16,5 +16,5 @@ test('authenticated users can visit the dashboard', function () {
     $this->actingAs($user)
         ->get(route('dashboard', absolute: false))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('dashboard', false));
+        ->assertInertia(fn (Assert $page) => $page->component('Dashboard', false));
 });
