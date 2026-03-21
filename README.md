@@ -1,22 +1,23 @@
 # Laravel Nuxt UI Starter Kit
 
-[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
-[![Inertia](https://img.shields.io/badge/Inertia-v2-9553E9)](https://inertiajs.com)
+[![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
+[![Inertia](https://img.shields.io/badge/Inertia-v2-3068F6?logo=inertia&logoColor=white)](https://inertiajs.com)
 [![Vue](https://img.shields.io/badge/Vue-3-42B883?logo=vue.js&logoColor=white)](https://vuejs.org)
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
 A production-ready Laravel starter kit built with **Inertia.js + Vue 3 + TypeScript + Nuxt UI**.
 
-This Laravel starter is based on [laravel/vue-starter-kit](https://github.com/laravel/vue-starter-kit) and demonstrate how to use [Nuxt UI](https://ui.nuxt.com) in a [Laravel](https://laravel.com/) application using [Inertia.js](https://inertiajs.com/).
+This Laravel starter kit is inspired by [laravel/vue-starter-kit](https://github.com/laravel/vue-starter-kit) and demonstrates how to use [Nuxt UI](https://ui.nuxt.com) in a [Laravel](https://laravel.com/) application using [Inertia.js](https://inertiajs.com/).
 
 ---
 
 ## Features
 
-- Laravel 12 + PHP 8.4
-- Inertia.js v2 (SSR + Vue SPA client)
+- Laravel 12 + PHP 8.3+
+- Inertia.js v2
 - Vue 3 with TypeScript (`strict: true`)
 - Nuxt UI v4 components and theming
+- Pre-configured server-side rendering
 - Ziggy route integration for client and SSR
 - Vite dev/build pipeline with optional SSR build
 - Laravel Fortify authentication flows:
@@ -24,10 +25,11 @@ This Laravel starter is based on [laravel/vue-starter-kit](https://github.com/la
   - registration
   - forgot/password reset
   - email verification
-  - two-factor authentication (confirm + confirm password)
+  - two-factor authentication
 - Built-in auth rate limiting (login + 2FA)
 - Centralized, configurable error behavior (`config/errors.php`)
 - Pest test suite with focused feature coverage
+- PHPStan level 8 compliance
 
 ---
 
@@ -61,7 +63,7 @@ These are shared via Inertia and rendered automatically by `FlashMessages.vue` i
 
 ## Requirements
 
-- PHP 8.4+
+- PHP 8.3+
 - Composer 2+
 - Node.js 22+ (recommended)
 - npm 10+

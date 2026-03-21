@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
 
-import AuthLayout from '@/layouts/auth.vue'
+import AuthLayout from '@/layouts/Auth.vue'
 
 const props = defineProps<{
     status?: string
