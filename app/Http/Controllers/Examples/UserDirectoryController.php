@@ -16,7 +16,7 @@ class UserDirectoryController extends Controller
 
     public function paginator(Request $request): Response
     {
-        return Inertia::render('examples/paginator/users', [
+        return Inertia::render('examples/paginator/Index', [
             'users' => $this->queryService->paginate($request),
             'filterDefinitions' => $this->queryService->frontendFilterDefinitions(),
             'accountStatusOptions' => $this->queryService->accountStatusOptionsFrontend(),
@@ -26,7 +26,7 @@ class UserDirectoryController extends Controller
 
     public function table(Request $request): Response
     {
-        return Inertia::render('examples/table/users', [
+        return Inertia::render('examples/table/Index', [
             'users' => $this->queryService->paginate($request),
             'filterDefinitions' => $this->queryService->frontendFilterDefinitions(),
             'accountStatusOptions' => $this->queryService->accountStatusOptionsFrontend(),

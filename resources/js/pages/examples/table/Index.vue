@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import AppLayout from '@/layouts/app/index.vue'
+import AppLayout from '@/layouts/app/Index.vue'
 import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue'
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedDataTable } from '@/composables/usePaginatedDataTable'

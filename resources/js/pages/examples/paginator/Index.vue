@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppLayout from '@/layouts/app/index.vue'
+import AppLayout from '@/layouts/app/Index.vue'
 import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue'
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedData } from '@/composables/usePaginatedData'
