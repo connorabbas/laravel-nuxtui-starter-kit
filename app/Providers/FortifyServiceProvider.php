@@ -48,7 +48,7 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureViews(): void
     {
         Fortify::loginView(function () {
-            return Inertia::render('auth/login', [
+            return Inertia::render('auth/Login', [
                 'canResetPassword' => Features::enabled(Features::resetPasswords()),
                 'canRegister' => Features::enabled(Features::registration()),
                 'status' => session('status'),
@@ -56,34 +56,34 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::registerView(function () {
-            return Inertia::render('auth/register');
+            return Inertia::render('auth/Register');
         });
 
         Fortify::requestPasswordResetLinkView(function () {
-            return Inertia::render('auth/forgot-password', [
+            return Inertia::render('auth/ForgotPassword', [
                 'status' => session('status'),
             ]);
         });
 
         Fortify::resetPasswordView(function (Request $request) {
-            return Inertia::render('auth/reset-password', [
+            return Inertia::render('auth/ResetPassword', [
                 'token' => $request->route('token'),
                 'email' => $request->email,
             ]);
         });
 
         Fortify::verifyEmailView(function () {
-            return Inertia::render('auth/verify-email', [
+            return Inertia::render('auth/VerifyEmail', [
                 'status' => session('status'),
             ]);
         });
 
         Fortify::confirmPasswordView(function () {
-            return Inertia::render('auth/confirm-password');
+            return Inertia::render('auth/ConfirmPassword');
         });
 
         Fortify::twoFactorChallengeView(function () {
-            return Inertia::render('auth/two-factor-challenge');
+            return Inertia::render('auth/TwoFactorChallenge');
         });
     }
 

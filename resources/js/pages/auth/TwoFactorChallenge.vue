@@ -2,7 +2,7 @@
 import { Head as IHead, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
-import AuthLayout from '@/layouts/auth.vue'
+import AuthLayout from '@/layouts/Auth.vue'
 
 const usingRecoveryCode = ref(false)
 const authenticationCode = ref<number[]>([])

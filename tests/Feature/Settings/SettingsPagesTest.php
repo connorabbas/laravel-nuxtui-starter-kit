@@ -32,7 +32,7 @@ test('profile settings page renders', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/profile', false)
+                ->component('settings/Profile', false)
                 ->where('mustVerifyEmail', true)
         );
 });
@@ -45,7 +45,7 @@ test('password settings page renders', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/password', false)
+                ->component('settings/Password', false)
         );
 });
 
@@ -60,7 +60,7 @@ test('two factor settings page renders', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/two-factor', false)
+                ->component('settings/TwoFactor', false)
                 ->where('twoFactorEnabled', false)
                 ->where('isConfirming', false)
         );
@@ -85,7 +85,7 @@ test('two factor settings page reports setup in progress when not confirmed', fu
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/two-factor', false)
+                ->component('settings/TwoFactor', false)
                 ->where('twoFactorEnabled', false)
                 ->where('isConfirming', true)
         );
@@ -110,7 +110,7 @@ test('two factor settings page reports enabled when confirmed', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/two-factor', false)
+                ->component('settings/TwoFactor', false)
                 ->where('twoFactorEnabled', true)
                 ->where('isConfirming', false)
         );
@@ -124,6 +124,6 @@ test('appearance settings page renders', function () {
         ->assertOk()
         ->assertInertia(
             fn (Assert $page) => $page
-                ->component('settings/appearance', false)
+                ->component('settings/Appearance', false)
         );
 });
