@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, useForm, usePage } from '@inertiajs/vue3'
+import { useForm, usePage } from '@inertiajs/vue3'
 import { useToast } from '@nuxt/ui/composables'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
@@ -83,8 +83,6 @@ watch(deleteModalOpen, async (open) => {
         title="Profile"
         description="Update your name, email address, and account details."
     >
-        <IHead title="Settings - Profile" />
-
         <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">

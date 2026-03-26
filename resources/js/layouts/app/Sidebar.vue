@@ -49,7 +49,10 @@ const groups = computed(() => [
         >
             <template #header="{ collapsed }">
                 <div class="flex w-full justify-center">
-                    <Link :href="route('index')">
+                    <Link
+                        :href="route('index')"
+                        aria-label="Application logo"
+                    >
                         <LaravelLogo
                             v-if="collapsed"
                             class="block h-6 lg:h-8 w-auto fill-current"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import { useToast } from '@nuxt/ui/composables'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
@@ -55,8 +55,6 @@ function submit(): void {
         title="Password"
         description="Update your password to keep your account secure."
     >
-        <IHead title="Settings - Password" />
-
         <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">

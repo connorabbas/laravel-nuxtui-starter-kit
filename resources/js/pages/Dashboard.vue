@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/app/Index.vue'
-import { Head as IHead } from '@inertiajs/vue3'
 </script>
 
 <template>
-    <AppLayout page-title="Dashboard">
-        <IHead title="Dashboard" />
-
+    <AppLayout
+        title="Dashboard"
+        description="This is your authenticated application area."
+        page-title="Dashboard"
+    >
         <UPage>
             <UPageHeader
                 title="Dashboard"

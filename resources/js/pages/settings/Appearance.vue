@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Head as IHead } from '@inertiajs/vue3'
 import SettingsLayout from '@/layouts/Settings.vue'
 </script>
 
@@ -9,8 +8,6 @@ import SettingsLayout from '@/layouts/Settings.vue'
         title="Appearance"
         description="Choose how the interface looks for your preference."
     >
-        <IHead title="Settings - Appearance" />
-
         <UCard class="max-w-xl">
             <template #header>
                 <h2 class="text-base font-semibold">

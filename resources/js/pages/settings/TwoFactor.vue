@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import { useToast } from '@nuxt/ui/composables'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -130,8 +130,6 @@ function regenerateRecoveryCodes(): void {
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
-        <IHead title="Settings - Two-Factor" />
-
         <UCard class="max-w-xl">
             <template #header>
                 <div class="flex items-center justify-between gap-3">
