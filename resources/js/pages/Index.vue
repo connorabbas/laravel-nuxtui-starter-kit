@@ -3,7 +3,10 @@ import DefaultLayout from '@/layouts/Default.vue'
 </script>
 
 <template>
-    <DefaultLayout>
+    <DefaultLayout
+        title="Home"
+        description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
+    >
         <div>
             <UPageHero
                 title="Laravel Starter Template"

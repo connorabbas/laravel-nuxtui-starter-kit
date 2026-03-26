@@ -9,11 +9,6 @@
     >
 
     <title inertia>{{ config('app.name', 'Laravel Starter Template') }}</title>
-    <meta
-        name="description"
-        content="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
-    >
-
     <script>
         // https://ui.nuxt.com/docs/getting-started/integrations/ssr
         const theme = localStorage.getItem('vueuse-color-scheme') || 'auto'
@@ -42,6 +37,7 @@
     <link
         rel="preconnect"
         href="https://fonts.bunny.net"
+        crossorigin
     >
     <link
         rel="preload"
