@@ -12,10 +12,9 @@ import { Config, ZiggyVue } from 'ziggy-js'
 import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-compat'
 import type { AppPageProps, ErrorResponsePayload } from '@/types'
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
 
 createInertiaApp({
-    progress: { color: 'var(--ui-primary)' },
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
@@ -30,7 +29,7 @@ createInertiaApp({
 
         // Global Toast Error handling
         const toast = useToast()
-        router.on('invalid', (event) => {
+        router.on('httpException', (event) => {
             const responseBody = event.detail.response?.data as Partial<ErrorResponsePayload> | undefined
 
             if (
@@ -51,7 +50,7 @@ createInertiaApp({
                 })
             }
         })
-        router.on('exception', (event) => {
+        router.on('networkError', (event) => {
             event.preventDefault()
 
             toast.add({
@@ -70,5 +69,6 @@ createInertiaApp({
         installZiggyRoute(app, route)
 
         app.mount(el)
-    }
+    },
+    progress: { color: 'var(--ui-primary)' }
 })
