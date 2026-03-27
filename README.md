@@ -1,7 +1,7 @@
 # Laravel Nuxt UI Starter Kit
 
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
-[![Inertia](https://img.shields.io/badge/Inertia-v2-3068F6?logo=inertia&logoColor=white)](https://inertiajs.com)
+[![Inertia](https://img.shields.io/badge/Inertia-v3-3068F6?logo=inertia&logoColor=white)](https://inertiajs.com)
 [![Vue](https://img.shields.io/badge/Vue-3-42B883?logo=vue.js&logoColor=white)](https://vuejs.org)
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
