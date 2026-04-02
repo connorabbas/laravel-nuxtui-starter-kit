@@ -189,4 +189,4 @@ try {
 }
 ```
 
-The frontend listens to Inertia router `invalid`/`exception` events and shows a toast automatically.
+The frontend listens to Inertia router `httpException` & `networkError` events and shows a toast automatically.
