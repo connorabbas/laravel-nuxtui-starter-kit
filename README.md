@@ -1,7 +1,7 @@
 # Laravel Nuxt UI Starter Kit
 
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
-[![Inertia](https://img.shields.io/badge/Inertia-v2-3068F6?logo=inertia&logoColor=white)](https://inertiajs.com)
+[![Inertia](https://img.shields.io/badge/Inertia-v3-3068F6?logo=inertia&logoColor=white)](https://inertiajs.com)
 [![Vue](https://img.shields.io/badge/Vue-3-42B883?logo=vue.js&logoColor=white)](https://vuejs.org)
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
 
@@ -14,7 +14,7 @@ This Laravel starter kit is inspired by [laravel/vue-starter-kit](https://github
 ## Features
 
 - Laravel 13 + PHP 8.3+
-- Inertia.js v2
+- Inertia.js v3
 - Vue 3 with TypeScript (`strict: true`)
 - Nuxt UI v4 components and theming
 - Pre-configured server-side rendering
@@ -189,4 +189,4 @@ try {
 }
 ```
 
-The frontend listens to Inertia router `invalid`/`exception` events and shows a toast automatically.
+The frontend listens to Inertia router `httpException` & `networkError` events and shows a toast automatically.
