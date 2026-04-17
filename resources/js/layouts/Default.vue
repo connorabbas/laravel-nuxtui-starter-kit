@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import FlashMessages from '@/components/FlashMessages.vue'
+import AppHead from '@/components/AppHead.vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
+
+const props = defineProps<{
+    title: string
+    description?: string
+}>()
 
 const navMenuItems: NavigationMenuItem[] = [
     {
@@ -21,9 +27,17 @@ const navMenuItems: NavigationMenuItem[] = [
 
 <template>
     <UApp>
+        <AppHead
+            :title="props.title"
+            :description="props.description"
+        />
+
         <UHeader :ui="{ right: 'flex sm:gap-3' }">
             <template #left>
-                <Link href="/">
+                <Link
+                    href="/"
+                    aria-label="Application logo"
+                >
                     <AppLogo class="h-6 w-auto shrink-0" />
                 </Link>
             </template>

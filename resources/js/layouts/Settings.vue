@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const { currentRoute } = useAppLayout()
 
-const settingsPageTitle = computed(() => `Settings - ${props.pageTitle}`)
+const settingsPageTitle = computed(() => `Settings - ${props.pageTitle ?? props.title}`)
 
 const items = computed<NavigationMenuItem[]>(() => [
     {
@@ -43,7 +43,11 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-    <AppLayout :page-title="props.pageTitle">
+    <AppLayout
+        :title="settingsPageTitle"
+        :description="props.description"
+        :page-title="props.pageTitle"
+    >
         <UPageHeader
             :title="settingsPageTitle"
             :description="props.description"

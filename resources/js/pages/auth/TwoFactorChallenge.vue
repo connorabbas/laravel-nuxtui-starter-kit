@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
 import AuthLayout from '@/layouts/Auth.vue'
@@ -44,10 +44,11 @@ function toggleChallengeType(): void {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout
+        title="Two-factor challenge"
+        description="Complete two-factor authentication to finish signing in."
+    >
         <div class="space-y-6">
-            <IHead title="Two-factor challenge" />
-
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
                     {{ heading }}

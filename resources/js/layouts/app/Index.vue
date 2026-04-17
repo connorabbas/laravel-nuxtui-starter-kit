@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+import AppHead from '@/components/AppHead.vue'
 import AppLayout from './Header.vue'
 
 const props = defineProps<{
+    title: string
+    description?: string
     pageTitle?: string
     subPageNavItems?: NavigationMenuItem[]
 }>()
@@ -10,6 +13,11 @@ const props = defineProps<{
 
 <template>
     <UApp>
+        <AppHead
+            :title="props.title"
+            :description="props.description"
+        />
+
         <AppLayout
             :page-title="props.pageTitle"
             :sub-page-nav-items="props.subPageNavItems"

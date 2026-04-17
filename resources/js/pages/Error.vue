@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Head as IHead, Link } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
+
+import AppHead from '@/components/AppHead.vue'
 
 const props = defineProps<{
     title: string
@@ -10,22 +12,27 @@ const props = defineProps<{
 </script>
 
 <template>
-    <IHead title="Error" />
+    <div>
+        <AppHead
+            :title="props.title"
+            :description="props.detail"
+        />
 
-    <UError
-        :clear="false"
-        :error="{
-            statusCode: props.status,
-            statusMessage: props.title,
-            message: props.detail
-        }"
-    >
-        <template #links>
-            <Link :href="props.homepageRoute">
-                <UButton size="lg">
-                    Back to home
-                </UButton>
-            </Link>
-        </template>
-    </UError>
+        <UError
+            :clear="false"
+            :error="{
+                statusCode: props.status,
+                statusMessage: props.title,
+                message: props.detail
+            }"
+        >
+            <template #links>
+                <Link :href="props.homepageRoute">
+                    <UButton size="lg">
+                        Back to home
+                    </UButton>
+                </Link>
+            </template>
+        </UError>
+    </div>
 </template>

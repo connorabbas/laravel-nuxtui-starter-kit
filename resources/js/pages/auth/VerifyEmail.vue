@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/Auth.vue'
 
@@ -20,10 +20,11 @@ function submitLogout(): void {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout
+        title="Verify email"
+        description="Check your inbox and click the verification link to continue."
+    >
         <div class="space-y-6">
-            <IHead title="Verify email" />
-
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
                     Verify your email
