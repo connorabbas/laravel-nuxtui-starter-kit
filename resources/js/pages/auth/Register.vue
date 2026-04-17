@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/Auth.vue'
@@ -29,10 +29,11 @@ function submit(): void {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout
+        title="Register"
+        description="Create an account to start using the Laravel starter template."
+    >
         <div class="space-y-6">
-            <IHead title="Register" />
-
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
                     Create an account

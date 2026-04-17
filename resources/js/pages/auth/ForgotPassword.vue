@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head as IHead, Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/Auth.vue'
 
@@ -17,10 +17,11 @@ function submit(): void {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout
+        title="Forgot password"
+        description="Enter your email and we will send you a reset link."
+    >
         <div class="space-y-6">
-            <IHead title="Forgot password" />
-
             <div class="space-y-1 text-center">
                 <h1 class="text-2xl font-semibold">
                     Forgot your password?
