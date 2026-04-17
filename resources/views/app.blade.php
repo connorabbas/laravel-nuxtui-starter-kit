@@ -8,7 +8,6 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <title inertia>{{ config('app.name', 'Laravel Starter Template') }}</title>
     <script>
         // https://ui.nuxt.com/docs/getting-started/integrations/ssr
         const theme = localStorage.getItem('vueuse-color-scheme') || 'auto'
@@ -50,13 +49,15 @@
     />
 
     @routes
-    @inertiaHead
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
+    <x-inertia::head>
+        <title data-inertia>{{ config('app.name', 'Laravel Nuxt UI Starter') }}</title>
+    </x-inertia::head>
 </head>
 
 <body>
     <div class="isolate">
-        @inertia
+        <x-inertia::app />
     </div>
 </body>
 
