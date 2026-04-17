@@ -25,9 +25,9 @@
         "@vueuse/core": "^13.9.0",
         "clsx": "^2.1.1",
         "concurrently": "^9.2.1",
-        "laravel-vite-plugin": "^2.0.1",
+        "laravel-vite-plugin": "^3.0.1",
         "typescript": "^5.9.3",
-        "vite": "^7.1.9",
+        "vite": "^8.0.0",
         "vue": "^3.5.22",
         "ziggy-js": "^2.6.0"
     },
