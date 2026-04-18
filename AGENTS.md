@@ -208,7 +208,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
 - spatie/laravel-data - v4
-- spatie/laravel-typescript-transformer - v4
+- spatie/laravel-typescript-transformer - v3
 - @inertiajs/vue3 (INERTIA_VUE) - v3
 - vue (VUE) - v3
 - eslint (ESLINT) - v9
