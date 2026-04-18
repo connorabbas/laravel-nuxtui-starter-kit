@@ -9,7 +9,6 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
-use Tighten\Ziggy\Ziggy;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -108,10 +107,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     'detail' => $errorDetail,
                     'status' => $statusCode,
                     'homepageRoute' => route('index', absolute: false),
-                    'ziggy' => fn () => [
-                        ...(new Ziggy())->toArray(),
-                        'location' => $request->url(),
-                    ],
                 ])
                     ->toResponse($request)
                     ->setStatusCode($statusCode);
