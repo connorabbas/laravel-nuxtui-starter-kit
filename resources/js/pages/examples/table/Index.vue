@@ -128,7 +128,6 @@ const columns: TableColumn<App.Data.UserData>[] = [
     <AppLayout
         title="User Table Example"
         description="Nuxt UI UTable + server-side filters/sorting/pagination with URL sync."
-        page-title="User Table Example"
     >
         <IHead title="User Table Example" />
 

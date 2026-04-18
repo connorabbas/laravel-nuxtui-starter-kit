@@ -56,7 +56,6 @@ const resultsSummary = computed(() => {
     <AppLayout
         title="User Paginator Example"
         description="Server-side filtering, sorting, and pagination with URL sync."
-        page-title="User Paginator Example"
     >
         <IHead title="User Paginator Example" />
 
