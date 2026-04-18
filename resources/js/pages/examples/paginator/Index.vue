@@ -5,11 +5,10 @@ import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedData } from '@/composables/usePaginatedData'
 import type { LengthAwarePaginator } from '@/types/pagination'
-import type { User } from '@/types'
 import type { UserDirectoryFilterDefinition } from '@/types/examples/user-directory'
 
 const props = defineProps<{
-    users: LengthAwarePaginator<User>
+    users: LengthAwarePaginator<App.Data.UserData>
     filterDefinitions: Record<string, UserDirectoryFilterDefinition>
     accountStatusOptions: Array<{ label: string; value: string }>
     accountProviderOptions: Array<{ label: string; value: string }>
@@ -54,7 +53,11 @@ const resultsSummary = computed(() => {
 </script>
 
 <template>
-    <AppLayout page-title="User Paginator Example">
+    <AppLayout
+        title="User Paginator Example"
+        description="Server-side filtering, sorting, and pagination with URL sync."
+        page-title="User Paginator Example"
+    >
         <IHead title="User Paginator Example" />
 
         <UPage>
@@ -110,7 +113,7 @@ const resultsSummary = computed(() => {
                                     </UBadge>
                                 </div>
                                 <p class="text-xs text-muted">
-                                    Created {{ new Date(user.created_at).toLocaleDateString() }}
+                                    Created {{ new Date(user.createdAt).toLocaleDateString() }}
                                 </p>
                             </UCard>
                         </div>

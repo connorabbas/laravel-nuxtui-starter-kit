@@ -67,7 +67,7 @@ it('applies contains filtering for name', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/paginator/users', false)
+            ->component('examples/paginator/Index', false)
             ->where('users.total', 1)
             ->where('users.data.0.name', 'Bravo Brown')
     );
@@ -87,7 +87,7 @@ it('applies between filtering for created date', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/paginator/users', false)
+            ->component('examples/paginator/Index', false)
             ->where('users.total', 2)
     );
 });
@@ -102,7 +102,7 @@ it('applies descending sort and pagination size', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/table/users', false)
+            ->component('examples/table/Index', false)
             ->where('users.per_page', 20)
             ->where('users.data.0.name', 'Charlie Clark')
     );
@@ -122,7 +122,7 @@ it('ignores disallowed match modes', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/paginator/users', false)
+            ->component('examples/paginator/Index', false)
             ->where('users.total', 3)
     );
 });
@@ -141,7 +141,7 @@ it('filters users by related account status', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/table/users', false)
+            ->component('examples/table/Index', false)
             ->where('users.total', 1)
             ->where('users.data.0.name', 'Bravo Brown')
     );
@@ -157,9 +157,9 @@ it('sorts users by related account aggregate count', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/table/users', false)
+            ->component('examples/table/Index', false)
             ->where('users.data.0.name', 'Bravo Brown')
-            ->where('users.data.0.accounts_count', 2)
+            ->where('users.data.0.accountsCount', 2)
     );
 });
 
@@ -177,7 +177,7 @@ it('filters users by related account providers using in mode', function () {
     $response->assertSuccessful();
     $response->assertInertia(
         fn (Assert $page) => $page
-            ->component('examples/table/users', false)
+            ->component('examples/table/Index', false)
             ->where('users.total', 2)
     );
 });

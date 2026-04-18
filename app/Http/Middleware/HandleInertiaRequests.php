@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
             'currentRouteName' => fn () => $request->route()?->getName(),
             'name' => config('app.name'),
             'auth' => [
-                'user' => Auth::check() ? UserData::from($request->user()) : null,
+                'user' => Auth::check() ? UserData::fromModel($request->user()) : null,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('flash_success'),

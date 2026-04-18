@@ -6,14 +6,13 @@ import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedDataTable } from '@/composables/usePaginatedDataTable'
 import type { LengthAwarePaginator } from '@/types/pagination'
-import type { User } from '@/types'
 import type { UserDirectoryFilterDefinition } from '@/types/examples/user-directory'
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 
 const props = defineProps<{
-    users: LengthAwarePaginator<User>
+    users: LengthAwarePaginator<App.Data.UserData>
     filterDefinitions: Record<string, UserDirectoryFilterDefinition>
     accountStatusOptions: Array<{ label: string; value: string }>
     accountProviderOptions: Array<{ label: string; value: string }>
@@ -57,7 +56,7 @@ function sortableHeader(id: string, label: string): () => unknown {
     })
 }
 
-const columns: TableColumn<User>[] = [
+const columns: TableColumn<App.Data.UserData>[] = [
     {
         accessorKey: 'id',
         header: sortableHeader('id', 'ID'),
@@ -71,10 +70,10 @@ const columns: TableColumn<User>[] = [
         header: sortableHeader('email', 'Email'),
     },
     {
-        accessorKey: 'created_at',
+        accessorKey: 'createdAt',
         header: sortableHeader('created_at', 'Created'),
         cell: ({ row }) => {
-            return new Date(row.original.created_at).toLocaleDateString()
+            return new Date(row.original.createdAt).toLocaleDateString()
         },
     },
     {
@@ -91,17 +90,17 @@ const columns: TableColumn<User>[] = [
         },
     },
     {
-        accessorKey: 'accounts_count',
+        accessorKey: 'accountsCount',
         header: sortableHeader('accounts_count', 'Accounts'),
         cell: ({ row }) => {
-            return row.original.accounts_count ?? 0
+            return row.original.accountsCount ?? 0
         },
     },
     {
-        accessorKey: 'accounts_sum_balance',
+        accessorKey: 'accountsSumBalance',
         header: sortableHeader('accounts_sum_balance', 'Total Balance'),
         cell: ({ row }) => {
-            const amount = Number(row.original.accounts_sum_balance ?? 0)
+            const amount = Number(row.original.accountsSumBalance ?? 0)
 
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -110,10 +109,10 @@ const columns: TableColumn<User>[] = [
         },
     },
     {
-        accessorKey: 'accounts_max_opened_at',
+        accessorKey: 'accountsMaxOpenedAt',
         header: sortableHeader('accounts_max_opened_at', 'Latest Account'),
         cell: ({ row }) => {
-            const value = row.original.accounts_max_opened_at
+            const value = row.original.accountsMaxOpenedAt
 
             if (!value) {
                 return '-'
@@ -126,7 +125,11 @@ const columns: TableColumn<User>[] = [
 </script>
 
 <template>
-    <AppLayout page-title="User Table Example">
+    <AppLayout
+        title="User Table Example"
+        description="Nuxt UI UTable + server-side filters/sorting/pagination with URL sync."
+        page-title="User Table Example"
+    >
         <IHead title="User Table Example" />
 
         <UPage>
