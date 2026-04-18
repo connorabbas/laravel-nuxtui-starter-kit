@@ -3,6 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { computed } from 'vue'
 import AppLayout from '@/layouts/app/Index.vue'
 import { useAppLayout } from '@/composables/useAppLayout'
+import { route } from '@/utils/route'
 
 const props = defineProps<{
     pageTitle?: string
