@@ -80,7 +80,6 @@ watch(deleteModalOpen, async (open) => {
 
 <template>
     <SettingsLayout
-        page-title="Profile"
         title="Profile"
         description="Update your name, email address, and account details."
     >

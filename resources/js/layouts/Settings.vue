@@ -6,14 +6,13 @@ import { useAppLayout } from '@/composables/useAppLayout'
 import { route } from '@/utils/route'
 
 const props = defineProps<{
-    pageTitle?: string
     title: string
     description: string
 }>()
 
 const { currentRoute } = useAppLayout()
 
-const settingsPageTitle = computed(() => `Settings - ${props.pageTitle ?? props.title}`)
+const settingsPageTitle = computed(() => `Settings - ${props.title}`)
 
 const items = computed<NavigationMenuItem[]>(() => [
     {
@@ -47,7 +46,6 @@ const items = computed<NavigationMenuItem[]>(() => [
     <AppLayout
         :title="settingsPageTitle"
         :description="props.description"
-        :page-title="props.pageTitle"
     >
         <UPageHeader
             :title="settingsPageTitle"

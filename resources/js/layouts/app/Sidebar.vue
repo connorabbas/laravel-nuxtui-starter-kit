@@ -118,7 +118,7 @@ const groups = computed(() => [
 
         <UDashboardSearch :groups="groups" />
 
-        <UDashboardPanel>
+        <UDashboardPanel :ui="{ body: 'py-0!' }">
             <template #header>
                 <UDashboardNavbar :title="pageTitle">
                     <template #leading>

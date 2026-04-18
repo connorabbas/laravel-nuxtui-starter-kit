@@ -4,7 +4,6 @@ import SettingsLayout from '@/layouts/Settings.vue'
 
 <template>
     <SettingsLayout
-        page-title="Appearance"
         title="Appearance"
         description="Choose how the interface looks for your preference."
     >
