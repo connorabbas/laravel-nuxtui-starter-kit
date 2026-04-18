@@ -4,6 +4,7 @@ import { useToast } from '@nuxt/ui/composables'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
 import SettingsLayout from '@/layouts/Settings.vue'
+import { route } from '@/utils/route'
 
 const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
