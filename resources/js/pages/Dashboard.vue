@@ -6,7 +6,6 @@ import AppLayout from '@/layouts/app/Index.vue'
     <AppLayout
         title="Dashboard"
         description="This is your authenticated application area."
-        page-title="Dashboard"
     >
         <UPage>
             <UPageHeader

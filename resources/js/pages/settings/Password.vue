@@ -52,7 +52,6 @@ function submit(): void {
 
 <template>
     <SettingsLayout
-        page-title="Password"
         title="Password"
         description="Update your password to keep your account secure."
     >
