@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
 import AuthLayout from '@/layouts/Auth.vue'
+import { route } from '@/utils/route'
 
 const showPassword = ref(false)
 

@@ -4,6 +4,7 @@ import { useToast } from '@nuxt/ui/composables'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/Settings.vue'
+import { route } from '@/utils/route'
 
 const props = defineProps<{
     status?: string

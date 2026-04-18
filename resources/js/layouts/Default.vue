@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3'
 import FlashMessages from '@/components/FlashMessages.vue'
 import AppHead from '@/components/AppHead.vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { route } from '@/utils/route'
 
 const props = defineProps<{
     title: string
