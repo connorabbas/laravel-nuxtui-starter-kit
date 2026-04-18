@@ -1,19 +1,14 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 import { router, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import { route } from '@/utils/route'
 
 export function useAppLayout() {
     const page = usePage()
 
     const currentPath = computed(() => page.url.split('?')[0])
 
-    const currentRoute = computed(() => {
-        // Access page.url to trigger re-computation on navigation.
-        /* eslint-disable @typescript-eslint/no-unused-vars */
-        const url = page.url
-        /* eslint-enable @typescript-eslint/no-unused-vars */
-        return route().current()
-    })
+    const currentRoute = computed(() => page.props.currentRouteName)
 
     const subPageNavItems = computed<NavigationMenuItem[] | undefined>(() => {
         return undefined
@@ -37,7 +32,7 @@ export function useAppLayout() {
                 {
                     label: 'Home',
                     icon: 'i-lucide-house',
-                    to: route('index'),
+                    to: '/',
                     active: currentRoute.value === 'index'
                 },
                 {
@@ -59,17 +54,13 @@ export function useAppLayout() {
     })
 
     const userMenuItems = computed<DropdownMenuItem[][]>(() => {
-        const items: DropdownMenuItem[][] = []
-
-        if (route().has('profile.edit')) {
-            items.push([
-                {
-                    label: 'Settings',
-                    icon: 'i-lucide-settings',
-                    to: route('profile.edit')
-                }
-            ])
-        }
+        const items: DropdownMenuItem[][] = [[
+            {
+                label: 'Settings',
+                icon: 'i-lucide-settings',
+                to: route('profile.edit')
+            }
+        ]]
 
         items.push([
             {

@@ -7,10 +7,8 @@ import ui from '@nuxt/ui/vue-plugin'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import type { DefineComponent } from 'vue'
 import { createSSRApp, h } from 'vue'
-import { Config, ZiggyVue } from 'ziggy-js'
 
-import { createZiggyRoute, installZiggyRoute } from '@/integrations/ziggy-route-compat'
-import type { AppPageProps, ErrorResponsePayload } from '@/types'
+import type { ErrorResponsePayload } from '@/types'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
 
@@ -18,15 +16,6 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        const pageProps = props.initialPage.props as unknown as AppPageProps
-
-        // Ziggy config
-        const ziggyConfig = {
-            ...(pageProps.ziggy as Config),
-            location: new URL(pageProps.ziggy.location)
-        }
-        const route = createZiggyRoute(ziggyConfig)
-
         // Global Toast Error handling
         const toast = useToast()
         router.on('httpException', (event) => {
@@ -61,14 +50,10 @@ createInertiaApp({
             })
         })
 
-        const app = createSSRApp({ render: () => h(App, props) })
-        app.use(plugin)
-        app.use(ui)
-        app.use(ZiggyVue, ziggyConfig)
-
-        installZiggyRoute(app, route)
-
-        app.mount(el)
+        createSSRApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(ui)
+            .mount(el)
     },
     progress: { color: 'var(--ui-primary)' }
 })

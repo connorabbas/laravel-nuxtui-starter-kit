@@ -7,6 +7,9 @@ export interface PaginationLink {
     active: boolean;
 }
 
+/**
+ * Interface representing pagination metadata.
+ */
 export interface PaginationMeta {
     current_page: number;
     from: number | null;

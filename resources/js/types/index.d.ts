@@ -1,27 +1,5 @@
-import type { Config } from 'ziggy-js'
-
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    accounts_count?: number;
-    accounts_sum_balance?: number | string;
-    accounts_max_opened_at?: string | null;
-    accounts?: Array<{
-        id: number;
-        name: string;
-        provider: string | null;
-        status: string;
-        balance: number | string;
-        opened_at: string | null;
-    }>;
-}
-
 export interface AuthProps {
-    user: User;
+    user: App.Data.UserData | null;
 }
 
 export interface FlashProps {
@@ -33,7 +11,7 @@ export interface FlashProps {
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-    ziggy: Config & { location: string };
+    currentRouteName: string | null;
     auth: AuthProps;
     flash: FlashProps;
     queryParams: Record<string, string | string[]>;

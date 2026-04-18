@@ -22,7 +22,7 @@ const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultS
         <UHeader>
             <template #left>
                 <Link
-                    :href="route('index')"
+                    href="/"
                     aria-label="Application logo"
                 >
                     <AppLogo class="h-6 w-auto shrink-0" />

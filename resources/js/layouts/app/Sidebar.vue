@@ -50,7 +50,7 @@ const groups = computed(() => [
             <template #header="{ collapsed }">
                 <div class="flex w-full justify-center">
                     <Link
-                        :href="route('index')"
+                        href="/"
                         aria-label="Application logo"
                     >
                         <LaravelLogo

@@ -63,6 +63,21 @@ Practical guide for coding agents operating in this repository.
 - Reuse existing components/actions before introducing new abstractions.
 - Avoid creating new top-level directories without strong justification.
 
+## Data Contracts
+
+- For structured data contracts in application code, use DTO/value object classes (prefer `spatie/laravel-data` `Data` objects).
+- For Inertia page props, backend payloads should be represented by `Data` classes and passed to `Inertia::render(...)` as typed objects (not ad-hoc associative arrays).
+- Annotate frontend-facing `Data` classes with `#[TypeScript]` so they are emitted to `resources/js/types/generated.d.ts` by the TypeScript transformer.
+- After creating/updating any `Data` class or route signatures, run `php artisan typescript:transform` (or rely on the watch process in `composer run dev`) so TS contracts stay in sync.
+- Do not use associative arrays for internal structured payloads.
+- Flat/list arrays are allowed when type-hinted with generics (for example `array<int, FooData>`).
+- Associative arrays are allowed only at framework boundaries where required (for example `Inertia::render(...)` props, Form Request `rules()`, config files, validation message maps).
+- Shared props must use the generated Data types in frontend declarations. Example: `auth.user` is shared as `UserData` in `app/Http/Middleware/HandleInertiaRequests.php` and typed as `App.Data.UserData | null` in `resources/js/types/index.d.ts`.
+- For paginated page props, always transform model items into Data objects before returning to Inertia. Prefer chaining `->through(...)` on the paginator and returning the Data object from the callback.
+- Add explicit PHPDoc generics for paginated results and transformed collections so the contract is clear (for example `LengthAwarePaginator<int, UserData>` after transformation).
+- On the frontend, consume paginator props with `LengthAwarePaginator<T>` from `resources/js/types/pagination.d.ts`, where `T` is the generated Data type (for example `LengthAwarePaginator<App.Data.UserData>`).
+- In Vue pages/components, use explicit prop typing with shared/page prop composition (for example `defineProps<AppPageProps<{ users: LengthAwarePaginator<App.Data.UserData> }>>()`).
+
 ## PHP and Laravel Style Rules
 
 - Use explicit parameter and return types on methods/functions.
@@ -106,7 +121,7 @@ Practical guide for coding agents operating in this repository.
 - Keep a single root element in templates.
 - Use `@/` alias for app-local imports.
 - Use Inertia primitives (`Link`, `useForm`, router events/visits) for SPA navigation/forms.
-- Keep Ziggy usage compatible with app bootstrap in `resources/js/app.ts` and `resources/js/ssr.ts`.
+- Use the generated route helper from `resources/js/utils/route.ts` via explicit imports.
 - Prefer explicit interfaces/types for prop and payload shapes.
 - Avoid introducing new `any` unless unavoidable.
 - Keep reactive state clear and intent-revealing (`ref`, `reactive`, `computed`).
@@ -191,7 +206,6 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v13
 - laravel/prompts (PROMPTS) - v0
-- tightenco/ziggy (ZIGGY) - v2
 - larastan/larastan (LARASTAN) - v3
 - laravel/boost (BOOST) - v2
 - laravel/mcp (MCP) - v0
@@ -200,6 +214,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
+- spatie/laravel-data - v4
+- spatie/laravel-typescript-transformer - v3
 - @inertiajs/vue3 (INERTIA_VUE) - v3
 - vue (VUE) - v3
 - eslint (ESLINT) - v9

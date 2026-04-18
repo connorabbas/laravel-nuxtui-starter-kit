@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3'
 
 import AuthLayout from '@/layouts/Auth.vue'
+import { route } from '@/utils/route'
 
 const props = defineProps<{
     status?: string

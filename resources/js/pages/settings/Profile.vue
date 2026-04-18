@@ -4,6 +4,7 @@ import { useToast } from '@nuxt/ui/composables'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import SettingsLayout from '@/layouts/Settings.vue'
+import { route } from '@/utils/route'
 
 const props = defineProps<{
     mustVerifyEmail: boolean
@@ -127,7 +128,7 @@ watch(deleteModalOpen, async (open) => {
                 </UFormField>
 
                 <div
-                    v-if="props.mustVerifyEmail && user && !user.email_verified_at"
+                    v-if="props.mustVerifyEmail && user && !user.emailVerifiedAt"
                     class="space-y-2"
                 >
                     <p class="text-muted text-sm">
