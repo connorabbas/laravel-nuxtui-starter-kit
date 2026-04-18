@@ -127,7 +127,6 @@ function regenerateRecoveryCodes(): void {
 
 <template>
     <SettingsLayout
-        page-title="Two-Factor Authentication"
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
