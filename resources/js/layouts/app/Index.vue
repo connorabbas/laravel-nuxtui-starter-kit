@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import AppHead from '@/components/AppHead.vue'
-import AppLayout from './Sidebar.vue'
+import AppLayout from './Header.vue'
 
 const props = defineProps<{
     title: string
