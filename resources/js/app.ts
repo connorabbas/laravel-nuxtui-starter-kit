@@ -8,8 +8,6 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import type { DefineComponent } from 'vue'
 import { createSSRApp, h } from 'vue'
 
-import type { ErrorResponsePayload } from '@/types'
-
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
 
 createInertiaApp({
@@ -19,23 +17,21 @@ createInertiaApp({
         // Global Toast Error handling
         const toast = useToast()
         router.on('httpException', (event) => {
-            const responseBody = event.detail.response?.data as Partial<ErrorResponsePayload> | undefined
+            const responseBody = event.detail.response?.data as Partial<App.Data.ErrorToastResponseData> | undefined
 
             if (
-                responseBody?.error_title
-                && responseBody?.error_summary
-                && responseBody?.error_detail
-                && responseBody?.error_icon
-                && responseBody?.error_color
-                && responseBody?.status
+                responseBody?.status
+                && responseBody?.errorSummary
+                && responseBody?.errorDetail
+                && responseBody?.errorIcon
             ) {
                 event.preventDefault()
 
                 toast.add({
-                    color: responseBody.error_color,
-                    title: responseBody.error_summary,
-                    description: responseBody.error_detail,
-                    icon: responseBody.error_icon
+                    color: responseBody.status >= 500 ? 'error' : 'warning',
+                    title: responseBody.errorSummary,
+                    description: responseBody.errorDetail,
+                    icon: responseBody.errorIcon
                 })
             }
         })

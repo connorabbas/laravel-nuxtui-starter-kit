@@ -1,5 +1,6 @@
 <?php
 
+use App\Data\ErrorToastResponseData;
 use App\Exceptions\ErrorToastException;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -66,12 +67,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             if ($statusCode >= 400) {
                 $errorMetadata = $resolveErrorMetadata($statusCode);
-                $errorTitle = Response::$statusTexts[$statusCode] ?? 'Error';
+                $statusText = Response::$statusTexts[$statusCode] ?? 'Error';
                 $errorDetail = $errorMetadata['detail'] ?? 'An unexpected error occurred.';
                 $errorIcon = $errorMetadata['icon'] ?? 'i-lucide-alert-triangle';
-                $errorColor = $errorMetadata['color'] ?? ($statusCode >= 500 ? 'error' : 'warning');
 
-                // Show exception modal in debug mode
                 if (
                     $statusCode >= 500
                     && app()->hasDebugModeEnabled()
@@ -80,33 +79,29 @@ return Application::configure(basePath: dirname(__DIR__))
                     return $response;
                 }
 
-                // Return JSON response for mutation requests to support toast handling
                 if ($request->inertia() && !$request->isMethod('GET')) {
-                    $errorSummary = "{$errorTitle} - {$statusCode}";
-                    $toastTitle = $errorTitle;
+                    $errorSummary = "{$statusText} - {$statusCode}";
 
                     if ($exception instanceof ErrorToastException) {
-                        $toastTitle = 'Error';
-                        $errorSummary = "Error";
+                        $errorSummary = 'Error';
                         $errorDetail = $exception->getMessage();
                     }
 
-                    return response()->json([
-                        'status' => $statusCode,
-                        'error_title' => $toastTitle,
-                        'error_summary' => $errorSummary,
-                        'error_detail' => $errorDetail,
-                        'error_icon' => $errorIcon,
-                        'error_color' => $errorColor,
-                    ], $statusCode);
+                    $toastPayload = new ErrorToastResponseData(
+                        status: $statusCode,
+                        errorSummary: $errorSummary,
+                        errorDetail: $errorDetail,
+                        errorIcon: $errorIcon,
+                    );
+
+                    return response()->json($toastPayload->toArray(), $statusCode);
                 }
 
-                // Standard error page
                 return Inertia::render('Error', [
-                    'title' => $errorTitle,
+                    'title' => $statusText,
                     'detail' => $errorDetail,
                     'status' => $statusCode,
-                    'homepageRoute' => route('index', absolute: false),
+                    'homepageRoute' => route(name: 'index', absolute: false),
                 ])
                     ->toResponse($request)
                     ->setStatusCode($statusCode);
