@@ -8,6 +8,12 @@ status: string,
 balance: string,
 openedAt: string | string | string | null,
 };
+export type ErrorToastResponseData = {
+status: number,
+errorSummary: string,
+errorDetail: string,
+errorIcon: string,
+};
 export type UserData = {
 id: number,
 name: string,

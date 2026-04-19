@@ -11,11 +11,9 @@ test('inertia mutation requests receive configured error payload for known statu
 
     $response->assertNotFound()
         ->assertJsonPath('status', 404)
-        ->assertJsonPath('error_title', Response::$statusTexts[404])
-        ->assertJsonPath('error_summary', Response::$statusTexts[404] . ' - 404')
-        ->assertJsonPath('error_detail', config('errors.statuses.404.detail'))
-        ->assertJsonPath('error_icon', config('errors.statuses.404.icon'))
-        ->assertJsonPath('error_color', config('errors.statuses.404.color'));
+        ->assertJsonPath('errorSummary', Response::$statusTexts[404] . ' - 404')
+        ->assertJsonPath('errorDetail', config('errors.statuses.404.detail'))
+        ->assertJsonPath('errorIcon', config('errors.statuses.404.icon'));
 });
 
 test('inertia mutation requests use fallback metadata for unknown statuses', function () {
@@ -27,11 +25,9 @@ test('inertia mutation requests use fallback metadata for unknown statuses', fun
 
     $response->assertStatus(418)
         ->assertJsonPath('status', 418)
-        ->assertJsonPath('error_title', Response::$statusTexts[418])
-        ->assertJsonPath('error_summary', Response::$statusTexts[418] . ' - 418')
-        ->assertJsonPath('error_detail', config('errors.defaults.4xx.detail'))
-        ->assertJsonPath('error_icon', config('errors.defaults.4xx.icon'))
-        ->assertJsonPath('error_color', config('errors.defaults.4xx.color'));
+        ->assertJsonPath('errorSummary', Response::$statusTexts[418] . ' - 418')
+        ->assertJsonPath('errorDetail', config('errors.defaults.4xx.detail'))
+        ->assertJsonPath('errorIcon', config('errors.defaults.4xx.icon'));
 });
 
 test('session expired errors redirect back with configured flash message', function () {
