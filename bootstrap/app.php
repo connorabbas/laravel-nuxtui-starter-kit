@@ -71,6 +71,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $errorDetail = $errorMetadata['detail'] ?? 'An unexpected error occurred.';
                 $errorIcon = $errorMetadata['icon'] ?? 'i-lucide-alert-triangle';
 
+                // Show exception modal in debug mode
                 if (
                     $statusCode >= 500
                     && app()->hasDebugModeEnabled()
@@ -79,6 +80,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     return $response;
                 }
 
+                // Return JSON response for mutation requests to support toast handling
                 if ($request->inertia() && !$request->isMethod('GET')) {
                     $errorSummary = "{$statusText} - {$statusCode}";
 
@@ -97,6 +99,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     return response()->json($toastPayload->toArray(), $statusCode);
                 }
 
+                // Standard error page
                 return Inertia::render('Error', [
                     'title' => $statusText,
                     'detail' => $errorDetail,
