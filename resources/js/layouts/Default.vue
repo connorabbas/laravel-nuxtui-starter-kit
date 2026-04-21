@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
-import FlashMessages from '@/components/FlashMessages.vue'
+import FlashAlerts from '@/components/FlashAlerts.vue'
 import AppHead from '@/components/AppHead.vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { route } from '@/utils/route'
@@ -27,7 +27,7 @@ const navMenuItems: NavigationMenuItem[] = [
 </script>
 
 <template>
-    <UApp>
+    <div>
         <AppHead
             :title="props.title"
             :description="props.description"
@@ -96,7 +96,7 @@ const navMenuItems: NavigationMenuItem[] = [
 
         <UMain>
             <UContainer class="pt-4">
-                <FlashMessages />
+                <FlashAlerts />
             </UContainer>
 
             <slot />
@@ -122,5 +122,5 @@ const navMenuItems: NavigationMenuItem[] = [
                 />
             </template>
         </UFooter>
-    </UApp>
+    </div>
 </template>
