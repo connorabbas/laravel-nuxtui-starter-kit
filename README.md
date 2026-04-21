@@ -42,17 +42,13 @@ Non-GET Inertia requests that fail return a structured JSON error payload, and t
 
 This gives users immediate feedback for failed form submits/actions without custom toast plumbing in every page.
 
-### 2) Session Flash Messages
+### 2) Inertia Flash Alerts + Toasts
 
-Redirect-based actions can set standard flash keys:
+Redirect-based actions can set Inertia flash keys with explicit UI suffixes:
 
-- `flash_success`
-- `flash_info`
-- `flash_warning`
-- `flash_error`
-- `flash_neutral`
+- `<color>_alert` will render an inline [Alert](https://ui.nuxt.com/docs/components/alert)
+- `<color>_toast` will trigger a [Toast](https://ui.nuxt.com/docs/components/toast)
 
-These are shared via Inertia and rendered automatically by `FlashMessages.vue` in all layouts.
 
 ### 3) Friendly Error Pages + 419 Handling
 
@@ -152,52 +148,44 @@ php artisan test --compact tests/Feature/Settings/ProfileUpdateTest.php --filter
 
 ---
 
-## How to Use Flash Messages
+## How to Use Inertia Flash Data
 
-From controllers, redirect or flash with any supported key:
+From controllers, use `Inertia::flash(...)` with `<color>_alert` / `<color>_toast` keys:
 
 ```php
-// In your controller...
+use Inertia\Inertia;
 
-// Chained to session helper
-session()->flash('flash_success', 'Success - Resource created!');
+// Single key
+return Inertia::flash('success_alert', 'Success - Resource created!')->back();
 
-// Or with a redirect
-try {
-    // ...
-} catch (Throwable $e) {
-    report($e);
-    return redirect()
-        ->route('example-route')
-        ->with('flash_error', 'Error - Update failed, we experienced an issue.');
-}
+// Multiple keys
+Inertia::flash([
+    'success_toast' => 'Profile updated successfully.',
+    'info_alert' => 'Next step: review your settings.',
+]);
+
+return to_route('profile.edit');
 ```
 
-Flash messages are auto-shared and auto-rendered in the UI.
+Behavior:
+
+- Use available color prefixes that match the Nuxt UI theme system: `success`, `info`, `warning`, `error`, & `neutral`
+- `*_alert` keys are displayed inline by `resources/js/components/FlashAlerts.vue`.
+- `*_toast` keys are displayed by the global listener in `resources/js/composables/useInertiaRouterEvents.ts`.
 
 ---
 
 ## How to Trigger a Toast-Friendly Error
 
-For mutation requests, throw an exception (or abort) and the global error handler will return toast-ready metadata.
+For non-GET Inertia requests, the global exception handler returns structured JSON toast metadata for HTTP exceptions. The frontend listens to Inertia `httpException` and `networkError` events and shows a toast automatically.
 
-You can also use the included `ErrorToastException` for custom messages:
+You can use normal Laravel exception/error flows (for example `abort(...)` or thrown exceptions):
 
 ```php
-// In your controller...
-
-use App\Exceptions\ErrorToastException;
-
-try {
-    // ...
-} catch (ExceptionWarrantingCustomErrorDetails $e) {
-    report($e);
-    // Will trigger an "error" severity level toast message on the front-end
-    throw new ErrorToastException('Specific error message...');
-}
+abort(404);
 ```
 
-The frontend listens to Inertia router `httpException` & `networkError` events and shows a toast automatically.
+No per-form toast plumbing is required for uncaught mutation errors.
 
 ---
 

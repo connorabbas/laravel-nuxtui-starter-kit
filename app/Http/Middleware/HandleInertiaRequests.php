@@ -40,17 +40,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'currentRouteName' => fn () => $request->route()?->getName(),
             'name' => config('app.name'),
+            'currentRouteName' => fn () => $request->route()?->getName(),
             'auth' => [
                 'user' => Auth::check() ? UserData::from($request->user()) : null,
-            ],
-            'flash' => [
-                'success' => fn () => $request->session()->get('flash_success'),
-                'info' => fn () => $request->session()->get('flash_info'),
-                'warning' => fn () => $request->session()->get('flash_warning'),
-                'error' => fn () => $request->session()->get('flash_error'),
-                'neutral' => fn () => $request->session()->get('flash_neutral'),
             ],
             'queryParams' => Inertia::always($request->query()),
         ];

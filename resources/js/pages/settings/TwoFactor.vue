@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { useToast } from '@nuxt/ui/composables'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/Settings.vue'
@@ -15,8 +14,6 @@ const props = defineProps<{
     setupKey: string | null
     recoveryCodes: string[]
 }>()
-
-const toast = useToast()
 
 const setupModalOpen = ref(false)
 const confirmationCode = ref<number[]>([])
@@ -71,12 +68,6 @@ function submitConfirmationCode(): void {
         errorBag: 'confirmTwoFactorAuthentication',
         onSuccess: () => {
             confirmationCode.value = []
-            toast.add({
-                color: 'success',
-                title: 'Success',
-                description: 'Two-factor authentication has been setup for your account.',
-                icon: 'i-lucide-circle-check'
-            })
         },
     })
 }
@@ -99,13 +90,7 @@ async function copySetupKey(): Promise<void> {
         return
     }
 
-    await copy(props.setupKey).then(() => {
-        toast.add({
-            color: 'success',
-            title: 'Setup code copied to clipboard',
-            icon: 'i-lucide-circle-check'
-        })
-    })
+    await copy(props.setupKey)
 }
 
 function enableTwoFactor(): void {

@@ -22,6 +22,8 @@ class PasswordController extends Controller
             'password' => Hash::make($request->string('password')->toString()),
         ]);
 
+        Inertia::flash('success_toast', __('Your password has been updated.'));
+
         return to_route('settings.password.edit');
     }
 }
