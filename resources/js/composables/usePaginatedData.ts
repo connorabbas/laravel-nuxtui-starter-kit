@@ -1,8 +1,8 @@
 import { computed, onMounted, ref, toRaw } from 'vue'
 import type { ComputedRef, Ref, WritableComputedRef } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import type { Page, PageProps, RequestPayload, VisitOptions } from '@inertiajs/core'
 import type { SortingState } from '@tanstack/vue-table'
-import type { AppPageProps } from '@/types'
 
 export type QueryParamValue = string | number | boolean | null | QueryParamValue[] | { [key: string]: QueryParamValue }
 
@@ -49,11 +49,9 @@ export interface PaginatedDataQueryParams {
     [key: string]: QueryParamValue | undefined;
 }
 
-export interface InertiaRouterFetchCallbacks {
-    onSuccess?: (page: unknown) => void;
-    onError?: (errors: unknown) => void;
-    onFinish?: () => void;
-}
+export type PaginatedDataVisitPayload = PaginatedDataQueryParams
+
+export type InertiaRouterFetchCallbacks<T extends RequestPayload = RequestPayload> = Pick<VisitOptions<T>, 'onSuccess' | 'onError' | 'onFinish'>
 
 export interface UsePaginatedDataOptions {
     initialFilters?: PaginatedDataFilters;
@@ -78,19 +76,17 @@ export interface UsePaginatedDataState {
     filterModeModel: (field: string) => WritableComputedRef<FilterMatchMode>;
     setFilterMode: (field: string, mode: FilterMatchMode, options?: { resetValue?: boolean }) => void;
     sortIcon: (field: string) => string;
-    toggleSort: (field: string) => Promise<unknown>;
-    fetchData: (options?: InertiaRouterFetchCallbacks) => Promise<unknown>;
-    paginate: (page: number, perPage?: number) => Promise<unknown>;
-    applyFilters: (options?: InertiaRouterFetchCallbacks) => Promise<unknown>;
-    setSorting: (sorting: SortingState, options?: InertiaRouterFetchCallbacks) => Promise<unknown>;
-    reset: (options?: InertiaRouterFetchCallbacks) => Promise<unknown>;
-    hardReset: (options?: InertiaRouterFetchCallbacks) => Promise<unknown>;
+    toggleSort: (field: string) => Promise<Page<PageProps>>;
+    fetchData: (options?: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload>) => Promise<Page<PageProps>>;
+    paginate: (page: number, perPage?: number) => Promise<Page<PageProps>>;
+    applyFilters: (options?: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload>) => Promise<Page<PageProps>>;
+    setSorting: (sorting: SortingState, options?: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload>) => Promise<Page<PageProps>>;
+    reset: (options?: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload>) => Promise<Page<PageProps>>;
+    hardReset: (options?: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload>) => Promise<Page<PageProps>>;
     parseUrlParams: () => void;
     debounceInputFilter: (callback: () => void, wait?: number) => void;
     scrollToTop: () => void;
 }
-
-type InertiaPaginatedPageProps = AppPageProps<{ queryParams?: PaginatedDataQueryParams }>
 
 function cloneFilters(filters: PaginatedDataFilters): PaginatedDataFilters {
     return structuredClone(toRaw(filters))
@@ -211,7 +207,7 @@ export function usePaginatedData(
     propDataToFetch: string | string[],
     options: UsePaginatedDataOptions = {}
 ): UsePaginatedDataState {
-    const page = usePage<InertiaPaginatedPageProps>()
+    const page = usePage()
 
     const initialFilters = options.initialFilters ?? {}
     const initialPerPage = options.initialPerPage ?? 20
@@ -451,15 +447,15 @@ export function usePaginatedData(
         return [...base, 'queryParams']
     }
 
-    function fetchData(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function fetchData(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         const { onSuccess, onError, onFinish } = options
 
         return new Promise((resolve, reject) => {
             processing.value = true
 
-            router.visit(window.location.pathname, {
+            router.visit<PaginatedDataVisitPayload>(window.location.pathname, {
                 method: 'get',
-                data: buildQueryData() as any,
+                data: buildQueryData(),
                 preserveState: true,
                 preserveUrl: false,
                 replace: true,
@@ -473,15 +469,15 @@ export function usePaginatedData(
                     onError?.(errors)
                     reject(errors)
                 },
-                onFinish: () => {
+                onFinish: (visit) => {
                     processing.value = false
-                    onFinish?.()
+                    onFinish?.(visit)
                 },
             })
         })
     }
 
-    function paginate(pageNumber: number, perPage?: number): Promise<unknown> {
+    function paginate(pageNumber: number, perPage?: number): Promise<Page<PageProps>> {
         pagination.value.page = pageNumber
 
         if (typeof perPage === 'number' && perPage > 0) {
@@ -499,7 +495,7 @@ export function usePaginatedData(
         })
     }
 
-    function applyFilters(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function applyFilters(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         const { onSuccess, onError, onFinish } = options
 
         pagination.value.page = 1
@@ -507,21 +503,21 @@ export function usePaginatedData(
         return fetchData({
             onSuccess,
             onError,
-            onFinish: () => {
+            onFinish: (visit) => {
                 scrollToTop()
-                onFinish?.()
+                onFinish?.(visit)
             },
         })
     }
 
-    function setSorting(nextSorting: SortingState, options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function setSorting(nextSorting: SortingState, options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         sorting.value = structuredClone(nextSorting)
         pagination.value.page = 1
 
         return fetchData(options)
     }
 
-    function toggleSort(field: string): Promise<unknown> {
+    function toggleSort(field: string): Promise<Page<PageProps>> {
         const current = sorting.value.find(entry => entry.id === field)
         let nextSorting: SortingState = []
 
@@ -534,7 +530,7 @@ export function usePaginatedData(
         return setSorting(nextSorting)
     }
 
-    function reset(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function reset(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         filters.value = cloneFilters(initialFilters)
         sorting.value = structuredClone(initialSorting)
         pagination.value = {
@@ -545,13 +541,13 @@ export function usePaginatedData(
         return fetchData(options)
     }
 
-    function hardReset(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function hardReset(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         const { onSuccess, onError, onFinish } = options
 
         return new Promise((resolve, reject) => {
             processing.value = true
 
-            router.visit(window.location.pathname, {
+            router.visit<PaginatedDataVisitPayload>(window.location.pathname, {
                 method: 'get',
                 preserveUrl: false,
                 replace: true,
@@ -565,16 +561,16 @@ export function usePaginatedData(
                     onError?.(errors)
                     reject(errors)
                 },
-                onFinish: () => {
+                onFinish: (visit) => {
                     processing.value = false
-                    onFinish?.()
+                    onFinish?.(visit)
                 },
             })
         })
     }
 
     function parseUrlParams(): void {
-        const queryParams = page.props.queryParams ?? {}
+        const queryParams = (page.props.queryParams ?? {}) as PaginatedDataQueryParams
         const nextFilters = cloneFilters(initialFilters)
 
         if (queryParams.filter && typeof queryParams.filter === 'object' && !Array.isArray(queryParams.filter)) {
@@ -588,11 +584,12 @@ export function usePaginatedData(
                 }
 
                 const existingFilter = nextFilters[field]
-                const op = typeof queryFilter.op === 'string'
-                    ? queryFilter.op
+                const parsedQueryFilter = queryFilter as { op?: string; value?: QueryParamValue }
+                const op = typeof parsedQueryFilter.op === 'string'
+                    ? parsedQueryFilter.op
                     : existingFilter.op
-                const value = queryFilter.value !== undefined
-                    ? parseValueFromQuery(queryFilter.value)
+                const value = parsedQueryFilter.value !== undefined
+                    ? parseValueFromQuery(parsedQueryFilter.value)
                     : existingFilter.value
 
                 nextFilters[field] = {

@@ -5,8 +5,7 @@ import AppLayout from '@/layouts/app/Index.vue'
 import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue'
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedDataTable } from '@/composables/usePaginatedDataTable'
-import type { LengthAwarePaginator } from '@/types'
-import type { UserDirectoryFilterDefinition } from '@/types/examples/user-directory'
+import type { LengthAwarePaginator, UserDirectoryFilterDefinition } from '@/types'
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')

@@ -1,10 +1,12 @@
 import { computed } from 'vue'
+import type { Page, PageProps } from '@inertiajs/core'
 import type { SortingState } from '@tanstack/vue-table'
 import {
     usePaginatedData,
     type UsePaginatedDataOptions,
     type FilterMatchMode,
     type InertiaRouterFetchCallbacks,
+    type PaginatedDataVisitPayload,
 } from './usePaginatedData'
 
 export function usePaginatedDataTable(
@@ -19,19 +21,19 @@ export function usePaginatedDataTable(
         ) as Record<string, FilterMatchMode>
     })
 
-    function filter(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function filter(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         return paginatedData.applyFilters(options)
     }
 
-    function sort(nextSorting: SortingState, options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function sort(nextSorting: SortingState, options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         return paginatedData.setSorting(nextSorting, options)
     }
 
-    async function reset(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function reset(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         return paginatedData.reset(options)
     }
 
-    function hardReset(options: InertiaRouterFetchCallbacks = {}): Promise<unknown> {
+    function hardReset(options: InertiaRouterFetchCallbacks<PaginatedDataVisitPayload> = {}): Promise<Page<PageProps>> {
         return paginatedData.hardReset(options)
     }
 

@@ -4,8 +4,7 @@ import AppLayout from '@/layouts/app/Index.vue'
 import UserFiltersSlideover from '@/components/examples/UserFiltersSlideover.vue'
 import { Head as IHead } from '@inertiajs/vue3'
 import { usePaginatedData } from '@/composables/usePaginatedData'
-import type { LengthAwarePaginator } from '@/types'
-import type { UserDirectoryFilterDefinition } from '@/types/examples/user-directory'
+import type { LengthAwarePaginator, UserDirectoryFilterDefinition } from '@/types'
 
 const props = defineProps<{
     users: LengthAwarePaginator<App.Data.UserData>
