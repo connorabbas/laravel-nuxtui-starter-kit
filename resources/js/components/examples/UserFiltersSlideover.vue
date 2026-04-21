@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { FilterMatchMode, UsePaginatedDataState } from '@/composables/usePaginatedData'
-import type { UserDirectoryFilterDefinition } from '@/types/examples/user-directory'
+import type { UserDirectoryFilterDefinition } from '@/types'
 
 const props = withDefaults(defineProps<{
     paginated: Pick<UsePaginatedDataState,
