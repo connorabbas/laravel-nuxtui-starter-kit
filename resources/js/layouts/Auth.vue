@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppHead from '@/components/AppHead.vue'
-import FlashMessages from '@/components/FlashMessages.vue'
+import FlashAlerts from '@/components/FlashAlerts.vue'
 
 const props = defineProps<{
     title: string
@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <UApp>
+    <div>
         <AppHead
             :title="props.title"
             :description="props.description"
@@ -27,10 +27,10 @@ const props = defineProps<{
             <UPageCard
                 class="w-full max-w-md"
             >
-                <FlashMessages class="mb-4" />
+                <FlashAlerts class="mb-4" />
 
                 <slot />
             </UPageCard>
         </div>
-    </UApp>
+    </div>
 </template>

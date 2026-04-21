@@ -1,7 +1,6 @@
 <?php
 
 use App\Data\ErrorToastResponseData;
-use App\Exceptions\ErrorToastException;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -60,9 +59,10 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($statusCode === 419) {
                 $errorMetadata = $resolveErrorMetadata($statusCode);
 
-                return back()->with([
-                    'flash_warning' => $errorMetadata['detail'] ?? 'The page expired, please try again.',
-                ]);
+                return Inertia::flash(
+                    'warning_alert',
+                    $errorMetadata['detail'] ?? 'The page expired, please try again.',
+                )->back();
             }
 
             if ($statusCode >= 400) {
@@ -75,7 +75,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 if (
                     $statusCode >= 500
                     && app()->hasDebugModeEnabled()
-                    && !($exception instanceof ErrorToastException)
                 ) {
                     return $response;
                 }
@@ -83,11 +82,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Return JSON response for mutation requests to support toast handling
                 if ($request->inertia() && !$request->isMethod('GET')) {
                     $errorSummary = "{$statusText} - {$statusCode}";
-
-                    if ($exception instanceof ErrorToastException) {
-                        $errorSummary = 'Error';
-                        $errorDetail = $exception->getMessage();
-                    }
 
                     $toastPayload = new ErrorToastResponseData(
                         status: $statusCode,

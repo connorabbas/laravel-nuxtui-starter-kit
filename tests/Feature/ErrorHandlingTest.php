@@ -36,7 +36,7 @@ test('session expired errors redirect back with configured flash message', funct
     $response = $this->from(route('index', absolute: false))->post('/_tests/error-419');
 
     $response->assertRedirect(route('index', absolute: false))
-        ->assertSessionHas('flash_warning', config('errors.statuses.419.detail'));
+        ->assertInertiaFlash('warning_alert', config('errors.statuses.419.detail'));
 });
 
 test('error page receives resolved error metadata for get requests', function () {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { useToast } from '@nuxt/ui/composables'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
 import SettingsLayout from '@/layouts/Settings.vue'
@@ -14,8 +13,6 @@ const currentPasswordInput = useTemplateRef('currentPasswordInput')
 const newPasswordInput = useTemplateRef('newPasswordInput')
 const passwordConfirmationInput = useTemplateRef('passwordConfirmationInput')
 
-const toast = useToast()
-
 const updatePasswordForm = useForm({
     current_password: '',
     password: '',
@@ -27,12 +24,6 @@ function submit(): void {
         errorBag: 'updatePassword',
         onSuccess: () => {
             updatePasswordForm.reset('current_password', 'password', 'password_confirmation')
-            toast.add({
-                color: 'success',
-                title: 'Success',
-                description: 'Your password has been updated.',
-                icon: 'i-lucide-circle-check'
-            })
         },
         onError: async () => {
             if (updatePasswordForm.errors.password) {

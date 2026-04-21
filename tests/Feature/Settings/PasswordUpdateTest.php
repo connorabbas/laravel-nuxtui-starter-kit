@@ -19,7 +19,8 @@ test('password can be updated', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('settings.password.edit', absolute: false));
+        ->assertRedirect(route('settings.password.edit', absolute: false))
+        ->assertInertiaFlash('success_toast', 'Your password has been updated.');
 
     expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
 });
