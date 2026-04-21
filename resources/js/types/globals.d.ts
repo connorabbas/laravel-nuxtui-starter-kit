@@ -1,9 +1,31 @@
 import { PageProps as InertiaPageProps } from '@inertiajs/core'
 import { AppPageProps } from './'
 
+// Extend ImportMeta interface for Vite...
+declare module 'vite/client' {
+    interface ImportMetaEnv {
+        readonly VITE_APP_NAME: string
+        [key: string]: string | boolean | undefined
+    }
+
+    interface ImportMeta {
+        readonly env: ImportMetaEnv
+        readonly glob: <T>(pattern: string) => Record<string, () => Promise<T>>
+    }
+}
+
 declare module '@inertiajs/core' {
     interface PageProps extends InertiaPageProps, AppPageProps { }
     export interface InertiaConfig {
-        errorValueType: string // set to string[] if passing all errors: https://inertiajs.com/docs/v3/the-basics/validation#multiple-errors-per-field
+        errorValueType: string
+        sharedPageProps: AppPageProps
+    }
+}
+
+declare module 'vue' {
+    interface ComponentCustomProperties {
+        $inertia: typeof Router
+        $page: Page
+        $headManager: ReturnType<typeof createHeadManager>
     }
 }
