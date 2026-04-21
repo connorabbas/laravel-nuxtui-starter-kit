@@ -26,7 +26,8 @@ test('profile information can be updated', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit', absolute: false));
+        ->assertRedirect(route('profile.edit', absolute: false))
+        ->assertInertiaFlash('success_toast', 'Profile information has been saved.');
 
     $user->refresh();
 
@@ -63,7 +64,8 @@ test('user can delete their account', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('index', absolute: false));
+        ->assertRedirect(route('index', absolute: false))
+        ->assertInertiaFlash('success_alert', 'Your account has been deleted.');
 
     $this->assertGuest();
     expect($user->fresh())->toBeNull();

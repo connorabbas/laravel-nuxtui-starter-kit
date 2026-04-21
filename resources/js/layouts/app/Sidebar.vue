@@ -6,7 +6,7 @@ import { useAppLayout } from '@/composables/useAppLayout'
 import { useSsrStorage } from '@/composables/useSsrStorage'
 import AppLogo from '@/components/AppLogo.vue'
 import LaravelLogo from '@/components/LaravelLogo.vue'
-import FlashMessages from '@/components/FlashMessages.vue'
+import FlashAlerts from '@/components/FlashAlerts.vue'
 
 const props = defineProps<{
     pageTitle?: string
@@ -139,7 +139,7 @@ const groups = computed(() => [
             </template>
 
             <template #body>
-                <FlashMessages />
+                <FlashAlerts />
 
                 <slot />
             </template>

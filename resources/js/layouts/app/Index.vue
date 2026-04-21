@@ -11,7 +11,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <UApp>
+    <div>
         <AppHead
             :title="props.title"
             :description="props.description"
@@ -23,5 +23,5 @@ const props = defineProps<{
         >
             <slot />
         </AppLayout>
-    </UApp>
+    </div>
 </template>

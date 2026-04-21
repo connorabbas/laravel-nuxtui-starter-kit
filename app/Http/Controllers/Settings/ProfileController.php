@@ -33,6 +33,9 @@ class ProfileController extends Controller
         }
 
         $user->save();
+        Inertia::flash([
+            'success_toast' => __('Profile information has been saved.'),
+        ]);
 
         return to_route('profile.edit');
     }
@@ -50,6 +53,8 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('flash_success', 'Your account has been deleted.');
+        Inertia::flash('success_alert', __('Your account has been deleted.'));
+
+        return redirect('/');
     }
 }

@@ -5,7 +5,7 @@ import { computed } from 'vue'
 
 import { useAppLayout } from '@/composables/useAppLayout'
 import AppLogo from '@/components/AppLogo.vue'
-import FlashMessages from '@/components/FlashMessages.vue'
+import FlashAlerts from '@/components/FlashAlerts.vue'
 
 const props = defineProps<{
     pageTitle?: string
@@ -77,7 +77,7 @@ const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultS
 
         <UMain>
             <UContainer class="w-full">
-                <FlashMessages class="mt-6" />
+                <FlashAlerts class="mt-6" />
 
                 <slot />
             </UContainer>

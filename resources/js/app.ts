@@ -6,6 +6,7 @@ import ui from '@nuxt/ui/vue-plugin'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import type { DefineComponent } from 'vue'
 import { createSSRApp, h } from 'vue'
+import AppRoot from '@/components/AppRoot.vue'
 import { useInertiaRouterEvents } from '@/composables/useInertiaRouterEvents'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
@@ -15,7 +16,11 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         useInertiaRouterEvents()
-        createSSRApp({ render: () => h(App, props) })
+        createSSRApp({
+            render: () => h(AppRoot, {}, {
+                default: () => h(App, props)
+            })
+        })
             .use(plugin)
             .use(ui)
             .mount(el)

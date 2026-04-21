@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3'
-import { useToast } from '@nuxt/ui/composables'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import SettingsLayout from '@/layouts/Settings.vue'
@@ -12,7 +11,6 @@ const props = defineProps<{
 }>()
 
 const page = usePage()
-const toast = useToast()
 const user = computed(() => page.props.auth.user)
 const deleteModalOpen = ref(false)
 const showDeletePassword = ref(false)
@@ -33,12 +31,6 @@ function updateProfile(): void {
     profileUpdateForm.patch(route('profile.update'), {
         onSuccess: () => {
             profileUpdateForm.defaults()
-            toast.add({
-                color: 'success',
-                title: 'Success',
-                description: 'Profile information has been saved.',
-                icon: 'i-lucide-circle-check'
-            })
         },
     })
 }

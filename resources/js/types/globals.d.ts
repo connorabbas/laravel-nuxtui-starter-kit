@@ -1,5 +1,5 @@
 import { PageProps as InertiaPageProps } from '@inertiajs/core'
-import { AppPageProps } from './'
+import type { AppPageProps, FlashProps } from './'
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -18,6 +18,7 @@ declare module '@inertiajs/core' {
     interface PageProps extends InertiaPageProps, AppPageProps { }
     export interface InertiaConfig {
         errorValueType: string
+        flashDataType: FlashProps
         sharedPageProps: AppPageProps
     }
 }
