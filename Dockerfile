@@ -59,8 +59,6 @@ COPY --from=node /usr/local/lib /usr/local/lib
 COPY --from=node /usr/local/include /usr/local/include
 COPY --from=node /usr/local/bin /usr/local/bin
 USER www-data
-RUN curl -fsSL https://opencode.ai/install | bash
-ENV PATH="/home/www-data/.opencode/bin:$PATH"
 USER root
 COPY .devcontainer/.bashrc /home/www-data/.bashrc
 COPY .devcontainer/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
