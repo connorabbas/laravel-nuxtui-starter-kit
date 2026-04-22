@@ -8,10 +8,7 @@
     "workspaceFolder": "/var/www/html",
     "mounts": [
         "type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/www-data/.ssh,readonly",
-        "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/www-data/.gitconfig,readonly",
-        "type=bind,source=/home/${localEnv:USER}/.config/opencode,target=/home/www-data/.config/opencode",
-        "type=bind,source=/home/${localEnv:USER}/.local/share/opencode,target=/home/www-data/.local/share/opencode",
-        "type=bind,source=/home/${localEnv:USER}/.local/state/opencode,target=/home/www-data/.local/state/opencode"
+        "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/www-data/.gitconfig,readonly"
     ],
     "customizations": {
         "vscode": {
