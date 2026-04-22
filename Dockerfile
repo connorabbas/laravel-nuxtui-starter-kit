@@ -51,7 +51,6 @@ RUN apk update \
         exif \
     && rm -rf /var/cache/apk/* \
     && apk del --force-broken-world .build-deps
-USER www-data
 USER root
 COPY .devcontainer/.bashrc /home/www-data/.bashrc
 COPY .devcontainer/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
