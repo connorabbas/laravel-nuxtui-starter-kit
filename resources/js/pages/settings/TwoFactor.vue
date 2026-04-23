@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { useToast } from '@nuxt/ui/composables'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/layouts/Settings.vue'
@@ -14,6 +15,8 @@ const props = defineProps<{
     setupKey: string | null
     recoveryCodes: string[]
 }>()
+
+const toast = useToast()
 
 const setupModalOpen = ref(false)
 const confirmationCode = ref<number[]>([])
@@ -90,7 +93,13 @@ async function copySetupKey(): Promise<void> {
         return
     }
 
-    await copy(props.setupKey)
+    await copy(props.setupKey).then(() => {
+        toast.add({
+            color: 'success',
+            title: 'Setup code copied to clipboard',
+            icon: 'i-lucide-circle-check'
+        })
+    })
 }
 
 function enableTwoFactor(): void {
