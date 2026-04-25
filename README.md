@@ -186,3 +186,95 @@ abort(404);
 ```
 
 No per-form toast plumbing is required for uncaught mutation errors.
+
+
+## AI
+
+This starter kit intentionally does not ship with AI configuration files, since tool preferences vary among developers. That said, agentic tools like Cursor, Claude Code, OpenCode, Codex, etc. can significantly improve developer velocity. Use the MCP servers, skills, and instructions below to get the most out of them.
+
+### MCP & Skills
+
+When working with AI using this starter kit you should configure [Laravel Boost](https://laravel.com/docs/master/boost) and the official [Nuxt UI MCP Server](https://ui.nuxt.com/docs/getting-started/ai/mcp) to provide your coding agent with useful tools that can greatly improve accuracy and efficiency.
+
+Nuxt UI also provides [Skills](https://ui.nuxt.com/docs/getting-started/ai/skills) that you should install:
+
+```shell
+npx skills add nuxt/ui
+```
+
+### Instructions File
+
+To provide more context about the starter kit's preferred patterns and available features, and to invoke the `nuxt-ui` skill automatically you can add the following section to the end of your instructions file (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, etc.)
+
+```md
+<laravel-nuxtui-starter-kit-guidelines>
+
+=== starter kit guideline rules ===
+
+# Laravel Nuxt UI Starter Kit Guidelines
+
+## Scope & Precedence
+
+- These starter-kit guidelines extend `<laravel-boost-guidelines>` and take precedence where they conflict.
+
+## Foundational Context
+
+This application is a starter kit based on Laravel + Nuxt UI components, relevant packages & versions are listed below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+
+- inertiajs/inertia-laravel (INERTIA_LARAVEL) - v3
+- spatie/laravel-data (LARAVEL_DATA) - v4
+- spatie/laravel-typescript-transformer (LARAVEL_TYPESCRIPT_TRANSFORMER) - v3
+- @inertiajs/vue3 (INERTIA_VUE) - v3
+- @nuxt/ui (NUXT_UI) - v4
+- tailwindcss (TAILWINDCSS) - v4
+- vue (VUE) - v3
+- eslint (ESLINT) - v9
+- @lucide/vue (LUCIDE) - v1
+- @vueuse/core (VUEUSE) - v14
+
+## Data Contracts
+
+- For structured data contracts in application code, use DTO/value object classes (prefer `spatie/laravel-data` `Data` objects).
+- For Inertia page props, backend payloads should be represented by `Data` classes and passed to `Inertia::render(...)` as typed objects (not ad-hoc associative arrays).
+- Annotate frontend-facing `Data` classes with `#[TypeScript]` so they are emitted to `resources/js/types/generated.d.ts` by the TypeScript transformer.
+- After creating/updating any `Data` class or route signatures, run `php artisan typescript:transform` (or rely on the watch process in `composer run dev`) so TS contracts stay in sync.
+- Do not use associative arrays for internal structured payloads.
+- Flat/list arrays are allowed when type-hinted with generics (for example `array<int, FooData>`).
+- Associative arrays are allowed only at framework boundaries where required (for example `Inertia::render(...)` props, Form Request `rules()`, config files, validation message maps).
+- Shared props must use the generated Data types in frontend declarations. Example: `auth.user` is shared as `UserData` in `app/Http/Middleware/HandleInertiaRequests.php` and typed as `App.Data.UserData | null` in `resources/js/types/index.d.ts`.
+- For paginated page props, always transform model items into Data objects before returning to Inertia. Prefer chaining `->through(...)` on the paginator and returning the Data object from the callback.
+- Add explicit PHPDoc generics for paginated results and transformed collections so the contract is clear (for example `LengthAwarePaginator<int, UserData>` after transformation).
+- On the frontend, consume paginator props with `LengthAwarePaginator<T>` imported from `@/types` (re-exported from `resources/js/types/pagination.d.ts`), where `T` is the generated Data type (for example `LengthAwarePaginator<App.Data.UserData>`).
+- In Vue pages/components, use explicit prop typing with shared/page prop composition (for example `defineProps<AppPageProps<{ users: LengthAwarePaginator<App.Data.UserData> }>>()`).
+
+## Inertia Flash Notifications
+
+- For server-driven notifications, use `Inertia::flash(...)` instead of Laravel session flash keys like `flash_success`, `flash_warn`, or page-local ad hoc props.
+- Use suffix-based flash key naming:
+  - `<color>_toast` to trigger global toast notifications.
+  - `<color>_alert` to render inline `FlashAlerts` content.
+- Use color prefixes: `success`, `info`, `warning`, `error`. Unknown prefixes fall back to `neutral` in the frontend.
+- Toast rendering is centralized in `resources/js/composables/useInertiaRouterEvents.ts` via `router.on('flash', ...)`; do not duplicate mutation-success toasts in page-level `onSuccess` callbacks.
+- Inline message rendering is centralized in `resources/js/components/FlashAlerts.vue`; use `*_alert` flash keys when you want visible page-level messaging.
+
+## Frontend Routing
+
+- In Vue or TypeScript files, import `route` from `@/utils/route`.
+- The `@/utils/route` helper function is generated by the `spatie/laravel-typescript-transformer` composer package using the `php artisan typescript:transform` command, DO NOT alter the contents of the file directly
+- Do not rely on global route helpers or pass in route data from controllers to Vue page props.
+
+## Skills Activation
+
+- `nuxt-ui` — Activate for every Vue page or feature. All UI elements must use Nuxt UI v4 components. Triggers include: creating or editing any Vue page/component, adding buttons, forms, inputs, dialogs, menus, tables, or any other UI element, working with data tables, applying layout or styling, selecting between Nuxt UI components, and customizing components using Tailwind through the `:ui` prop.
+
+=== nuxt ui rules ===
+
+# Nuxt UI v4
+
+- IMPORTANT: Activate the `nuxt-ui` skill whenever working with any Vue UI — all component, styling, theming, and layout decisions are governed by that skill.
+- This is NOT a Nuxt application, it is a Laravel app that uses Nuxt UI components which are compatible in regular Vue apps (like this Inertia + Vue Laravel site)
+- All UI must use Nuxt UI components. Never create custom UI components; always check the Nuxt UI catalog first and ask the user if nothing fits.
+- Always rely on the remote Nuxt UI MCP server (`nuxt-ui`) before implementing any component. Do not rely on memory for props, slots, or events. Always reference the Vue version of the component docs NOT the Nuxt version
+
+</laravel-nuxtui-starter-kit-guidelines>
+```
