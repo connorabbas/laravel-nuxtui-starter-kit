@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
-
 import AppHead from '@/components/AppHead.vue'
 
 const props = defineProps<{
