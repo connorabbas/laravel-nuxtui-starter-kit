@@ -16,6 +16,8 @@ export function useAppLayout() {
 
     const appName = computed(() => page.props.name)
 
+    const user = computed(() => page.props.auth.user)
+
     const navMenuItems = computed<NavigationMenuItem[][]>(() => {
         return [
             [
@@ -64,8 +66,6 @@ export function useAppLayout() {
 
         return items
     })
-
-    const user = computed(() => page.props.auth.user)
 
     return {
         currentRoute,
