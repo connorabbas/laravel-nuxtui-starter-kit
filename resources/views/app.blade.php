@@ -18,6 +18,17 @@
         }
     </script>
 
+    {{-- Inline style to set the background color based on preferred color mode (set to theme colors if desired) --}}
+    <style>
+        html {
+            background-color: #fff;
+        }
+
+        html.dark {
+            background-color: #000;
+        }
+    </style>
+
     <link
         rel="icon"
         href="/favicon.ico"
@@ -33,21 +44,7 @@
         href="/apple-touch-icon.png"
     >
 
-    <link
-        rel="preconnect"
-        href="https://fonts.bunny.net"
-        crossorigin
-    >
-    <link
-        rel="preload"
-        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap"
-        as="style"
-    >
-    <link
-        href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap"
-        rel="stylesheet"
-    />
-
+    @fonts
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     <x-inertia::head>
         <title data-inertia>{{ config('app.name', 'Laravel Nuxt UI Starter') }}</title>
