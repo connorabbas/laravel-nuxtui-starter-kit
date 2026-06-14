@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import laravel from 'laravel-vite-plugin'
+import { google } from 'laravel-vite-plugin/fonts'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import ui from '@nuxt/ui/vite'
@@ -17,6 +18,20 @@ export default defineConfig(({ mode }) => {
                 input: ['resources/js/app.ts'],
                 ssr: 'resources/js/ssr.ts',
                 refresh: true,
+                fonts: [
+                    google('Inter', {
+                        alias: 'sans',
+                        weights: [400, 500, 600, 700],
+                        styles: ['normal', 'italic'],
+                        subsets: ['latin'],
+                        display: 'swap',
+                        preload: [
+                            { weight: 400 },
+                            { weight: 700 },
+                        ],
+                        fallbacks: ['system-ui', 'sans-serif'],
+                    }),
+                ],
             }),
             vue({
                 template: {
