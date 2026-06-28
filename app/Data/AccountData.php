@@ -24,6 +24,7 @@ class AccountData extends Data
 
     public static function fromModel(Account $account): self
     {
+        /** @var Carbon|CarbonImmutable|string|null $openedAt */
         $openedAt = $account->opened_at;
 
         if ($openedAt instanceof CarbonInterface) {

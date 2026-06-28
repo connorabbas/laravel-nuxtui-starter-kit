@@ -10,8 +10,14 @@ use App\Models\User;
 use App\Services\Support\AbstractFilterableQueryService;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @extends AbstractFilterableQueryService<User>
+ */
 class UserDirectoryQueryService extends AbstractFilterableQueryService
 {
+    /**
+     * @return Builder<User>
+     */
     protected function baseQuery(): Builder
     {
         return User::query()

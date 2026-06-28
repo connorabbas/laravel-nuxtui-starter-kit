@@ -7,12 +7,16 @@ use App\Data\Filtering\FilterDefinitionData;
 use App\Data\Filtering\FilterModeOptionData;
 use App\Enums\FilterMatchMode;
 use App\Support\Filtering\FiltersByMatchMode;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @template TModel of Model
+ */
 abstract class AbstractFilterableQueryService
 {
     /**
@@ -20,6 +24,9 @@ abstract class AbstractFilterableQueryService
      */
     abstract protected function filterDefinitions(): array;
 
+    /**
+     * @return Builder<TModel>
+     */
     abstract protected function baseQuery(): Builder;
 
     abstract protected function defaultSort(): string;
@@ -91,6 +98,9 @@ abstract class AbstractFilterableQueryService
         return $output;
     }
 
+    /**
+     * @return LengthAwarePaginator<int, TModel>
+     */
     public function paginate(Request $request): LengthAwarePaginator
     {
         $perPage = (int) $request->integer('perPage', $this->perPageOptions()[0]);

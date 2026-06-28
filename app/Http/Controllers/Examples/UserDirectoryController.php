@@ -6,8 +6,8 @@ use App\Data\UserData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Examples\UserDirectoryQueryService;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 

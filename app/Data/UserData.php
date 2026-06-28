@@ -43,18 +43,18 @@ class UserData extends Data
         }
 
         $accountsCount = null;
-        if (array_key_exists('accounts_count', $attributes) && $user->accounts_count !== null) {
-            $accountsCount = (int) $user->accounts_count;
+        if (array_key_exists('accounts_count', $attributes) && $attributes['accounts_count'] !== null) {
+            $accountsCount = (int) $attributes['accounts_count'];
         }
 
         $accountsSumBalance = null;
-        if (array_key_exists('accounts_sum_balance', $attributes) && $user->accounts_sum_balance !== null) {
-            $accountsSumBalance = (string) $user->accounts_sum_balance;
+        if (array_key_exists('accounts_sum_balance', $attributes) && $attributes['accounts_sum_balance'] !== null) {
+            $accountsSumBalance = (string) $attributes['accounts_sum_balance'];
         }
 
         $accountsMaxOpenedAt = null;
-        if (array_key_exists('accounts_max_opened_at', $attributes) && $user->accounts_max_opened_at !== null) {
-            $accountsMaxOpenedAt = $user->accounts_max_opened_at;
+        if (array_key_exists('accounts_max_opened_at', $attributes) && $attributes['accounts_max_opened_at'] !== null) {
+            $accountsMaxOpenedAt = $attributes['accounts_max_opened_at'];
 
             if ($accountsMaxOpenedAt instanceof CarbonInterface) {
                 $accountsMaxOpenedAt = $accountsMaxOpenedAt->toDateString();

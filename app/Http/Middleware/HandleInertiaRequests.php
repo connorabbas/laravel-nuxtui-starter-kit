@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Data\UserData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Middleware;
 
@@ -38,12 +37,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'currentRouteName' => fn () => $request->route()?->getName(),
             'auth' => [
-                'user' => Auth::check() ? UserData::fromModel($request->user()) : null,
+                'user' => $user !== null ? UserData::fromModel($user) : null,
             ],
             'queryParams' => Inertia::always($request->query()),
         ];

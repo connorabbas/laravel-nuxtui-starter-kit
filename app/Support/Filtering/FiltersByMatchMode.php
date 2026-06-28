@@ -5,8 +5,12 @@ namespace App\Support\Filtering;
 use App\Enums\FilterMatchMode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\QueryBuilder\Filters\Filter;
 
+/**
+ * @implements Filter<Model>
+ */
 class FiltersByMatchMode implements Filter
 {
     /**
@@ -48,6 +52,10 @@ class FiltersByMatchMode implements Filter
         $this->applyMatchModeQuery($query, $mode, $normalizedValue, $this->column);
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @param  string|int|float|bool|array<int, string|int|float|bool|null>  $normalizedValue
+     */
     private function applyMatchModeQuery(
         Builder $query,
         FilterMatchMode $mode,
@@ -55,23 +63,25 @@ class FiltersByMatchMode implements Filter
         string $column,
     ): void {
 
+        $valueString = is_array($normalizedValue) ? null : (string) $normalizedValue;
+
         match ($mode) {
-            FilterMatchMode::STARTS_WITH => $query->whereLike($column, "{$normalizedValue}%"),
-            FilterMatchMode::CONTAINS => $query->whereLike($column, "%{$normalizedValue}%"),
-            FilterMatchMode::NOT_CONTAINS => $query->whereNotLike($column, "%{$normalizedValue}%"),
-            FilterMatchMode::ENDS_WITH => $query->whereLike($column, "%{$normalizedValue}"),
+            FilterMatchMode::STARTS_WITH => $query->whereLike($column, "{$valueString}%"),
+            FilterMatchMode::CONTAINS => $query->whereLike($column, "%{$valueString}%"),
+            FilterMatchMode::NOT_CONTAINS => $query->whereNotLike($column, "%{$valueString}%"),
+            FilterMatchMode::ENDS_WITH => $query->whereLike($column, "%{$valueString}"),
             FilterMatchMode::EQUALS => $query->where($column, '=', $normalizedValue),
             FilterMatchMode::NOT_EQUALS => $query->where($column, '!=', $normalizedValue),
-            FilterMatchMode::IN => $query->whereIn($column, $normalizedValue),
+            FilterMatchMode::IN => is_array($normalizedValue) ? $query->whereIn($column, $normalizedValue) : null,
             FilterMatchMode::LESS_THAN => $query->where($column, '<', $normalizedValue),
             FilterMatchMode::LESS_THAN_OR_EQUAL_TO => $query->where($column, '<=', $normalizedValue),
             FilterMatchMode::GREATER_THAN => $query->where($column, '>', $normalizedValue),
             FilterMatchMode::GREATER_THAN_OR_EQUAL_TO => $query->where($column, '>=', $normalizedValue),
-            FilterMatchMode::BETWEEN => $this->applyBetween($query, $normalizedValue, $column),
-            FilterMatchMode::DATE_IS => $query->whereDate($column, '=', $normalizedValue),
-            FilterMatchMode::DATE_IS_NOT => $query->whereDate($column, '!=', $normalizedValue),
-            FilterMatchMode::DATE_BEFORE => $query->whereDate($column, '<', $normalizedValue),
-            FilterMatchMode::DATE_AFTER => $query->whereDate($column, '>', $normalizedValue),
+            FilterMatchMode::BETWEEN => is_array($normalizedValue) ? $this->applyBetween($query, $normalizedValue, $column) : null,
+            FilterMatchMode::DATE_IS => $query->whereDate($column, '=', $valueString),
+            FilterMatchMode::DATE_IS_NOT => $query->whereDate($column, '!=', $valueString),
+            FilterMatchMode::DATE_BEFORE => $query->whereDate($column, '<', $valueString),
+            FilterMatchMode::DATE_AFTER => $query->whereDate($column, '>', $valueString),
         };
     }
 
@@ -87,6 +97,10 @@ class FiltersByMatchMode implements Filter
         return [$relation, $column];
     }
 
+    /**
+     * @param  Builder<Model>  $query
+     * @param  array<int, string|int|float|bool|null>  $value
+     */
     private function applyBetween(Builder $query, array $value, string $column): void
     {
         if (count($value) !== 2) {
@@ -105,6 +119,9 @@ class FiltersByMatchMode implements Filter
         $query->whereBetween($column, [$start, $end]);
     }
 
+    /**
+     * @return string|int|float|bool|array<int, string|int|float|bool|null>|null
+     */
     private function normalizeValue(mixed $rawValue, FilterMatchMode $mode): string|int|float|bool|array|null
     {
         if (in_array($mode, [FilterMatchMode::IN, FilterMatchMode::BETWEEN], true)) {
