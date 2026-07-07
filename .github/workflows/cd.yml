@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Deploy stack to Docker Swarm
-        uses: serversideup/github-action-docker-swarm-deploy@v3
+        uses: serversideup/github-action-docker-swarm-deploy@v4
         with:
           stack_name: ${{ secrets.SWARM_STACK_NAME }}
           docker_compose_file_path: '-c docker-compose-swarm.yml'
@@ -64,7 +64,7 @@ jobs:
           ssh_remote_known_hosts: ${{ secrets.SSH_REMOTE_KNOWN_HOSTS }}
           registry: ghcr.io
           registry-username: ${{ github.repository_owner }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
           env_file_base64: ${{ secrets.PRODUCTION_ENV_FILE_BASE64 }}
 
   # prune-docker-host:
