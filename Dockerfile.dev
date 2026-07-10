@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 USER root
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    && apt-get update && apt-get upgrade -y \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
         git \

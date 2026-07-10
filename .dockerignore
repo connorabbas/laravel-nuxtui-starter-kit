@@ -59,6 +59,7 @@ public/storage
 public/mix-manifest.json
 
 # Laravel caches & local state
+/bootstrap/ssr
 storage/logs
 storage/framework/cache/*
 storage/framework/sessions/*

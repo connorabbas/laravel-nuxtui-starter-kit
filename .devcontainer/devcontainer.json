@@ -7,8 +7,8 @@
     "service": "laravel",
     "workspaceFolder": "/var/www/html",
     "mounts": [
-        "type=bind,source=/home/${localEnv:USER}/.ssh,target=/home/www-data/.ssh,readonly",
-        "type=bind,source=/home/${localEnv:USER}/.gitconfig,target=/home/www-data/.gitconfig,readonly"
+        "type=bind,source=${localEnv:HOME}/.ssh,target=/home/www-data/.ssh,readonly",
+        "type=bind,source=${localEnv:HOME}/.gitconfig,target=/home/www-data/.gitconfig,readonly"
     ],
     "customizations": {
         "vscode": {
@@ -41,7 +41,6 @@
         }
     },
     "remoteUser": "www-data",
-    "postCreateCommand": "chown -R 1000:1000 /var/www/html 2>/dev/null || true"
     // "forwardPorts": [],
     // "runServices": [],
     // "shutdownAction": "none",

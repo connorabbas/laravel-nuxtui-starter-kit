@@ -6,8 +6,7 @@ ARG NODE_VERSION=22
 # ==========================================
 FROM serversideup/php:${PHP_VERSION}-fpm-nginx-alpine AS base
 USER root
-RUN apk update && apk upgrade --no-cache \
-    && install-php-extensions \
+RUN install-php-extensions \
         bcmath \
         gd \
         intl \

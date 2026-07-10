@@ -10,7 +10,13 @@ services:
       PHP_OPCACHE_ENABLE: '1'
       SSL_MODE: 'mixed'
       AUTORUN_ENABLED: 'true'
-      AUTORUN_DEBUG: 'true'
+      AUTORUN_DEBUG: 'false'
+      DB_CONNECTION: 'pgsql'
+      DB_HOST: 'pgsql'
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-laravel}'
+      DB_USERNAME: '${DB_USERNAME:-laravel}'
+      DB_PASSWORD: '${DB_PASSWORD:?DB_PASSWORD is required}'
     volumes:
       - 'storage-public:/var/www/html/storage/app/public/'
       - 'storage-sessions:/var/www/html/storage/framework/sessions'
@@ -31,7 +37,8 @@ services:
       - proxy
       - web
     depends_on:
-      - pgsql
+      pgsql:
+        condition: service_healthy
 
   pgsql:
     image: postgres:17
@@ -39,16 +46,18 @@ services:
     #ports:
       #- '${FORWARD_DB_PORT:-5432}:5432' # expose forwarded port if we need to connect to dbms client
     environment:
-      POSTGRES_DB: '${DB_DATABASE}'
-      POSTGRES_USER: '${DB_USERNAME}'
-      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB_DATABASE:-laravel}'
+      POSTGRES_USER: '${DB_USERNAME:-laravel}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:?DB_PASSWORD is required}'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - web
       #- proxy # expose to proxy network if we need to connect to dbms client
     healthcheck:
-      test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE}', '-U', '${DB_USERNAME}']
+      test: ['CMD-SHELL', 'pg_isready -q -d "$${POSTGRES_DB}" -U "$${POSTGRES_USER}"']
+      interval: 10s
+      start_period: 10s
       retries: 3
       timeout: 5s
 
