@@ -171,7 +171,7 @@ Behavior:
 
 - Use available color prefixes that match the Nuxt UI theme system: `success`, `info`, `warning`, `error`, & `neutral`
 - `*_alert` keys are displayed inline by `resources/js/components/FlashAlerts.vue`.
-- `*_toast` keys are displayed by the global listener in `resources/js/composables/useInertiaRouterEvents.ts`.
+- `*_toast` keys are displayed by the global router event listener in `resources/js/components/AppRoot.vue`.
 
 ---
 
@@ -255,7 +255,7 @@ This application is a starter kit based on Laravel + Nuxt UI components, relevan
   - `<color>_toast` to trigger global toast notifications.
   - `<color>_alert` to render inline `FlashAlerts` content.
 - Use color prefixes: `success`, `info`, `warning`, `error`. Unknown prefixes fall back to `neutral` in the frontend.
-- Toast rendering is centralized in `resources/js/composables/useInertiaRouterEvents.ts` via `router.on('flash', ...)`; do not duplicate mutation-success toasts in page-level `onSuccess` callbacks.
+- Toast rendering is centralized in `resources/js/components/AppRoot.vue` via `router.on('flash', ...)`; do not duplicate mutation-success toasts in page-level `onSuccess` callbacks.
 - Inline message rendering is centralized in `resources/js/components/FlashAlerts.vue`; use `*_alert` flash keys when you want visible page-level messaging.
 
 ## Frontend Routing
