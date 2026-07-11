@@ -44,7 +44,11 @@ export default defineConfig(({ mode }) => {
             ui({
                 router: 'inertia',
                 components: {
-                    dirs: ['resources/js'],
+                    dirs: [
+                        'resources/js/components',
+                        'resources/js/layouts',
+                        'resources/js/pages',
+                    ],
                 },
                 ui: {
                     colors: {
