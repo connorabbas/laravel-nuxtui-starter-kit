@@ -42,9 +42,13 @@ export default defineConfig(({ mode }) => {
                 },
             }),
             ui({
-                inertia: true,
+                router: 'inertia',
                 components: {
-                    dirs: ['resources/js/components'],
+                    dirs: [
+                        'resources/js/components',
+                        'resources/js/layouts',
+                        'resources/js/pages',
+                    ],
                 },
                 ui: {
                     colors: {
