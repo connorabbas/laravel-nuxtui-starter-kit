@@ -233,7 +233,7 @@ docker swarm init
 
 ### 2) Deploy Traefik (once)
 
-Use [this stack](https://github.com/connorabbas/traefik-docker-compose/blob/master/docker-compose-swarm.yml) as your base.
+Use [this stack](https://github.com/connorabbas/traefik-docker-compose/blob/master/http-challenge/docker-compose-swarm.yml) as your base.
 
 On the VPS:
 
