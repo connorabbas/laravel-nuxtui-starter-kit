@@ -110,8 +110,8 @@ abstract class AbstractFilterableQueryService
         }
 
         return QueryBuilder::for($this->baseQuery())
-            ->allowedFilters($this->allowedFilters())
-            ->allowedSorts($this->sortableFields())
+            ->allowedFilters(...$this->allowedFilters())
+            ->allowedSorts(...$this->sortableFields())
             ->defaultSort($this->defaultSort())
             ->paginate($perPage)
             ->withQueryString();

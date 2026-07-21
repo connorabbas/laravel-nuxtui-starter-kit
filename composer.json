@@ -15,7 +15,7 @@
         "laravel/framework": "^13.15",
         "laravel/tinker": "^3.0",
         "spatie/laravel-data": "^4.22",
-        "spatie/laravel-query-builder": "^6.4",
+        "spatie/laravel-query-builder": "^7.0",
         "spatie/laravel-typescript-transformer": "^3.0"
     },
     "require-dev": {
