@@ -6,6 +6,7 @@ import type { AppPageProps, LengthAwarePaginator } from '@/types'
 import { route } from '@/utils/route'
 import type { TableColumn } from '@nuxt/ui'
 import type { SortingState } from '@tanstack/vue-table'
+import { useDebounceFn } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 const props = defineProps<AppPageProps<{
@@ -13,7 +14,7 @@ const props = defineProps<AppPageProps<{
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const pagination = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { processing, query, resultText, setPage, setPerPage, update } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('users.index'),
     initialQuery: props.query,
     paginator: () => props.users,
@@ -21,14 +22,15 @@ const pagination = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data
     //scrollTo: '#users-results'
 })
 
-const { processing, query, resultText, setPage, setPerPage, update } = pagination
-
 const search = ref(props.query.search ?? '')
 const verified = ref<boolean | null>(props.query.verified)
 const createdFrom = ref(props.query.createdFrom ?? '')
 const createdUntil = ref(props.query.createdUntil ?? '')
-let searchTimeout: ReturnType<typeof setTimeout> | undefined
 let suppressFilterWatch = false
+
+const applySearchFilters = useDebounceFn(() => {
+    applyFilters()
+}, 350)
 
 const sortToTableSorting = {
     newest: [{ id: 'createdAt', desc: true }],
@@ -50,10 +52,7 @@ watch(search, () => {
         return
     }
 
-    clearTimeout(searchTimeout)
-    searchTimeout = setTimeout(() => {
-        applyFilters()
-    }, 350)
+    applySearchFilters()
 })
 
 watch([verified, createdFrom, createdUntil], () => {
@@ -61,7 +60,6 @@ watch([verified, createdFrom, createdUntil], () => {
         return
     }
 
-    clearTimeout(searchTimeout)
     applyFilters()
 })
 
@@ -83,7 +81,6 @@ function applyFilters(): void {
 
 function clearFilters(): void {
     suppressFilterWatch = true
-    clearTimeout(searchTimeout)
 
     search.value = ''
     verified.value = null
@@ -158,9 +155,7 @@ function formatDate(date: string): string {
             <UPageBody id="users-results">
                 <UPageCard>
                     <div class="mb-4 flex flex-col gap-3">
-                        <div
-                            class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_auto] lg:items-end"
-                        >
+                        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_auto] lg:items-end">
                             <UFormField label="Search">
                                 <UInput
                                     v-model="search"
