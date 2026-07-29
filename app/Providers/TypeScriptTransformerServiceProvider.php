@@ -19,7 +19,7 @@ class TypeScriptTransformerServiceProvider extends BaseTypeScriptTransformerServ
         $config
             ->transformer(AttributedClassTransformer::class)
             ->transformer(EnumTransformer::class)
-            ->transformDirectories(app_path('Data'))
+            ->transformDirectories(app_path('Data'), app_path('Enums'))
             ->outputDirectory(resource_path('js/types'))
             ->writer(new GlobalNamespaceWriter('generated.d.ts'))
             ->formatter(EslintFormatter::class)

@@ -28,6 +28,8 @@ hash: string | number,
 'two-factor.secret-key': never,
 'two-factor.recovery-codes': never,
 'two-factor.regenerate-recovery-codes': never,
+'users.index': never,
+'users.directory': never,
 settings: never,
 'profile.edit': never,
 'profile.update': never,
@@ -43,7 +45,14 @@ dashboard: never,
 path: string | number,
 },
 };
+export function hasRoute(name: string): name is keyof RouteParameters {
+    return Object.prototype.hasOwnProperty.call(routes, name)
+}
 export function route<T extends keyof RouteParameters>(name: T, parameters?: [RouteParameters[T]] extends [never] ? Record<string, never> : RouteParameters[T], absolute: boolean = false): string {
+    if (! Object.prototype.hasOwnProperty.call(routes, name)) {
+        throw new Error(`Route "${name}" not found.`)
+    }
+
     let url: string = '/' + routes[name]
 
     if (parameters) {
@@ -83,6 +92,8 @@ const routes = {
     "two-factor.secret-key": "user/two-factor-secret-key",
     "two-factor.recovery-codes": "user/two-factor-recovery-codes",
     "two-factor.regenerate-recovery-codes": "user/two-factor-recovery-codes",
+    "users.index": "users",
+    "users.directory": "users/directory",
     "settings": "settings",
     "profile.edit": "settings/profile",
     "profile.update": "settings/profile",
@@ -91,7 +102,7 @@ const routes = {
     "settings.password.update": "settings/password",
     "two-factor.show": "settings/two-factor",
     "boost.browser-logs": "_boost/browser-logs",
-    "index": "/",
+    "index": "",
     "dashboard": "dashboard",
     "appearance.edit": "settings/appearance",
     "storage.local.upload": "storage/{path}"

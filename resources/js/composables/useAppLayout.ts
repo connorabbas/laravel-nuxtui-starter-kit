@@ -32,6 +32,18 @@ export function useAppLayout() {
                     icon: 'i-lucide-layout-dashboard',
                     to: route('dashboard'),
                     active: currentRoute.value === 'dashboard'
+                },
+                {
+                    label: 'Users',
+                    icon: 'i-lucide-users',
+                    to: route('users.index'),
+                    active: currentRoute.value === 'users.index'
+                },
+                {
+                    label: 'User Directory',
+                    icon: 'i-lucide-id-card',
+                    to: route('users.directory'),
+                    active: currentRoute.value === 'users.directory'
                 }
             ],
             [

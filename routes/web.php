@@ -3,6 +3,8 @@
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
+use App\Http\Controllers\Users\UserDirectoryController;
+use App\Http\Controllers\Users\UserIndexController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +16,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::get('/users', UserIndexController::class)->name('users.index');
+    Route::get('/users/directory', UserDirectoryController::class)->name('users.directory');
 
     Route::redirect('/settings', '/settings/profile')->name('settings');
 
