@@ -34,16 +34,23 @@ export function useAppLayout() {
                     active: currentRoute.value === 'dashboard'
                 },
                 {
-                    label: 'Users',
-                    icon: 'i-lucide-users',
-                    to: route('users.index'),
-                    active: currentRoute.value === 'users.index'
-                },
-                {
-                    label: 'User Directory',
-                    icon: 'i-lucide-id-card',
-                    to: route('users.directory'),
-                    active: currentRoute.value === 'users.directory'
+                    label: 'Pagination',
+                    icon: 'i-lucide-list-ordered',
+                    active: currentRoute.value?.startsWith('pagination.'),
+                    children: [
+                        {
+                            label: 'Table',
+                            icon: 'i-lucide-table',
+                            description: 'Server-side pagination with Nuxt UI table sorting.',
+                            to: route('pagination.table')
+                        },
+                        {
+                            label: 'Cards',
+                            icon: 'i-lucide-layout-grid',
+                            description: 'Manual card list using the same pagination composable.',
+                            to: route('pagination.cards')
+                        }
+                    ]
                 }
             ],
             [

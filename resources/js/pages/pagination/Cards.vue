@@ -13,7 +13,7 @@ const props = defineProps<AppPageProps<{
 }>>()
 
 const { processing, query, resultText, setPage, setPerPage, update } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
-    route: route('users.directory'),
+    route: route('pagination.cards'),
     initialQuery: props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
@@ -98,7 +98,7 @@ function formatDate(date: string): string {
             <UPageHeader
                 title="User Directory"
                 description="A regular paginated dataset rendered manually with cards, filters, and combined sort options."
-                :links="[{ label: 'Table view', to: route('users.index'), color: 'neutral', variant: 'subtle', icon: 'i-lucide-table' }]"
+                :links="[{ label: 'Table', to: route('pagination.table'), color: 'neutral', variant: 'subtle', icon: 'i-lucide-table' }]"
             />
 
             <UPageBody id="users-directory-results">

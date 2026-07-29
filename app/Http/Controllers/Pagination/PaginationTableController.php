@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Users;
+namespace App\Http\Controllers\Pagination;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\UserIndexRequest;
@@ -8,13 +8,13 @@ use App\Queries\Users\UserIndexQuery;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class UserIndexController extends Controller
+class PaginationTableController extends Controller
 {
     public function __invoke(UserIndexRequest $request, UserIndexQuery $users): Response
     {
         $query = $request->queryData();
 
-        return Inertia::render('users/Index', [
+        return Inertia::render('pagination/Table', [
             'users' => fn () => $users->paginate($query),
             'query' => $query,
         ]);

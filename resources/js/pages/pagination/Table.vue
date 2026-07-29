@@ -15,7 +15,7 @@ const props = defineProps<AppPageProps<{
 }>>()
 
 const { processing, query, resultText, setPage, setPerPage, update } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
-    route: route('users.index'),
+    route: route('pagination.table'),
     initialQuery: props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
@@ -149,7 +149,7 @@ function formatDate(date: string): string {
             <UPageHeader
                 title="Users"
                 description="A server-side Nuxt UI table backed by typed query props, filters, and safe sorting."
-                :links="[{ label: 'Card directory', to: route('users.directory'), color: 'neutral', variant: 'subtle', icon: 'i-lucide-id-card' }]"
+                :links="[{ label: 'Cards', to: route('pagination.cards'), color: 'neutral', variant: 'subtle', icon: 'i-lucide-layout-grid' }]"
             />
 
             <UPageBody id="users-results">
