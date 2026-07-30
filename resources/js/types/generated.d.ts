@@ -6,6 +6,10 @@ errorSummary: string,
 errorDetail: string,
 errorIcon: string,
 };
+export type FilterOptionData = {
+value: string | number,
+label: string,
+};
 export type UserData = {
 id: number,
 name: string,
@@ -19,6 +23,7 @@ export type UserIndexQueryData = {
 page: number,
 perPage: number,
 search: string | null,
+userIds: number[] | null,
 verified: boolean | null,
 createdFrom: string | null,
 createdUntil: string | null,

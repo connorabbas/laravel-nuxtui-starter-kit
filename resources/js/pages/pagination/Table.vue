@@ -1,66 +1,71 @@
 <script setup lang="ts">
 import InertiaPagination from '@/components/InertiaPagination.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
+import { useTableQuerySorting } from '@/composables/useTableQuerySorting'
 import AppLayout from '@/layouts/app/Index.vue'
 import type { AppPageProps, LengthAwarePaginator } from '@/types'
+import { formatDate } from '@/utils/date'
+import { nullableArray, nullableString } from '@/utils/query'
 import { route } from '@/utils/route'
+import { userTableSorting, verifiedFilterItems } from '@/utils/userPagination'
 import type { TableColumn } from '@nuxt/ui'
-import type { SortingState } from '@tanstack/vue-table'
 import { useDebounceFn } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<AppPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
+    userFilterOptions: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const { processing, query, resultText, setPage, setPerPage, update } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { apply, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.table'),
-    initialQuery: props.query,
+    query: () => props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
     //scrollTo: '#users-results'
 })
 
-const search = ref(props.query.search ?? '')
-const verified = ref<boolean | null>(props.query.verified)
-const createdFrom = ref(props.query.createdFrom ?? '')
-const createdUntil = ref(props.query.createdUntil ?? '')
-let suppressFilterWatch = false
+const { setTableSorting, sortingIcon, tableSorting } = useTableQuerySorting({
+    sort: () => query.sort,
+    config: userTableSorting,
+    apply: (sort) => apply({ sort }, { replace: true })
+})
 
-const applySearchFilters = useDebounceFn(() => {
-    applyFilters()
+const applySearchFilter = useDebounceFn(() => {
+    apply({}, { replace: true })
 }, 350)
 
-const sortToTableSorting = {
-    newest: [{ id: 'createdAt', desc: true }],
-    oldest: [{ id: 'createdAt', desc: false }],
-    name_asc: [{ id: 'name', desc: false }],
-    name_desc: [{ id: 'name', desc: true }],
-    email_asc: [{ id: 'email', desc: false }],
-    email_desc: [{ id: 'email', desc: true }]
-} satisfies Record<App.Enums.UserSort, SortingState>
-
-const tableSorting = ref<SortingState>(sortToTableSorting[props.query.sort])
-
-watch(() => query.sort, (sort) => {
-    tableSorting.value = sortToTableSorting[sort]
+const search = computed({
+    get: () => query.search ?? '',
+    set: (value) => {
+        query.search = nullableString(value)
+        applySearchFilter()
+    }
 })
 
-watch(search, () => {
-    if (suppressFilterWatch) {
-        return
+const userIds = computed<number[]>({
+    get: () => query.userIds ?? [],
+    set: (value) => {
+        query.userIds = nullableArray(value)
+        applyFilters()
     }
-
-    applySearchFilters()
 })
 
-watch([verified, createdFrom, createdUntil], () => {
-    if (suppressFilterWatch) {
-        return
+const createdFrom = computed({
+    get: () => query.createdFrom ?? '',
+    set: (value) => {
+        query.createdFrom = nullableString(value)
+        applyFilters()
     }
+})
 
-    applyFilters()
+const createdUntil = computed({
+    get: () => query.createdUntil ?? '',
+    set: (value) => {
+        query.createdUntil = nullableString(value)
+        applyFilters()
+    }
 })
 
 const columns: TableColumn<App.Data.UserData>[] = [
@@ -71,73 +76,24 @@ const columns: TableColumn<App.Data.UserData>[] = [
 ]
 
 function applyFilters(): void {
-    update({
-        search: search.value || null,
-        verified: verified.value,
-        createdFrom: createdFrom.value || null,
-        createdUntil: createdUntil.value || null
-    }, { resetPage: true, replace: true })
+    apply({}, { replace: true })
+}
+
+function setVerified(value: boolean | null): void {
+    query.verified = value
+    applyFilters()
 }
 
 function clearFilters(): void {
-    suppressFilterWatch = true
-
-    search.value = ''
-    verified.value = null
-    createdFrom.value = ''
-    createdUntil.value = ''
-
-    update({
+    apply({
         search: null,
+        userIds: null,
         verified: null,
         createdFrom: null,
         createdUntil: null
-    }, { resetPage: true, replace: true })
-
-    setTimeout(() => {
-        suppressFilterWatch = false
-    }, 0)
+    }, { replace: true })
 }
 
-function applyTableSorting(sorting: SortingState | undefined): void {
-    tableSorting.value = sorting ?? []
-
-    const firstSort = tableSorting.value[0]
-
-    const nextSort = tableSortingToQuerySort(firstSort?.id, firstSort?.desc ?? false)
-
-    update({ sort: nextSort }, { resetPage: true, replace: true })
-}
-
-function tableSortingToQuerySort(columnId?: string, desc = false): App.Enums.UserSort {
-    if (!columnId) {
-        return 'newest'
-    }
-
-    if (columnId === 'name') {
-        return desc ? 'name_desc' : 'name_asc'
-    }
-
-    if (columnId === 'email') {
-        return desc ? 'email_desc' : 'email_asc'
-    }
-
-    return desc ? 'newest' : 'oldest'
-}
-
-function sortingIcon(columnId: string): string {
-    const currentSort = tableSorting.value[0]
-
-    if (currentSort?.id !== columnId) {
-        return 'i-lucide-arrow-up-down'
-    }
-
-    return currentSort.desc ? 'i-lucide-arrow-down' : 'i-lucide-arrow-up'
-}
-
-function formatDate(date: string): string {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(date))
-}
 </script>
 
 <template>
@@ -155,7 +111,7 @@ function formatDate(date: string): string {
             <UPageBody id="users-results">
                 <UPageCard>
                     <div class="mb-4 flex flex-col gap-3">
-                        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_10rem_10rem_auto] lg:items-end">
+                        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem_12rem_10rem_10rem_auto] lg:items-end">
                             <UFormField label="Search">
                                 <UInput
                                     v-model="search"
@@ -165,15 +121,22 @@ function formatDate(date: string): string {
                                 />
                             </UFormField>
 
+                            <UFormField label="Specific users">
+                                <USelect
+                                    v-model="userIds"
+                                    multiple
+                                    :items="userFilterOptions"
+                                    placeholder="Any user"
+                                    class="w-full"
+                                />
+                            </UFormField>
+
                             <UFormField label="Verification">
                                 <USelect
-                                    v-model="verified"
-                                    :items="[
-                                        { label: 'Any', value: null },
-                                        { label: 'Verified', value: true },
-                                        { label: 'Unverified', value: false }
-                                    ]"
+                                    :model-value="query.verified"
+                                    :items="verifiedFilterItems"
                                     class="w-full"
+                                    @update:model-value="setVerified($event as boolean | null)"
                                 />
                             </UFormField>
 
@@ -210,7 +173,7 @@ function formatDate(date: string): string {
                         :columns="columns"
                         :loading="processing"
                         empty="No users found."
-                        @update:sorting="applyTableSorting"
+                        @update:sorting="setTableSorting"
                     >
                         <template #name-header="{ column }">
                             <UButton

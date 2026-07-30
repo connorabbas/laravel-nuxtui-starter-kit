@@ -1,9 +1,12 @@
 import type { LengthAwarePaginator } from '@/types'
 import { router } from '@inertiajs/vue3'
-import { computed, reactive, ref, type MaybeRefOrGetter, toValue } from 'vue'
+import { computed, reactive, ref, type MaybeRefOrGetter, toRaw, toValue, watch } from 'vue'
 
-type QueryPrimitive = string | number | null | undefined
-type QueryRecord = Record<string, QueryPrimitive>
+type QueryScalar = string | number | boolean | null | undefined
+type QueryValue = QueryScalar | QueryScalar[]
+type QueryRecord = Record<string, QueryValue>
+type SerializedQueryValue = string | number | Array<string | number> | null | undefined
+type SerializedQueryRecord = Record<string, SerializedQueryValue>
 
 type UpdateOptions = {
     resetPage?: boolean
@@ -12,7 +15,7 @@ type UpdateOptions = {
 
 type UsePaginatedQueryOptions<TQuery extends object, TItem> = {
     route: string
-    initialQuery: TQuery
+    query: MaybeRefOrGetter<TQuery>
     paginator: MaybeRefOrGetter<LengthAwarePaginator<TItem>>
     only: string[]
     scrollTo?: string | HTMLElement | null
@@ -21,8 +24,7 @@ type UsePaginatedQueryOptions<TQuery extends object, TItem> = {
 
 export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePaginatedQueryOptions<TQuery, TItem>) {
     const processing = ref(false)
-    const query = reactive({ ...options.initialQuery }) as TQuery
-
+    const query = reactive(cloneQuery(toValue(options.query))) as TQuery
     const paginator = computed(() => toValue(options.paginator))
 
     const resultSummary = computed(() => ({
@@ -44,10 +46,14 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
         return `Showing ${summary.firstItem}-${summary.lastItem} of ${summary.total} results · Page ${summary.currentPage} of ${summary.lastPage}`
     })
 
+    watch(() => toValue(options.query), (nextQuery) => {
+        replaceQuery(query, nextQuery)
+    }, { deep: true })
+
     function visit(nextQuery: TQuery, updateOptions: UpdateOptions = {}): void {
         processing.value = true
 
-        router.get(options.route, cleanQuery(nextQuery), {
+        router.get(options.route, serializeQuery(nextQuery), {
             only: options.only,
             preserveState: true,
             preserveScroll: false,
@@ -56,37 +62,69 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
                 processing.value = false
             },
             onSuccess: () => {
+                replaceQuery(query, toValue(options.query))
                 scrollToTarget(options.scrollTo)
             }
         })
     }
 
-    function update(patch: Partial<TQuery>, updateOptions: UpdateOptions = {}): void {
+    function update(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
         const nextQuery = {
-            ...query,
+            ...cloneQuery(query),
             ...patch,
             ...(updateOptions.resetPage ? { page: 1 } : {})
         } as TQuery
 
-        Object.assign(query, nextQuery)
+        replaceQuery(query, nextQuery)
         visit(nextQuery, updateOptions)
     }
 
-    function setPage(page: number, updateOptions: UpdateOptions = {}): void {
-        update({ page } as unknown as Partial<TQuery>, updateOptions)
-    }
-
-    function setPerPage(perPage: number, updateOptions: UpdateOptions = {}): void {
-        update({ perPage } as unknown as Partial<TQuery>, {
+    function apply(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
+        update(patch, {
             resetPage: true,
             replace: updateOptions.replace ?? true
         })
     }
 
+    function reload(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
+        update(patch, updateOptions)
+    }
+
+    function reset(updateOptions: UpdateOptions = {}): void {
+        processing.value = true
+
+        router.get(options.route, {}, {
+            only: options.only,
+            preserveState: true,
+            preserveScroll: false,
+            replace: updateOptions.replace ?? true,
+            onFinish: () => {
+                processing.value = false
+            },
+            onSuccess: () => {
+                replaceQuery(query, toValue(options.query))
+                scrollToTarget(options.scrollTo)
+            }
+        })
+    }
+
+    function setPage(page: number, updateOptions: UpdateOptions = {}): void {
+        reload({ page } as unknown as Partial<TQuery>, updateOptions)
+    }
+
+    function setPerPage(perPage: number, updateOptions: UpdateOptions = {}): void {
+        apply({ perPage } as unknown as Partial<TQuery>, {
+            replace: updateOptions.replace ?? true
+        })
+    }
+
     return {
+        apply,
         paginator,
         processing,
         query,
+        reload,
+        reset,
         resultSummary,
         resultText,
         setPage,
@@ -95,13 +133,47 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
     }
 }
 
-function cleanQuery<TQuery extends object>(query: TQuery): QueryRecord {
+function cloneQuery<TQuery extends object>(query: TQuery): TQuery {
     return Object.fromEntries(
-        Object.entries(query as Record<string, unknown>)
-            .map(([key, value]) => [key, typeof value === 'boolean' ? (value ? '1' : '0') : value])
-            .filter(([, value]) => typeof value === 'string' || typeof value === 'number')
+        Object.entries(toRaw(query)).map(([key, value]) => [key, Array.isArray(value) ? [...value] : value])
+    ) as TQuery
+}
+
+function replaceQuery<TQuery extends object>(target: TQuery, source: TQuery): void {
+    for (const key of Object.keys(target)) {
+        delete (target as Record<string, unknown>)[key]
+    }
+
+    Object.assign(target, cloneQuery(source))
+}
+
+function serializeQuery<TQuery extends object>(query: TQuery): SerializedQueryRecord {
+    return Object.fromEntries(
+        Object.entries(query as QueryRecord)
+            .map(([key, value]) => [key, serializeQueryValue(value)])
+            .filter(([, value]) => typeof value === 'string' || typeof value === 'number' || Array.isArray(value))
             .filter(([, value]) => value !== '')
-    ) as QueryRecord
+            .filter(([, value]) => !Array.isArray(value) || value.length > 0)
+    ) as SerializedQueryRecord
+}
+
+function serializeQueryValue(value: QueryValue): SerializedQueryValue {
+    if (typeof value === 'boolean') {
+        return value ? '1' : '0'
+    }
+
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => typeof item === 'boolean' ? (item ? '1' : '0') : item)
+            .filter((item) => typeof item === 'string' || typeof item === 'number')
+            .filter((item) => item !== '')
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+        return value
+    }
+
+    return null
 }
 
 function scrollToTarget(target?: string | HTMLElement | null): void {

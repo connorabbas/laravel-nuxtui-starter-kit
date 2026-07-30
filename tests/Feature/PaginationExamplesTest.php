@@ -28,10 +28,12 @@ test('authenticated users can view the pagination table example', function () {
                 ->where('query.page', 1)
                 ->where('query.perPage', 10)
                 ->where('query.search', null)
+                ->where('query.userIds', null)
                 ->where('query.verified', null)
                 ->where('query.createdFrom', null)
                 ->where('query.createdUntil', null)
                 ->where('query.sort', 'newest')
+                ->has('userFilterOptions', 15)
         );
 });
 
@@ -107,6 +109,44 @@ test('users can be filtered by verification state and created date range', funct
         );
 });
 
+test('users can be filtered by multiple selected users', function () {
+    $user = User::factory()->create(['name' => 'Current User']);
+
+    $alpha = User::factory()->create(['name' => 'Alpha Selected']);
+    User::factory()->create(['name' => 'Beta Excluded']);
+    $charlie = User::factory()->create(['name' => 'Charlie Selected']);
+
+    $this->actingAs($user)
+        ->get(route('pagination.table', [
+            'userIds' => [$charlie->id, $alpha->id],
+            'sort' => 'name_asc',
+            'perPage' => 25,
+        ], false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/Table', false)
+                ->has('users.data', 2)
+                ->where('users.data.0.name', 'Alpha Selected')
+                ->where('users.data.1.name', 'Charlie Selected')
+                ->where('query.userIds', [$charlie->id, $alpha->id])
+                ->where('query.sort', 'name_asc')
+        );
+});
+
+test('empty selected users are normalized back to null', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('pagination.table', absolute: false).'?userIds[]=')
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/Table', false)
+                ->where('query.userIds', null)
+        );
+});
+
 test('authenticated users can view the pagination cards example', function () {
     $user = User::factory()->create();
     User::factory()->count(14)->create();
@@ -118,6 +158,8 @@ test('authenticated users can view the pagination cards example', function () {
             fn (Assert $page) => $page
                 ->component('pagination/Cards', false)
                 ->has('users.data', 10)
+                ->has('userFilterOptions', 15)
+                ->where('query.userIds', null)
                 ->where('query.sort', 'newest')
         );
 });
@@ -131,12 +173,13 @@ test('invalid users query params are rejected', function () {
             'page' => 0,
             'perPage' => 500,
             'sort' => 'password',
+            'userIds' => ['invalid-user'],
             'verified' => 'maybe',
             'createdFrom' => 'not-a-date',
             'createdUntil' => '2026-01-01',
         ], false))
         ->assertRedirect(route('pagination.table', absolute: false))
-        ->assertSessionHasErrors(['page', 'perPage', 'sort', 'verified', 'createdFrom']);
+        ->assertSessionHasErrors(['page', 'perPage', 'sort', 'userIds.0', 'verified', 'createdFrom']);
 });
 
 test('created until must be after or equal to created from', function () {

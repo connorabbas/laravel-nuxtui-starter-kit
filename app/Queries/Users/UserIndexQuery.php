@@ -2,6 +2,7 @@
 
 namespace App\Queries\Users;
 
+use App\Data\FilterOptionData;
 use App\Data\UserData;
 use App\Data\Users\UserIndexQueryData;
 use App\Enums\UserSort;
@@ -33,6 +34,9 @@ final class UserIndexQuery
                         ->orWhere('users.email', 'like', "%{$search}%");
                 });
             })
+            ->when($query->userIds !== null, function (Builder $builder) use ($query): void {
+                $builder->whereIn('users.id', $query->userIds);
+            })
             ->when($query->verified !== null, function (Builder $builder) use ($query): void {
                 $query->verified
                     ? $builder->whereNotNull('users.email_verified_at')
@@ -52,5 +56,22 @@ final class UserIndexQuery
             )
             ->through(fn (User $user) => UserData::fromModel($user))
             ->withQueryString();
+    }
+
+    /**
+     * @return array<int, FilterOptionData>
+     */
+    public function filterOptions(): array
+    {
+        return User::query()
+            ->select(['id', 'name', 'email'])
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (User $user) => new FilterOptionData(
+                value: $user->id,
+                label: "{$user->name} ({$user->email})",
+            ))
+            ->all();
     }
 }

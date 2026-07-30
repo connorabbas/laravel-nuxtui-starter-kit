@@ -3,89 +3,84 @@ import InertiaPagination from '@/components/InertiaPagination.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import AppLayout from '@/layouts/app/Index.vue'
 import type { AppPageProps, LengthAwarePaginator } from '@/types'
+import { formatDate } from '@/utils/date'
+import { nullableArray, nullableString } from '@/utils/query'
 import { route } from '@/utils/route'
+import { userSortItems, verifiedFilterItems } from '@/utils/userPagination'
 import { useDebounceFn } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<AppPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
+    userFilterOptions: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const { processing, query, resultText, setPage, setPerPage, update } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { apply, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.cards'),
-    initialQuery: props.query,
+    query: () => props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
     //scrollTo: '#users-directory-results'
 })
 
-const search = ref(props.query.search ?? '')
-const verified = ref<boolean | null>(props.query.verified)
-const createdFrom = ref(props.query.createdFrom ?? '')
-const createdUntil = ref(props.query.createdUntil ?? '')
-let suppressFilterWatch = false
-
-const applySearchFilters = useDebounceFn(() => {
-    applyFilters()
+const applySearchFilter = useDebounceFn(() => {
+    apply({}, { replace: true })
 }, 350)
 
-const sortItems = [
-    { label: 'Newest', value: 'newest' },
-    { label: 'Oldest', value: 'oldest' },
-    { label: 'Name - A to Z', value: 'name_asc' },
-    { label: 'Name - Z to A', value: 'name_desc' },
-    { label: 'Email - A to Z', value: 'email_asc' },
-    { label: 'Email - Z to A', value: 'email_desc' }
-]
-
-watch(search, () => {
-    if (suppressFilterWatch) {
-        return
+const search = computed({
+    get: () => query.search ?? '',
+    set: (value) => {
+        query.search = nullableString(value)
+        applySearchFilter()
     }
-
-    applySearchFilters()
 })
 
-watch([verified, createdFrom, createdUntil], () => {
-    if (suppressFilterWatch) {
-        return
+const userIds = computed<number[]>({
+    get: () => query.userIds ?? [],
+    set: (value) => {
+        query.userIds = nullableArray(value)
+        applyFilters()
     }
+})
 
-    applyFilters()
+const createdFrom = computed({
+    get: () => query.createdFrom ?? '',
+    set: (value) => {
+        query.createdFrom = nullableString(value)
+        applyFilters()
+    }
+})
+
+const createdUntil = computed({
+    get: () => query.createdUntil ?? '',
+    set: (value) => {
+        query.createdUntil = nullableString(value)
+        applyFilters()
+    }
 })
 
 function applyFilters(): void {
-    update({
-        search: search.value || null,
-        verified: verified.value,
-        createdFrom: createdFrom.value || null,
-        createdUntil: createdUntil.value || null
-    }, { resetPage: true, replace: true })
+    apply({}, { replace: true })
+}
+
+function setVerified(value: boolean | null): void {
+    query.verified = value
+    applyFilters()
+}
+
+function setSort(value: App.Enums.UserSort): void {
+    apply({ sort: value }, { replace: true })
 }
 
 function clearFilters(): void {
-    suppressFilterWatch = true
-
-    search.value = ''
-    verified.value = null
-    createdFrom.value = ''
-    createdUntil.value = ''
-
-    update({
+    apply({
         search: null,
+        userIds: null,
         verified: null,
         createdFrom: null,
         createdUntil: null
-    }, { resetPage: true, replace: true })
-
-    setTimeout(() => {
-        suppressFilterWatch = false
-    }, 0)
-}
-
-function formatDate(date: string): string {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(date))
+    }, { replace: true })
 }
 </script>
 
@@ -103,7 +98,7 @@ function formatDate(date: string): string {
 
             <UPageBody id="users-directory-results">
                 <UPageCard>
-                    <div class="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_10rem_10rem_auto] lg:items-end">
+                    <div class="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_14rem_12rem_10rem_10rem_auto] lg:items-end">
                         <UFormField label="Search">
                             <UInput
                                 v-model="search"
@@ -116,22 +111,29 @@ function formatDate(date: string): string {
                         <UFormField label="Sort">
                             <USelect
                                 :model-value="query.sort"
-                                :items="sortItems"
+                                :items="userSortItems"
                                 :disabled="processing"
                                 class="w-full"
-                                @update:model-value="update({ sort: $event as App.Enums.UserSort }, { resetPage: true, replace: true })"
+                                @update:model-value="setSort($event as App.Enums.UserSort)"
+                            />
+                        </UFormField>
+
+                        <UFormField label="Specific users">
+                            <USelect
+                                v-model="userIds"
+                                multiple
+                                :items="userFilterOptions"
+                                placeholder="Any user"
+                                class="w-full"
                             />
                         </UFormField>
 
                         <UFormField label="Verification">
                             <USelect
-                                v-model="verified"
-                                :items="[
-                                    { label: 'Any', value: null },
-                                    { label: 'Verified', value: true },
-                                    { label: 'Unverified', value: false }
-                                ]"
+                                :model-value="query.verified"
+                                :items="verifiedFilterItems"
                                 class="w-full"
+                                @update:model-value="setVerified($event as boolean | null)"
                             />
                         </UFormField>
 
