@@ -9,7 +9,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class FilterOptionData extends Data
 {
     public function __construct(
-        public string|int $value,
+        public string|int|bool|null $value,
         public string $label,
     ) {
     }

@@ -13,7 +13,7 @@ export const verifiedFilterItems = [
     { label: 'Any', value: null },
     { label: 'Verified', value: true },
     { label: 'Unverified', value: false }
-]
+] satisfies App.Data.FilterOptionData[]
 
 export const userTableSorting: TableQuerySortingConfig<App.Enums.UserSort> = {
     default: 'newest',

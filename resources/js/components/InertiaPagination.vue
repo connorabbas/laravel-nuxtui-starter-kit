@@ -12,10 +12,16 @@ const props = withDefaults(defineProps<{
     perPageOptions?: number[]
     summary?: string
     disabled?: boolean
+    showEdges?: boolean
+    siblingCount?: number
+    bordered?: boolean
 }>(), {
     perPageOptions: () => [10, 25, 50],
     summary: undefined,
-    disabled: false
+    disabled: false,
+    showEdges: false,
+    siblingCount: 1,
+    bordered: true
 })
 
 const emit = defineEmits<{
@@ -30,31 +36,38 @@ const perPageItems = computed<PerPageSelectItem[]>(() => props.perPageOptions.ma
 </script>
 
 <template>
-    <div class="flex flex-col gap-3 border-t border-default pt-4 md:flex-row md:items-center md:justify-between">
+    <div
+        class="flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between"
+        :class="bordered ? 'border-t border-default pt-4' : undefined"
+    >
         <p
             v-if="summary"
-            class="text-sm text-muted"
+            class="min-w-0 text-sm text-muted"
         >
             {{ summary }}
         </p>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center md:ml-auto">
+        <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center md:ml-auto">
             <USelect
                 :model-value="paginator.per_page"
                 :items="perPageItems"
                 :disabled="disabled"
-                class="w-full sm:w-40"
+                class="w-full shrink-0 sm:w-40"
                 @update:model-value="emit('perPage', Number($event))"
             />
 
-            <UPagination
-                :page="paginator.current_page"
-                :items-per-page="paginator.per_page"
-                :total="paginator.total"
-                :disabled="disabled"
-                show-edges
-                @update:page="emit('page', $event)"
-            />
+            <div class="min-w-0 overflow-x-auto pb-1">
+                <UPagination
+                    :page="paginator.current_page"
+                    :items-per-page="paginator.per_page"
+                    :total="paginator.total"
+                    :disabled="disabled"
+                    :show-edges="showEdges"
+                    :sibling-count="siblingCount"
+                    class="w-max"
+                    @update:page="emit('page', $event)"
+                />
+            </div>
         </div>
     </div>
 </template>

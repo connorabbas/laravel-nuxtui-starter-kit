@@ -7,7 +7,7 @@ errorDetail: string,
 errorIcon: string,
 };
 export type FilterOptionData = {
-value: string | number,
+value: string | number | boolean | null,
 label: string,
 };
 export type UserData = {
