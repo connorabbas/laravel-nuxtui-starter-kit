@@ -27,7 +27,7 @@ export type UserIndexQueryData = {
 page: number,
 perPage: number,
 search: string | null,
-userIds: number[] | null,
+userIds: string[] | null,
 verified: boolean | null,
 createdFrom: string | null,
 createdUntil: string | null,

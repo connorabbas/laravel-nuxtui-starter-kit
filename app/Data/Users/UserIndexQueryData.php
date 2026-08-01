@@ -20,7 +20,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class UserIndexQueryData extends Data
 {
     /**
-     * @param  array<int, int>|null  $userIds
+     * @param  list<string>|null  $userIds
      */
     public function __construct(
         #[Min(1)]
@@ -42,31 +42,9 @@ class UserIndexQueryData extends Data
     }
 
     /**
-     * @param  array<string, mixed>  $properties
      * @return array<string, mixed>
      */
-    public static function prepareForPipeline(array $properties): array
-    {
-        if (isset($properties['userIds']) && is_array($properties['userIds'])) {
-            $userIds = array_values(array_filter(
-                $properties['userIds'],
-                static fn (mixed $userId): bool => $userId !== null && $userId !== '',
-            ));
-
-            $properties['userIds'] = $userIds === [] ? null : array_map(static function (mixed $userId): mixed {
-                $integer = filter_var($userId, FILTER_VALIDATE_INT);
-
-                return $integer === false ? $userId : $integer;
-            }, $userIds);
-        }
-
-        return $properties;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function rules(): array
+    public static function rules($context = null): array
     {
         return [
             'userIds.*' => ['integer', 'distinct', Rule::exists(User::class, 'id')],

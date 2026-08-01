@@ -9,7 +9,6 @@ use App\Data\Users\UserIndexQueryData;
 use App\Enums\UserSort;
 use App\Models\User;
 use App\Services\Concerns\NormalizesQueryValues;
-use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,9 +22,9 @@ final class UserQueryService
     public function paginate(UserIndexQueryData $query): LengthAwarePaginator
     {
         $search = $this->trimmedStringOrNull($query->search);
-        $userIds = $query->userIds === [] ? null : $query->userIds;
-        $createdFrom = $this->trimmedStringOrNull($query->createdFrom);
-        $createdUntil = $this->trimmedStringOrNull($query->createdUntil);
+        $userIds = $this->integerListOrNull($query->userIds);
+        $createdFrom = $this->carbonImmutableOrNull($query->createdFrom)?->startOfDay();
+        $createdUntil = $this->carbonImmutableOrNull($query->createdUntil)?->endOfDay();
 
         [$sortColumn, $sortDirection] = match ($query->sort) {
             UserSort::Newest => ['users.created_at', 'desc'],
@@ -37,7 +36,7 @@ final class UserQueryService
         };
 
         return User::query()
-            ->when($search, function (Builder $builder, string $search): void {
+            ->when($search !== null, function (Builder $builder) use ($search): void {
                 $builder->where(function (Builder $builder) use ($search): void {
                     $builder
                         ->where('users.name', 'like', "%{$search}%")
@@ -52,11 +51,11 @@ final class UserQueryService
                     ? $builder->whereNotNull('users.email_verified_at')
                     : $builder->whereNull('users.email_verified_at');
             })
-            ->when($createdFrom, function (Builder $builder, string $createdFrom): void {
-                $builder->where('users.created_at', '>=', CarbonImmutable::parse($createdFrom)->startOfDay());
+            ->when($createdFrom !== null, function (Builder $builder) use ($createdFrom): void {
+                $builder->where('users.created_at', '>=', $createdFrom);
             })
-            ->when($createdUntil, function (Builder $builder, string $createdUntil): void {
-                $builder->where('users.created_at', '<=', CarbonImmutable::parse($createdUntil)->endOfDay());
+            ->when($createdUntil !== null, function (Builder $builder) use ($createdUntil): void {
+                $builder->where('users.created_at', '<=', $createdUntil);
             })
             ->orderBy($sortColumn, $sortDirection)
             ->orderBy('users.id')
@@ -95,7 +94,7 @@ final class UserQueryService
             ->orderBy('id')
             ->get()
             ->map(fn (User $user) => new FilterOptionData(
-                value: $user->id,
+                value: (string) $user->id,
                 label: "{$user->name} ({$user->email})",
             ))
             ->all();

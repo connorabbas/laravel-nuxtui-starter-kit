@@ -4,7 +4,7 @@ import { computed, reactive, ref, watch } from 'vue'
 
 type UserFiltersDraft = {
     search: string
-    userIds: number[]
+    userIds: string[]
     verified: boolean | null
     createdFrom: string
     createdUntil: string

@@ -206,7 +206,7 @@ test('users can be filtered by multiple selected users', function () {
 
     $this->actingAs($user)
         ->get(route('pagination.table', [
-            'userIds' => [$charlie->id, $alpha->id],
+            'userIds' => [(string) $charlie->id, (string) $alpha->id],
             'sort' => 'name_asc',
             'perPage' => 25,
         ], false))
@@ -217,22 +217,19 @@ test('users can be filtered by multiple selected users', function () {
                 ->has('users.data', 2)
                 ->where('users.data.0.name', 'Alpha Selected')
                 ->where('users.data.1.name', 'Charlie Selected')
-                ->where('query.userIds', [$charlie->id, $alpha->id])
+                ->where('query.userIds', [(string) $charlie->id, (string) $alpha->id])
                 ->where('query.sort', 'name_asc')
         );
 });
 
-test('empty selected users are normalized back to null', function () {
+test('empty selected users are rejected', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
+        ->from(route('pagination.table', absolute: false))
         ->get(route('pagination.table', absolute: false).'?userIds[]=')
-        ->assertOk()
-        ->assertInertia(
-            fn (Assert $page) => $page
-                ->component('pagination/Table', false)
-                ->where('query.userIds', null)
-        );
+        ->assertRedirect(route('pagination.table', absolute: false))
+        ->assertSessionHasErrors(['userIds.0']);
 });
 
 test('authenticated users can view the pagination cards example', function () {
