@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<{
     disabled: false,
     showEdges: false,
     siblingCount: 1,
-    bordered: true
+    bordered: false
 })
 
 const emit = defineEmits<{

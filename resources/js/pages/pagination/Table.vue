@@ -127,7 +127,6 @@ const columns: TableColumn<App.Data.UserData>[] = [
                             :paginator="users"
                             :summary="resultText"
                             :disabled="processing"
-                            :bordered="false"
                             :per-page-options="[10, 25, 50]"
                             @page="setPage"
                             @per-page="(perPage) => setPerPage(perPage, { replace: true })"

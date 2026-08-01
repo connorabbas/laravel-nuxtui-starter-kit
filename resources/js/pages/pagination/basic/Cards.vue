@@ -77,7 +77,6 @@ const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Da
                             :paginator="users"
                             :summary="resultText"
                             :disabled="processing"
-                            :bordered="false"
                             @page="setPage"
                             @per-page="(perPage) => setPerPage(perPage, { replace: true })"
                         />
