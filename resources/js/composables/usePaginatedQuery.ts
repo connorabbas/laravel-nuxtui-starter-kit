@@ -26,6 +26,7 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
     const processing = ref(false)
     const query = reactive(cloneQuery(toValue(options.query))) as TQuery
     const paginator = computed(() => toValue(options.paginator))
+    let visitSequence = 0
 
     const resultSummary = computed(() => ({
         currentPage: paginator.value.current_page,
@@ -51,6 +52,8 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
     }, { deep: true })
 
     function visit(nextQuery: TQuery, updateOptions: UpdateOptions = {}): void {
+        const visitId = ++visitSequence
+
         processing.value = true
 
         router.get(options.route, serializeQuery(nextQuery), {
@@ -59,11 +62,27 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
             preserveScroll: false,
             replace: updateOptions.replace ?? options.replace ?? false,
             onFinish: () => {
-                processing.value = false
+                if (visitId === visitSequence) {
+                    processing.value = false
+                }
             },
             onSuccess: () => {
-                replaceQuery(query, toValue(options.query))
-                scrollToTarget(options.scrollTo)
+                if (visitId === visitSequence) {
+                    replaceQuery(query, toValue(options.query))
+                    scrollToTarget(options.scrollTo)
+                }
+            },
+            onError: () => {
+                restoreQuery(visitId)
+            },
+            onHttpException: () => {
+                restoreQuery(visitId)
+            },
+            onNetworkError: () => {
+                restoreQuery(visitId)
+            },
+            onCancel: () => {
+                restoreQuery(visitId)
             }
         })
     }
@@ -91,6 +110,8 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
     }
 
     function reset(updateOptions: UpdateOptions = {}): void {
+        const visitId = ++visitSequence
+
         processing.value = true
 
         router.get(options.route, {}, {
@@ -99,13 +120,35 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
             preserveScroll: false,
             replace: updateOptions.replace ?? true,
             onFinish: () => {
-                processing.value = false
+                if (visitId === visitSequence) {
+                    processing.value = false
+                }
             },
             onSuccess: () => {
-                replaceQuery(query, toValue(options.query))
-                scrollToTarget(options.scrollTo)
+                if (visitId === visitSequence) {
+                    replaceQuery(query, toValue(options.query))
+                    scrollToTarget(options.scrollTo)
+                }
+            },
+            onError: () => {
+                restoreQuery(visitId)
+            },
+            onHttpException: () => {
+                restoreQuery(visitId)
+            },
+            onNetworkError: () => {
+                restoreQuery(visitId)
+            },
+            onCancel: () => {
+                restoreQuery(visitId)
             }
         })
+    }
+
+    function restoreQuery(visitId: number): void {
+        if (visitId === visitSequence) {
+            replaceQuery(query, toValue(options.query))
+        }
     }
 
     function setPage(page: number, updateOptions: UpdateOptions = {}): void {

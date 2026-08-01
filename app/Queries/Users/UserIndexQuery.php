@@ -3,10 +3,12 @@
 namespace App\Queries\Users;
 
 use App\Data\FilterOptionData;
+use App\Data\PaginatedData;
 use App\Data\UserData;
 use App\Data\Users\UserIndexQueryData;
 use App\Enums\UserSort;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -17,6 +19,11 @@ final class UserIndexQuery
      */
     public function paginate(UserIndexQueryData $query): LengthAwarePaginator
     {
+        $search = $this->filledString($query->search);
+        $userIds = $query->userIds === [] ? null : $query->userIds;
+        $createdFrom = $this->filledString($query->createdFrom);
+        $createdUntil = $this->filledString($query->createdUntil);
+
         [$sortColumn, $sortDirection] = match ($query->sort) {
             UserSort::Newest => ['users.created_at', 'desc'],
             UserSort::Oldest => ['users.created_at', 'asc'],
@@ -27,28 +34,44 @@ final class UserIndexQuery
         };
 
         return User::query()
-            ->when($query->search, function (Builder $builder, string $search): void {
+            ->when($search, function (Builder $builder, string $search): void {
                 $builder->where(function (Builder $builder) use ($search): void {
                     $builder
                         ->where('users.name', 'like', "%{$search}%")
                         ->orWhere('users.email', 'like', "%{$search}%");
                 });
             })
-            ->when($query->userIds !== null, function (Builder $builder) use ($query): void {
-                $builder->whereIn('users.id', $query->userIds);
+            ->when($userIds !== null, function (Builder $builder) use ($userIds): void {
+                $builder->whereIn('users.id', $userIds);
             })
             ->when($query->verified !== null, function (Builder $builder) use ($query): void {
                 $query->verified
                     ? $builder->whereNotNull('users.email_verified_at')
                     : $builder->whereNull('users.email_verified_at');
             })
-            ->when($query->createdFrom, function (Builder $builder, string $createdFrom): void {
-                $builder->whereDate('users.created_at', '>=', $createdFrom);
+            ->when($createdFrom, function (Builder $builder, string $createdFrom): void {
+                $builder->where('users.created_at', '>=', CarbonImmutable::parse($createdFrom)->startOfDay());
             })
-            ->when($query->createdUntil, function (Builder $builder, string $createdUntil): void {
-                $builder->whereDate('users.created_at', '<=', $createdUntil);
+            ->when($createdUntil, function (Builder $builder, string $createdUntil): void {
+                $builder->where('users.created_at', '<=', CarbonImmutable::parse($createdUntil)->endOfDay());
             })
             ->orderBy($sortColumn, $sortDirection)
+            ->orderBy('users.id')
+            ->paginate(
+                perPage: $query->perPage,
+                page: $query->page,
+            )
+            ->through(fn (User $user) => UserData::fromModel($user))
+            ->withQueryString();
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, UserData>
+     */
+    public function paginateAll(PaginatedData $query): LengthAwarePaginator
+    {
+        return User::query()
+            ->latest('users.created_at')
             ->orderBy('users.id')
             ->paginate(
                 perPage: $query->perPage,
@@ -73,5 +96,16 @@ final class UserIndexQuery
                 label: "{$user->name} ({$user->email})",
             ))
             ->all();
+    }
+
+    private function filledString(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? null : $value;
     }
 }

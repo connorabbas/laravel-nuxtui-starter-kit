@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Pagination\BasicPaginationCardsController;
+use App\Http\Controllers\Pagination\BasicPaginationTableController;
 use App\Http\Controllers\Pagination\PaginationCardsController;
 use App\Http\Controllers\Pagination\PaginationTableController;
 use App\Http\Controllers\Settings\PasswordController;
@@ -17,6 +19,8 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
+    Route::get('/pagination/basic/table', BasicPaginationTableController::class)->name('pagination.basic.table');
+    Route::get('/pagination/basic/cards', BasicPaginationCardsController::class)->name('pagination.basic.cards');
     Route::get('/pagination/table', PaginationTableController::class)->name('pagination.table');
     Route::get('/pagination/cards', PaginationCardsController::class)->name('pagination.cards');
 

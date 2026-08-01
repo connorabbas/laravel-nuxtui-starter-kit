@@ -14,7 +14,7 @@ type UserFilterPatch = Pick<App.Data.Users.UserIndexQueryData, 'search' | 'userI
 
 const props = withDefaults(defineProps<{
     query: App.Data.Users.UserIndexQueryData
-    userFilterOptions: App.Data.FilterOptionData[]
+    userFilterOptions?: App.Data.FilterOptionData[]
     verifiedFilterItems: App.Data.FilterOptionData[]
     processing?: boolean
 }>(), {
@@ -49,6 +49,9 @@ const activeFilterCount = computed(() => {
 
     return count
 })
+
+const userFilterOptions = computed(() => props.userFilterOptions ?? [])
+const isLoadingUserFilterOptions = computed(() => props.userFilterOptions === undefined)
 
 watch(isOpen, (open) => {
     if (open) {
@@ -153,8 +156,14 @@ function clearFilters(): void {
                         multiple
                         :items="userFilterOptions"
                         placeholder="Any user"
+                        :loading="isLoadingUserFilterOptions"
+                        :disabled="isLoadingUserFilterOptions"
                         class="w-full"
                     />
+
+                    <p class="mt-2 text-xs text-muted">
+                        This loads users as an illustrative multi-select filter. Large production datasets should use a remote-search selector.
+                    </p>
                 </UFormField>
 
                 <UFormField label="Verification">

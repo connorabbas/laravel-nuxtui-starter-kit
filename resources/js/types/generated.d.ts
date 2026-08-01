@@ -10,6 +10,10 @@ export type FilterOptionData = {
 value: string | number | boolean | null,
 label: string,
 };
+export type PaginatedData = {
+page: number,
+perPage: number,
+};
 export type UserData = {
 id: number,
 name: string,

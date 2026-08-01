@@ -2,7 +2,6 @@
 
 namespace App\Data;
 
-use Carbon\CarbonInterface;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use LogicException;
@@ -16,9 +15,9 @@ class UserData extends Data
         public int $id,
         public string $name,
         public string $email,
-        public CarbonImmutable|string|null $emailVerifiedAt,
-        public CarbonImmutable|string $createdAt,
-        public CarbonImmutable|string $updatedAt,
+        public ?CarbonImmutable $emailVerifiedAt,
+        public CarbonImmutable $createdAt,
+        public CarbonImmutable $updatedAt,
     ) {
     }
 
@@ -35,27 +34,9 @@ class UserData extends Data
             id: $user->id,
             name: $user->name,
             email: $user->email,
-            emailVerifiedAt: self::formatDate($user->email_verified_at),
-            createdAt: self::formatRequiredDate($createdAt),
-            updatedAt: self::formatRequiredDate($updatedAt),
+            emailVerifiedAt: $user->email_verified_at,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt,
         );
-    }
-
-    private static function formatDate(CarbonInterface|string|null $date): ?string
-    {
-        if ($date === null || is_string($date)) {
-            return $date;
-        }
-
-        return $date->toJSON() ?? $date->format(DATE_ATOM);
-    }
-
-    private static function formatRequiredDate(CarbonInterface|string $date): string
-    {
-        if (is_string($date)) {
-            return $date;
-        }
-
-        return $date->toJSON() ?? $date->format(DATE_ATOM);
     }
 }

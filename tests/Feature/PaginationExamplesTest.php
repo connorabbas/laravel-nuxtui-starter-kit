@@ -7,8 +7,51 @@ use Inertia\Testing\AssertableInertia as Assert;
 uses(RefreshDatabase::class);
 
 test('guests are redirected from pagination examples', function () {
+    $this->get(route('pagination.basic.table', absolute: false))->assertRedirect(route('login', absolute: false));
+    $this->get(route('pagination.basic.cards', absolute: false))->assertRedirect(route('login', absolute: false));
     $this->get(route('pagination.table', absolute: false))->assertRedirect(route('login', absolute: false));
     $this->get(route('pagination.cards', absolute: false))->assertRedirect(route('login', absolute: false));
+});
+
+test('authenticated users can view the basic pagination table example', function () {
+    $user = User::factory()->create();
+    User::factory()->count(14)->create();
+
+    $this->actingAs($user)
+        ->get(route('pagination.basic.table', absolute: false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/basic/Table', false)
+                ->has('users.data', 10)
+                ->where('users.current_page', 1)
+                ->where('users.per_page', 10)
+                ->where('users.total', 15)
+                ->where('query.page', 1)
+                ->where('query.perPage', 10)
+        );
+});
+
+test('authenticated users can view the basic pagination cards example with query params', function () {
+    $user = User::factory()->create();
+    User::factory()->count(59)->create();
+
+    $this->actingAs($user)
+        ->get(route('pagination.basic.cards', [
+            'page' => 2,
+            'perPage' => 25,
+        ], false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/basic/Cards', false)
+                ->has('users.data', 25)
+                ->where('users.current_page', 2)
+                ->where('users.per_page', 25)
+                ->where('users.total', 60)
+                ->where('query.page', 2)
+                ->where('query.perPage', 25)
+        );
 });
 
 test('authenticated users can view the pagination table example', function () {
@@ -33,7 +76,12 @@ test('authenticated users can view the pagination table example', function () {
                 ->where('query.createdFrom', null)
                 ->where('query.createdUntil', null)
                 ->where('query.sort', 'newest')
-                ->has('userFilterOptions', 15)
+                ->missing('userFilterOptions')
+                ->loadDeferredProps(
+                    fn (Assert $reload) => $reload
+                        ->has('userFilterOptions', 15)
+                        ->missing('users')
+                )
         );
 });
 
@@ -52,7 +100,7 @@ test('users can be filtered and sorted through typed query params', function () 
 
     $this->actingAs($user)
         ->get(route('pagination.table', [
-            'search' => 'example',
+            'search' => ' example ',
             'sort' => 'email_asc',
             'perPage' => 25,
         ], false))
@@ -68,6 +116,46 @@ test('users can be filtered and sorted through typed query params', function () 
                 ->where('query.page', 1)
         );
 });
+
+test('users can be sorted by every supported sort option', function (string $sort, string $firstEmail) {
+    $user = User::factory()->create([
+        'name' => 'Current User',
+        'email' => 'current@example.test',
+        'created_at' => '2026-07-15 12:00:00',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Alice Example',
+        'email' => 'zulu@example.test',
+        'created_at' => '2026-07-01 12:00:00',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Zulu Example',
+        'email' => 'alpha@example.test',
+        'created_at' => '2026-07-31 12:00:00',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('pagination.table', [
+            'sort' => $sort,
+            'perPage' => 25,
+        ], false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/Table', false)
+                ->where('users.data.0.email', $firstEmail)
+                ->where('query.sort', $sort)
+        );
+})->with([
+    'newest' => ['newest', 'alpha@example.test'],
+    'oldest' => ['oldest', 'zulu@example.test'],
+    'name ascending' => ['name_asc', 'zulu@example.test'],
+    'name descending' => ['name_desc', 'alpha@example.test'],
+    'email ascending' => ['email_asc', 'alpha@example.test'],
+    'email descending' => ['email_desc', 'zulu@example.test'],
+]);
 
 test('users can be filtered by verification state and created date range', function () {
     $user = User::factory()->create([
@@ -158,9 +246,14 @@ test('authenticated users can view the pagination cards example', function () {
             fn (Assert $page) => $page
                 ->component('pagination/Cards', false)
                 ->has('users.data', 10)
-                ->has('userFilterOptions', 15)
+                ->missing('userFilterOptions')
                 ->where('query.userIds', null)
                 ->where('query.sort', 'newest')
+                ->loadDeferredProps(
+                    fn (Assert $reload) => $reload
+                        ->has('userFilterOptions', 15)
+                        ->missing('users')
+                )
         );
 });
 
@@ -171,7 +264,7 @@ test('invalid users query params are rejected', function () {
         ->from(route('pagination.table', absolute: false))
         ->get(route('pagination.table', [
             'page' => 0,
-            'perPage' => 500,
+            'perPage' => 0,
             'sort' => 'password',
             'userIds' => ['invalid-user'],
             'verified' => 'maybe',
@@ -206,11 +299,13 @@ test('pagination table supports partial reloads for paginated props', function (
             fn (Assert $page) => $page
                 ->has('users')
                 ->has('query')
+                ->missing('userFilterOptions')
                 ->reloadOnly(
                     ['users', 'query'],
                     fn (Assert $reload) => $reload
                         ->has('users')
                         ->has('query')
+                        ->missing('userFilterOptions')
                         ->missing('auth')
                 )
         );

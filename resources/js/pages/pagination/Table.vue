@@ -12,7 +12,7 @@ import type { TableColumn } from '@nuxt/ui'
 
 const props = defineProps<AppPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
-    userFilterOptions: App.Data.FilterOptionData[]
+    userFilterOptions?: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
@@ -70,6 +70,7 @@ const columns: TableColumn<App.Data.UserData>[] = [
                     <div class="min-w-0 overflow-x-auto">
                         <UTable
                             :sorting="tableSorting"
+                            :sorting-options="{ manualSorting: true, enableSortingRemoval: false }"
                             :data="users.data"
                             :columns="columns"
                             :loading="processing"

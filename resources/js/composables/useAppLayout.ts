@@ -39,13 +39,25 @@ export function useAppLayout() {
                     active: currentRoute.value?.startsWith('pagination.'),
                     children: [
                         {
-                            label: 'Table',
+                            label: 'Basic table',
+                            icon: 'i-lucide-table',
+                            description: 'Minimal page and per-page pagination.',
+                            to: route('pagination.basic.table')
+                        },
+                        {
+                            label: 'Basic cards',
+                            icon: 'i-lucide-layout-grid',
+                            description: 'Minimal card list using the pagination composable.',
+                            to: route('pagination.basic.cards')
+                        },
+                        {
+                            label: 'Advanced table',
                             icon: 'i-lucide-table',
                             description: 'Server-side pagination with Nuxt UI table sorting.',
                             to: route('pagination.table')
                         },
                         {
-                            label: 'Cards',
+                            label: 'Advanced cards',
                             icon: 'i-lucide-layout-grid',
                             description: 'Manual card list using the same pagination composable.',
                             to: route('pagination.cards')
