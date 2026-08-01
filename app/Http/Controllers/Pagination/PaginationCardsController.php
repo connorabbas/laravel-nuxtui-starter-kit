@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Pagination;
 
 use App\Data\Users\UserIndexQueryData;
 use App\Http\Controllers\Controller;
-use App\Queries\Users\UserIndexQuery;
+use App\Services\UserQueryService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PaginationCardsController extends Controller
 {
-    public function __invoke(UserIndexQueryData $query, UserIndexQuery $users): Response
+    public function __invoke(UserIndexQueryData $query, UserQueryService $userQueryService): Response
     {
         return Inertia::render('pagination/Cards', [
-            'users' => fn () => $users->paginate($query),
-            'userFilterOptions' => Inertia::defer(fn () => $users->filterOptions()),
+            'users' => fn () => $userQueryService->paginate($query),
+            'userFilterOptions' => Inertia::defer(fn () => $userQueryService->filterOptions()),
             'query' => $query,
         ]);
     }

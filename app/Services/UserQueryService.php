@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Queries\Users;
+namespace App\Services;
 
 use App\Data\FilterOptionData;
 use App\Data\PaginatedData;
@@ -8,21 +8,24 @@ use App\Data\UserData;
 use App\Data\Users\UserIndexQueryData;
 use App\Enums\UserSort;
 use App\Models\User;
+use App\Services\Concerns\NormalizesQueryValues;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
-final class UserIndexQuery
+final class UserQueryService
 {
+    use NormalizesQueryValues;
+
     /**
      * @return LengthAwarePaginator<int, UserData>
      */
     public function paginate(UserIndexQueryData $query): LengthAwarePaginator
     {
-        $search = $this->filledString($query->search);
+        $search = $this->trimmedStringOrNull($query->search);
         $userIds = $query->userIds === [] ? null : $query->userIds;
-        $createdFrom = $this->filledString($query->createdFrom);
-        $createdUntil = $this->filledString($query->createdUntil);
+        $createdFrom = $this->trimmedStringOrNull($query->createdFrom);
+        $createdUntil = $this->trimmedStringOrNull($query->createdUntil);
 
         [$sortColumn, $sortDirection] = match ($query->sort) {
             UserSort::Newest => ['users.created_at', 'desc'],
@@ -68,7 +71,7 @@ final class UserIndexQuery
     /**
      * @return LengthAwarePaginator<int, UserData>
      */
-    public function paginateAll(PaginatedData $query): LengthAwarePaginator
+    public function paginateUnfiltered(PaginatedData $query): LengthAwarePaginator
     {
         return User::query()
             ->latest('users.created_at')
@@ -96,16 +99,5 @@ final class UserIndexQuery
                 label: "{$user->name} ({$user->email})",
             ))
             ->all();
-    }
-
-    private function filledString(?string $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? null : $value;
     }
 }
