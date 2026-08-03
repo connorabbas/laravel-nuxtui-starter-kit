@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { stringOrNull } from '@/utils'
 import { computed, ref } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -89,12 +90,6 @@ function clearFilters(): void {
     emit('apply')
 
     isOpen.value = false
-}
-
-function stringOrNull(value: string): string | null {
-    const stringValue = value.trim()
-
-    return stringValue === '' ? null : stringValue
 }
 </script>
 
