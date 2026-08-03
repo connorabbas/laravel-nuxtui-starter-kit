@@ -47,21 +47,20 @@ function setSort(value: App.Enums.UserSort): void {
                             <div />
 
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-                                <UFieldGroup>
-                                    <UButton
-                                        color="neutral"
-                                        variant="subtle"
-                                        label="Sort by"
-                                        disabled
-                                    />
+                                <UFormField
+                                    name="sort"
+                                    label="Sort by"
+                                    orientation="horizontal"
+                                    class="w-full sm:w-auto"
+                                >
                                     <USelect
                                         :model-value="query.sort"
                                         :items="userSortItems"
                                         :disabled="processing"
-                                        class="w-full shrink-0 sm:w-40"
+                                        class="min-w-0 flex-1 sm:w-40 sm:flex-none"
                                         @update:model-value="setSort($event as App.Enums.UserSort)"
                                     />
-                                </UFieldGroup>
+                                </UFormField>
 
                                 <UserFiltersSlideover
                                     v-model:search="query.search"
