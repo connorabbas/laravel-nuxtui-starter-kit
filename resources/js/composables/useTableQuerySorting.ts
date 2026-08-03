@@ -16,7 +16,7 @@ export type TableQuerySortingConfig<TSort extends QuerySortValue> = {
 type UseTableQuerySortingOptions<TSort extends QuerySortValue> = {
     sort: MaybeRefOrGetter<TSort>
     config: TableQuerySortingConfig<TSort>
-    apply: (sort: TSort) => void
+    onSortChange: (sort: TSort) => void
 }
 
 export function useTableQuerySorting<TSort extends QuerySortValue>(options: UseTableQuerySortingOptions<TSort>) {
@@ -31,7 +31,7 @@ export function useTableQuerySorting<TSort extends QuerySortValue>(options: UseT
 
         const firstSort = tableSorting.value[0]
 
-        options.apply(tableSortingToQuerySort(firstSort?.id, firstSort?.desc ?? false))
+        options.onSortChange(tableSortingToQuerySort(firstSort?.id, firstSort?.desc ?? false))
     }
 
     function sortingIcon(columnId: string): string {

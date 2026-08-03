@@ -8,23 +8,22 @@ type QueryRecord = Record<string, QueryValue>
 type SerializedQueryValue = string | number | Array<string | number> | null | undefined
 type SerializedQueryRecord = Record<string, SerializedQueryValue>
 
-type UpdateOptions = {
-    resetPage?: boolean
-    replace?: boolean
+type PaginatedQuery = {
+    page: number
+    perPage: number
 }
 
-type UsePaginatedQueryOptions<TQuery extends object, TItem> = {
+type UsePaginatedQueryOptions<TQuery extends PaginatedQuery, TItem> = {
     route: string
-    query: MaybeRefOrGetter<TQuery>
+    serverQuery: MaybeRefOrGetter<TQuery>
     paginator: MaybeRefOrGetter<LengthAwarePaginator<TItem>>
     only: string[]
     scrollTo?: string | HTMLElement | null
-    replace?: boolean
 }
 
-export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePaginatedQueryOptions<TQuery, TItem>) {
+export function usePaginatedQuery<TQuery extends PaginatedQuery, TItem>(options: UsePaginatedQueryOptions<TQuery, TItem>) {
     const processing = ref(false)
-    const query = reactive(cloneQuery(toValue(options.query))) as TQuery
+    const query = reactive(cloneQuery(toValue(options.serverQuery))) as TQuery
     const paginator = computed(() => toValue(options.paginator))
     let visitSequence = 0
 
@@ -47,12 +46,29 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
         return `Showing ${summary.firstItem}-${summary.lastItem} of ${summary.total} results · Page ${summary.currentPage} of ${summary.lastPage}`
     })
 
-    watch(() => toValue(options.query), (nextQuery) => {
+    watch(() => toValue(options.serverQuery), (nextQuery) => {
         replaceQuery(query, nextQuery)
     }, { deep: true })
 
-    function visit(nextQuery: TQuery, updateOptions: UpdateOptions = {}): void {
+    function applyQuery(): void {
+        query.page = 1
+        visitCurrentQuery({ replace: true })
+    }
+
+    function setPage(page: number): void {
+        query.page = page
+        visitCurrentQuery({ replace: false })
+    }
+
+    function setPerPage(perPage: number): void {
+        query.perPage = perPage
+        query.page = 1
+        visitCurrentQuery({ replace: true })
+    }
+
+    function visitCurrentQuery({ replace }: { replace: boolean }): void {
         const visitId = ++visitSequence
+        const nextQuery = cloneQuery(query)
 
         processing.value = true
 
@@ -60,7 +76,7 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
             only: options.only,
             preserveState: true,
             preserveScroll: false,
-            replace: updateOptions.replace ?? options.replace ?? false,
+            replace,
             onFinish: () => {
                 if (visitId === visitSequence) {
                     processing.value = false
@@ -68,65 +84,7 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
             },
             onSuccess: () => {
                 if (visitId === visitSequence) {
-                    replaceQuery(query, toValue(options.query))
-                    scrollToTarget(options.scrollTo)
-                }
-            },
-            onError: () => {
-                restoreQuery(visitId)
-            },
-            onHttpException: () => {
-                restoreQuery(visitId)
-            },
-            onNetworkError: () => {
-                restoreQuery(visitId)
-            },
-            onCancel: () => {
-                restoreQuery(visitId)
-            }
-        })
-    }
-
-    function update(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
-        const nextQuery = {
-            ...cloneQuery(query),
-            ...patch,
-            ...(updateOptions.resetPage ? { page: 1 } : {})
-        } as TQuery
-
-        replaceQuery(query, nextQuery)
-        visit(nextQuery, updateOptions)
-    }
-
-    function apply(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
-        update(patch, {
-            resetPage: true,
-            replace: updateOptions.replace ?? true
-        })
-    }
-
-    function reload(patch: Partial<TQuery> = {}, updateOptions: UpdateOptions = {}): void {
-        update(patch, updateOptions)
-    }
-
-    function reset(updateOptions: UpdateOptions = {}): void {
-        const visitId = ++visitSequence
-
-        processing.value = true
-
-        router.get(options.route, {}, {
-            only: options.only,
-            preserveState: true,
-            preserveScroll: false,
-            replace: updateOptions.replace ?? true,
-            onFinish: () => {
-                if (visitId === visitSequence) {
-                    processing.value = false
-                }
-            },
-            onSuccess: () => {
-                if (visitId === visitSequence) {
-                    replaceQuery(query, toValue(options.query))
+                    replaceQuery(query, toValue(options.serverQuery))
                     scrollToTarget(options.scrollTo)
                 }
             },
@@ -147,32 +105,17 @@ export function usePaginatedQuery<TQuery extends object, TItem>(options: UsePagi
 
     function restoreQuery(visitId: number): void {
         if (visitId === visitSequence) {
-            replaceQuery(query, toValue(options.query))
+            replaceQuery(query, toValue(options.serverQuery))
         }
     }
 
-    function setPage(page: number, updateOptions: UpdateOptions = {}): void {
-        reload({ page } as unknown as Partial<TQuery>, updateOptions)
-    }
-
-    function setPerPage(perPage: number, updateOptions: UpdateOptions = {}): void {
-        apply({ perPage } as unknown as Partial<TQuery>, {
-            replace: updateOptions.replace ?? true
-        })
-    }
-
     return {
-        apply,
-        paginator,
+        applyQuery,
         processing,
         query,
-        reload,
-        reset,
-        resultSummary,
         resultText,
         setPage,
         setPerPage,
-        update
     }
 }
 

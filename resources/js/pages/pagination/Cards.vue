@@ -14,16 +14,17 @@ const props = defineProps<AppPageProps<{
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const { apply, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { applyQuery, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.cards'),
-    query: () => props.query,
+    serverQuery: () => props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
     //scrollTo: '#users-directory-results'
 })
 
 function setSort(value: App.Enums.UserSort): void {
-    apply({ sort: value }, { replace: true })
+    query.sort = value
+    applyQuery()
 }
 </script>
 
@@ -57,7 +58,7 @@ function setSort(value: App.Enums.UserSort): void {
                                         :model-value="query.sort"
                                         :items="userSortItems"
                                         :disabled="processing"
-                                        class="w-full"
+                                        class="w-full shrink-0 sm:w-40"
                                         @update:model-value="setSort($event as App.Enums.UserSort)"
                                     />
                                 </UFieldGroup>
@@ -71,7 +72,7 @@ function setSort(value: App.Enums.UserSort): void {
                                     :user-filter-options="userFilterOptions"
                                     :verified-filter-items="verifiedFilterItems"
                                     :processing="processing"
-                                    @apply="apply({}, { replace: true })"
+                                    @apply="applyQuery"
                                 />
                             </div>
                         </div>
@@ -134,7 +135,7 @@ function setSort(value: App.Enums.UserSort): void {
                             :disabled="processing"
                             :per-page-options="[10, 25, 50]"
                             @page="setPage"
-                            @per-page="(perPage) => setPerPage(perPage, { replace: true })"
+                            @per-page="setPerPage"
                         />
                     </template>
                 </UCard>

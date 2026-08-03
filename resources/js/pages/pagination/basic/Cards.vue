@@ -13,7 +13,7 @@ const props = defineProps<AppPageProps<{
 
 const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.PaginatedData, App.Data.UserData>({
     route: route('pagination.basic.cards'),
-    query: () => props.query,
+    serverQuery: () => props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
 })
@@ -78,7 +78,7 @@ const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Da
                             :summary="resultText"
                             :disabled="processing"
                             @page="setPage"
-                            @per-page="(perPage) => setPerPage(perPage, { replace: true })"
+                            @per-page="setPerPage"
                         />
                     </template>
                 </UCard>

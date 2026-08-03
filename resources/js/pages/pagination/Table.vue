@@ -16,9 +16,9 @@ const props = defineProps<AppPageProps<{
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const { apply, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { applyQuery, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.table'),
-    query: () => props.query,
+    serverQuery: () => props.query,
     paginator: () => props.users,
     only: ['users', 'query'],
     //scrollTo: '#users-results'
@@ -27,7 +27,10 @@ const { apply, processing, query, resultText, setPage, setPerPage } = usePaginat
 const { setTableSorting, sortingIcon, tableSorting } = useTableQuerySorting({
     sort: () => query.sort,
     config: userTableSorting,
-    apply: (sort) => apply({ sort }, { replace: true })
+    onSortChange: (sort) => {
+        query.sort = sort
+        applyQuery()
+    }
 })
 
 const columns: TableColumn<App.Data.UserData>[] = [
@@ -66,7 +69,7 @@ const columns: TableColumn<App.Data.UserData>[] = [
                                 :user-filter-options="userFilterOptions"
                                 :verified-filter-items="verifiedFilterItems"
                                 :processing="processing"
-                                @apply="apply({}, { replace: true })"
+                                @apply="applyQuery"
                             />
                         </div>
                     </template>
@@ -133,7 +136,7 @@ const columns: TableColumn<App.Data.UserData>[] = [
                             :disabled="processing"
                             :per-page-options="[10, 25, 50]"
                             @page="setPage"
-                            @per-page="(perPage) => setPerPage(perPage, { replace: true })"
+                            @per-page="setPerPage"
                         />
                     </template>
                 </UCard>
