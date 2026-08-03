@@ -121,7 +121,10 @@ function clearFilters(): void {
                     />
                 </UFormField>
 
-                <UFormField label="Specific users">
+                <UFormField
+                    label="Specific users"
+                    description="This loads users as an illustrative multi-select filter. Large production datasets should use a remote-search selector."
+                >
                     <USelect
                         v-model="userIds"
                         multiple
@@ -131,10 +134,6 @@ function clearFilters(): void {
                         :disabled="isLoadingUserFilterOptions"
                         class="w-full"
                     />
-
-                    <p class="mt-2 text-xs text-muted">
-                        This loads users as an illustrative multi-select filter. Large production datasets should use a remote-search selector.
-                    </p>
                 </UFormField>
 
                 <UFormField label="Verification status">
