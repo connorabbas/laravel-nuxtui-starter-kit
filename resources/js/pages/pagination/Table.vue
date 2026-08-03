@@ -58,11 +58,15 @@ const columns: TableColumn<App.Data.UserData>[] = [
                             <div />
 
                             <UserFiltersSlideover
-                                :query="query"
+                                v-model:search="query.search"
+                                v-model:user-ids="query.userIds"
+                                v-model:verified="query.verified"
+                                v-model:created-from="query.createdFrom"
+                                v-model:created-until="query.createdUntil"
                                 :user-filter-options="userFilterOptions"
                                 :verified-filter-items="verifiedFilterItems"
                                 :processing="processing"
-                                @apply="(filters) => apply(filters, { replace: true })"
+                                @apply="apply({}, { replace: true })"
                             />
                         </div>
                     </template>

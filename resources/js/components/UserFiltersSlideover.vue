@@ -1,19 +1,7 @@
 <script setup lang="ts">
-import { nullableArray, nullableString } from '@/utils/query'
-import { computed, reactive, ref, watch } from 'vue'
-
-type UserFiltersDraft = {
-    search: string
-    userIds: string[]
-    verified: boolean | null
-    createdFrom: string
-    createdUntil: string
-}
-
-type UserFilterPatch = Pick<App.Data.Users.UserIndexQueryData, 'search' | 'userIds' | 'verified' | 'createdFrom' | 'createdUntil'>
+import { computed, ref } from 'vue'
 
 const props = withDefaults(defineProps<{
-    query: App.Data.Users.UserIndexQueryData
     userFilterOptions?: App.Data.FilterOptionData[]
     verifiedFilterItems: App.Data.FilterOptionData[]
     processing?: boolean
@@ -22,28 +10,61 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-    apply: [filters: UserFilterPatch]
+    apply: []
 }>()
 
+const search = defineModel<string | null>('search', { required: true })
+const userIds = defineModel<string[] | null>('userIds', { required: true })
+const verified = defineModel<boolean | null>('verified', { required: true })
+const createdFrom = defineModel<string | null>('createdFrom', { required: true })
+const createdUntil = defineModel<string | null>('createdUntil', { required: true })
+
 const isOpen = ref(false)
-const draft = reactive<UserFiltersDraft>(draftFromQuery())
+
+const searchInput = computed({
+    get: () => search.value ?? '',
+    set: (value: string) => {
+        search.value = stringOrNull(value)
+    }
+})
+
+const selectedUserIds = computed({
+    get: () => userIds.value ?? [],
+    set: (value: string[]) => {
+        userIds.value = value.length > 0 ? value : null
+    }
+})
+
+const createdFromInput = computed({
+    get: () => createdFrom.value ?? '',
+    set: (value: string) => {
+        createdFrom.value = stringOrNull(value)
+    }
+})
+
+const createdUntilInput = computed({
+    get: () => createdUntil.value ?? '',
+    set: (value: string) => {
+        createdUntil.value = stringOrNull(value)
+    }
+})
 
 const activeFilterCount = computed(() => {
     let count = 0
 
-    if (props.query.search) {
+    if (search.value) {
         count += 1
     }
 
-    if (props.query.userIds && props.query.userIds.length > 0) {
+    if (userIds.value && userIds.value.length > 0) {
         count += 1
     }
 
-    if (props.query.verified !== null) {
+    if (verified.value !== null) {
         count += 1
     }
 
-    if (props.query.createdFrom || props.query.createdUntil) {
+    if (createdFrom.value || createdUntil.value) {
         count += 1
     }
 
@@ -53,57 +74,27 @@ const activeFilterCount = computed(() => {
 const userFilterOptions = computed(() => props.userFilterOptions ?? [])
 const isLoadingUserFilterOptions = computed(() => props.userFilterOptions === undefined)
 
-watch(isOpen, (open) => {
-    if (open) {
-        resetDraft()
-    }
-})
-
-watch(() => props.query, () => {
-    if (!isOpen.value) {
-        resetDraft()
-    }
-}, { deep: true })
-
-function draftFromQuery(): UserFiltersDraft {
-    return {
-        search: props.query.search ?? '',
-        userIds: props.query.userIds ? [...props.query.userIds] : [],
-        verified: props.query.verified,
-        createdFrom: props.query.createdFrom ?? '',
-        createdUntil: props.query.createdUntil ?? ''
-    }
-}
-
-function resetDraft(): void {
-    Object.assign(draft, draftFromQuery())
-}
-
-function filterPatchFromDraft(): UserFilterPatch {
-    return {
-        search: nullableString(draft.search),
-        userIds: nullableArray(draft.userIds),
-        verified: draft.verified,
-        createdFrom: nullableString(draft.createdFrom),
-        createdUntil: nullableString(draft.createdUntil)
-    }
-}
-
 function applyFilters(): void {
-    emit('apply', filterPatchFromDraft())
+    emit('apply')
     isOpen.value = false
 }
 
 function clearFilters(): void {
-    emit('apply', {
-        search: null,
-        userIds: null,
-        verified: null,
-        createdFrom: null,
-        createdUntil: null
-    })
+    search.value = null
+    userIds.value = null
+    verified.value = null
+    createdFrom.value = null
+    createdUntil.value = null
+
+    emit('apply')
 
     isOpen.value = false
+}
+
+function stringOrNull(value: string): string | null {
+    const stringValue = value.trim()
+
+    return stringValue === '' ? null : stringValue
 }
 </script>
 
@@ -143,7 +134,7 @@ function clearFilters(): void {
             >
                 <UFormField label="Search">
                     <UInput
-                        v-model="draft.search"
+                        v-model="searchInput"
                         icon="i-lucide-search"
                         placeholder="Search name or email..."
                         class="w-full"
@@ -152,7 +143,7 @@ function clearFilters(): void {
 
                 <UFormField label="Specific users">
                     <USelect
-                        v-model="draft.userIds"
+                        v-model="selectedUserIds"
                         multiple
                         :items="userFilterOptions"
                         placeholder="Any user"
@@ -168,7 +159,7 @@ function clearFilters(): void {
 
                 <UFormField label="Verification">
                     <USelect
-                        v-model="draft.verified"
+                        v-model="verified"
                         :items="verifiedFilterItems"
                         class="w-full"
                     />
@@ -176,7 +167,7 @@ function clearFilters(): void {
 
                 <UFormField label="Created from">
                     <UInput
-                        v-model="draft.createdFrom"
+                        v-model="createdFromInput"
                         type="date"
                         class="w-full"
                     />
@@ -184,7 +175,7 @@ function clearFilters(): void {
 
                 <UFormField label="Created until">
                     <UInput
-                        v-model="draft.createdUntil"
+                        v-model="createdUntilInput"
                         type="date"
                         class="w-full"
                     />
