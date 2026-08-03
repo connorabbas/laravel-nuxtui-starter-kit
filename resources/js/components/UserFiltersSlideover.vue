@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { stringOrNull } from '@/utils'
 import { computed, ref } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -15,40 +14,16 @@ const emit = defineEmits<{
 }>()
 
 const search = defineModel<string | null>('search', { required: true })
-const userIds = defineModel<string[] | null>('userIds', { required: true })
+const userIds = defineModel<string[] | null, string, string[], string[]>('userIds', {
+    required: true,
+    get: (value) => value ?? [],
+    set: (value) => value.length > 0 ? value : null,
+})
 const verified = defineModel<boolean | null>('verified', { required: true })
 const createdFrom = defineModel<string | null>('createdFrom', { required: true })
 const createdUntil = defineModel<string | null>('createdUntil', { required: true })
 
 const isOpen = ref(false)
-
-const searchInput = computed({
-    get: () => search.value ?? '',
-    set: (value: string) => {
-        search.value = stringOrNull(value)
-    }
-})
-
-const selectedUserIds = computed({
-    get: () => userIds.value ?? [],
-    set: (value: string[]) => {
-        userIds.value = value.length > 0 ? value : null
-    }
-})
-
-const createdFromInput = computed({
-    get: () => createdFrom.value ?? '',
-    set: (value: string) => {
-        createdFrom.value = stringOrNull(value)
-    }
-})
-
-const createdUntilInput = computed({
-    get: () => createdUntil.value ?? '',
-    set: (value: string) => {
-        createdUntil.value = stringOrNull(value)
-    }
-})
 
 const activeFilterCount = computed(() => {
     let count = 0
@@ -57,7 +32,7 @@ const activeFilterCount = computed(() => {
         count += 1
     }
 
-    if (userIds.value && userIds.value.length > 0) {
+    if (userIds.value.length > 0) {
         count += 1
     }
 
@@ -82,7 +57,7 @@ function applyFilters(): void {
 
 function clearFilters(): void {
     search.value = null
-    userIds.value = null
+    userIds.value = []
     verified.value = null
     createdFrom.value = null
     createdUntil.value = null
@@ -129,7 +104,7 @@ function clearFilters(): void {
             >
                 <UFormField label="Search">
                     <UInput
-                        v-model="searchInput"
+                        v-model.trim.nullable="search"
                         icon="i-lucide-search"
                         placeholder="Search name or email..."
                         class="w-full"
@@ -138,7 +113,7 @@ function clearFilters(): void {
 
                 <UFormField label="Specific users">
                     <USelect
-                        v-model="selectedUserIds"
+                        v-model="userIds"
                         multiple
                         :items="userFilterOptions"
                         placeholder="Any user"
@@ -162,7 +137,7 @@ function clearFilters(): void {
 
                 <UFormField label="Created from">
                     <UInput
-                        v-model="createdFromInput"
+                        v-model.nullable="createdFrom"
                         type="date"
                         class="w-full"
                     />
@@ -170,7 +145,7 @@ function clearFilters(): void {
 
                 <UFormField label="Created until">
                     <UInput
-                        v-model="createdUntilInput"
+                        v-model.nullable="createdUntil"
                         type="date"
                         class="w-full"
                     />
