@@ -78,6 +78,33 @@ test('it converts selected user ids to integers before filtering', function () {
         ->and($users->items()[1]->name)->toBe('Charlie Selected');
 });
 
+test('it filters users by exact verification date', function () {
+    User::factory()->create([
+        'email' => 'morning@example.test',
+        'email_verified_at' => '2026-07-10 08:00:00',
+    ]);
+
+    User::factory()->create([
+        'email' => 'evening@example.test',
+        'email_verified_at' => '2026-07-10 22:00:00',
+    ]);
+
+    User::factory()->create([
+        'email' => 'other@example.test',
+        'email_verified_at' => '2026-07-11 08:00:00',
+    ]);
+
+    $users = app(UserQueryService::class)->paginate(new UserIndexQueryData(
+        perPage: 25,
+        verifiedAt: '2026-07-10',
+        sort: UserSort::EmailAsc,
+    ));
+
+    expect($users->total())->toBe(2)
+        ->and($users->items()[0]->email)->toBe('evening@example.test')
+        ->and($users->items()[1]->email)->toBe('morning@example.test');
+});
+
 test('it rejects invalid selected user ids when called without validation', function () {
     app(UserQueryService::class)->paginate(new UserIndexQueryData(
         userIds: ['invalid-user'],

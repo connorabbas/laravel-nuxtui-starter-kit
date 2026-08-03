@@ -34,6 +34,8 @@ class UserIndexQueryData extends Data
         public ?array $userIds = null,
         public ?bool $verified = null,
         #[DateFormat('Y-m-d'), BeforeOrEqual('today')]
+        public ?string $verifiedAt = null,
+        #[DateFormat('Y-m-d'), BeforeOrEqual('today')]
         public ?string $createdFrom = null,
         #[DateFormat('Y-m-d'), AfterOrEqual('createdFrom'), BeforeOrEqual('today')]
         public ?string $createdUntil = null,

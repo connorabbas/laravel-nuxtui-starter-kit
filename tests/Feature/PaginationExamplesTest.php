@@ -73,6 +73,7 @@ test('authenticated users can view the pagination table example', function () {
                 ->where('query.search', null)
                 ->where('query.userIds', null)
                 ->where('query.verified', null)
+                ->where('query.verifiedAt', null)
                 ->where('query.createdFrom', null)
                 ->where('query.createdUntil', null)
                 ->where('query.sort', 'newest')
@@ -197,6 +198,46 @@ test('users can be filtered by verification state and created date range', funct
         );
 });
 
+test('users can be filtered by exact verification date', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => '2026-07-01 12:00:00',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Verified On Date Morning',
+        'email_verified_at' => '2026-07-10 08:00:00',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Verified On Date Evening',
+        'email_verified_at' => '2026-07-10 22:00:00',
+    ]);
+
+    User::factory()->create([
+        'name' => 'Verified Another Date',
+        'email_verified_at' => '2026-07-11 08:00:00',
+    ]);
+
+    User::factory()->unverified()->create([
+        'name' => 'Unverified User',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('pagination.table', [
+            'verifiedAt' => '2026-07-10',
+            'perPage' => 25,
+        ], false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/Table', false)
+                ->has('users.data', 2)
+                ->where('users.data.0.name', 'Verified On Date Morning')
+                ->where('users.data.1.name', 'Verified On Date Evening')
+                ->where('query.verifiedAt', '2026-07-10')
+        );
+});
+
 test('users can be filtered by multiple selected users', function () {
     $user = User::factory()->create(['name' => 'Current User']);
 
@@ -265,11 +306,12 @@ test('invalid users query params are rejected', function () {
             'sort' => 'password',
             'userIds' => ['invalid-user'],
             'verified' => 'maybe',
+            'verifiedAt' => 'not-a-date',
             'createdFrom' => 'not-a-date',
             'createdUntil' => '2026-01-01',
         ], false))
         ->assertRedirect(route('pagination.table', absolute: false))
-        ->assertSessionHasErrors(['page', 'perPage', 'sort', 'userIds.0', 'verified', 'createdFrom']);
+        ->assertSessionHasErrors(['page', 'perPage', 'sort', 'userIds.0', 'verified', 'verifiedAt', 'createdFrom']);
 });
 
 test('created until must be after or equal to created from', function () {
@@ -296,6 +338,18 @@ test('created dates cannot be in the future', function () {
         ], false))
         ->assertRedirect(route('pagination.table', absolute: false))
         ->assertSessionHasErrors(['createdFrom', 'createdUntil']);
+});
+
+test('verified date cannot be in the future', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('pagination.table', absolute: false))
+        ->get(route('pagination.table', [
+            'verifiedAt' => now()->addDay()->toDateString(),
+        ], false))
+        ->assertRedirect(route('pagination.table', absolute: false))
+        ->assertSessionHasErrors(['verifiedAt']);
 });
 
 test('pagination table supports partial reloads for paginated props', function () {

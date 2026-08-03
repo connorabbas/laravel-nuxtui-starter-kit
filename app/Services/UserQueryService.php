@@ -23,6 +23,7 @@ final class UserQueryService
     {
         $search = $this->trimmedStringOrNull($query->search);
         $userIds = $this->integerListOrNull($query->userIds);
+        $verifiedAt = $this->carbonImmutableOrNull($query->verifiedAt);
         $createdFrom = $this->carbonImmutableOrNull($query->createdFrom)?->startOfDay();
         $createdUntil = $this->carbonImmutableOrNull($query->createdUntil)?->endOfDay();
 
@@ -50,6 +51,11 @@ final class UserQueryService
                 $query->verified
                     ? $builder->whereNotNull('users.email_verified_at')
                     : $builder->whereNull('users.email_verified_at');
+            })
+            ->when($verifiedAt !== null, function (Builder $builder) use ($verifiedAt): void {
+                $builder
+                    ->where('users.email_verified_at', '>=', $verifiedAt->startOfDay())
+                    ->where('users.email_verified_at', '<=', $verifiedAt->endOfDay());
             })
             ->when($createdFrom !== null, function (Builder $builder) use ($createdFrom): void {
                 $builder->where('users.created_at', '>=', $createdFrom);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from '@internationalized/date'
 import { computed, ref } from 'vue'
+import DatePicker from '@/components/DatePicker.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
 
 const props = withDefaults(defineProps<{
@@ -22,11 +23,12 @@ const userIds = defineModel<string[] | null, string, string[], string[]>('userId
     set: (value) => value.length > 0 ? value : null,
 })
 const verified = defineModel<boolean | null>('verified', { required: true })
+const verifiedAt = defineModel<string | null>('verifiedAt', { required: true })
 const createdFrom = defineModel<string | null>('createdFrom', { required: true })
 const createdUntil = defineModel<string | null>('createdUntil', { required: true })
 
 const isOpen = ref(false)
-const maxCreatedDate = today(getLocalTimeZone())
+const maxFilterDate = today(getLocalTimeZone())
 
 const activeFilterCount = computed(() => {
     let count = 0
@@ -40,6 +42,10 @@ const activeFilterCount = computed(() => {
     }
 
     if (verified.value !== null) {
+        count += 1
+    }
+
+    if (verifiedAt.value) {
         count += 1
     }
 
@@ -62,6 +68,7 @@ function clearFilters(): void {
     search.value = null
     userIds.value = []
     verified.value = null
+    verifiedAt.value = null
     createdFrom.value = null
     createdUntil.value = null
 
@@ -130,7 +137,7 @@ function clearFilters(): void {
                     </p>
                 </UFormField>
 
-                <UFormField label="Verification">
+                <UFormField label="Verification status">
                     <USelect
                         v-model="verified"
                         :items="verifiedFilterItems"
@@ -138,11 +145,21 @@ function clearFilters(): void {
                     />
                 </UFormField>
 
+                <UFormField
+                    label="Verified on"
+                    description="Matches users verified on this exact day."
+                >
+                    <DatePicker
+                        v-model="verifiedAt"
+                        :max-value="maxFilterDate"
+                    />
+                </UFormField>
+
                 <UFormField label="Created">
                     <DateRangePicker
                         v-model:start="createdFrom"
                         v-model:end="createdUntil"
-                        :max-value="maxCreatedDate"
+                        :max-value="maxFilterDate"
                     />
                 </UFormField>
             </form>

@@ -71,6 +71,7 @@ function setSort(value: App.Enums.UserSort): void {
                                     v-model:search="query.search"
                                     v-model:user-ids="query.userIds"
                                     v-model:verified="query.verified"
+                                    v-model:verified-at="query.verifiedAt"
                                     v-model:created-from="query.createdFrom"
                                     v-model:created-until="query.createdUntil"
                                     :user-filter-options="userFilterOptions"
