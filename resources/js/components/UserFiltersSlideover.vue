@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { getLocalTimeZone, today } from '@internationalized/date'
 import { computed, ref } from 'vue'
+import DateRangePicker from '@/components/DateRangePicker.vue'
 
 const props = withDefaults(defineProps<{
     userFilterOptions?: App.Data.FilterOptionData[]
@@ -24,6 +26,7 @@ const createdFrom = defineModel<string | null>('createdFrom', { required: true }
 const createdUntil = defineModel<string | null>('createdUntil', { required: true })
 
 const isOpen = ref(false)
+const maxCreatedDate = today(getLocalTimeZone())
 
 const activeFilterCount = computed(() => {
     let count = 0
@@ -135,19 +138,11 @@ function clearFilters(): void {
                     />
                 </UFormField>
 
-                <UFormField label="Created from">
-                    <UInput
-                        v-model.nullable="createdFrom"
-                        type="date"
-                        class="w-full"
-                    />
-                </UFormField>
-
-                <UFormField label="Created until">
-                    <UInput
-                        v-model.nullable="createdUntil"
-                        type="date"
-                        class="w-full"
+                <UFormField label="Created">
+                    <DateRangePicker
+                        v-model:start="createdFrom"
+                        v-model:end="createdUntil"
+                        :max-value="maxCreatedDate"
                     />
                 </UFormField>
             </form>

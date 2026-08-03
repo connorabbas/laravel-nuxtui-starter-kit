@@ -285,6 +285,19 @@ test('created until must be after or equal to created from', function () {
         ->assertSessionHasErrors(['createdUntil']);
 });
 
+test('created dates cannot be in the future', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('pagination.table', absolute: false))
+        ->get(route('pagination.table', [
+            'createdFrom' => now()->addDay()->toDateString(),
+            'createdUntil' => now()->addDays(2)->toDateString(),
+        ], false))
+        ->assertRedirect(route('pagination.table', absolute: false))
+        ->assertSessionHasErrors(['createdFrom', 'createdUntil']);
+});
+
 test('pagination table supports partial reloads for paginated props', function () {
     $user = User::factory()->create();
     User::factory()->count(14)->create();

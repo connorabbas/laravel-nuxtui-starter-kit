@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Attributes\MergeValidationRules;
 use Spatie\LaravelData\Attributes\Validation\AfterOrEqual;
+use Spatie\LaravelData\Attributes\Validation\BeforeOrEqual;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\ListType;
@@ -32,9 +33,9 @@ class UserIndexQueryData extends Data
         #[ListType, Max(20)]
         public ?array $userIds = null,
         public ?bool $verified = null,
-        #[DateFormat('Y-m-d')]
+        #[DateFormat('Y-m-d'), BeforeOrEqual('today')]
         public ?string $createdFrom = null,
-        #[DateFormat('Y-m-d'), AfterOrEqual('createdFrom')]
+        #[DateFormat('Y-m-d'), AfterOrEqual('createdFrom'), BeforeOrEqual('today')]
         public ?string $createdUntil = null,
         #[Enum(UserSort::class)]
         public UserSort $sort = UserSort::Newest,
