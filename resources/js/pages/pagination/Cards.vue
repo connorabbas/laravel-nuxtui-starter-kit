@@ -14,7 +14,7 @@ const props = defineProps<AppPageProps<{
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
-const { applyQuery, processing, query, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
+const { applyQuery, processing, query, resetQuery, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.cards'),
     serverQuery: () => props.query,
     paginator: () => props.users,
@@ -123,13 +123,20 @@ function setSort(value: App.Enums.UserSort): void {
                         </UPageCard>
                     </div>
 
-                    <UAlert
+                    <UEmpty
                         v-else
-                        color="neutral"
                         variant="subtle"
                         icon="i-lucide-search-x"
                         title="No users found"
                         description="Try changing the search, filters, or date range."
+                        :actions="[{
+                            label: 'Reset query',
+                            icon: 'i-lucide-rotate-ccw',
+                            color: 'neutral',
+                            variant: 'subtle',
+                            disabled: processing,
+                            onClick: resetQuery
+                        }]"
                     />
 
                     <template #footer>

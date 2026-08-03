@@ -66,13 +66,20 @@ export function usePaginatedQuery<TQuery extends PaginatedQuery, TItem>(options:
         visitCurrentQuery({ replace: true })
     }
 
+    function resetQuery(): void {
+        visitQuery({}, { replace: true })
+    }
+
     function visitCurrentQuery({ replace }: { replace: boolean }): void {
+        visitQuery(serializeQuery(cloneQuery(query)), { replace })
+    }
+
+    function visitQuery(queryData: SerializedQueryRecord, { replace }: { replace: boolean }): void {
         const visitId = ++visitSequence
-        const nextQuery = cloneQuery(query)
 
         processing.value = true
 
-        router.get(options.route, serializeQuery(nextQuery), {
+        router.get(options.route, queryData, {
             only: options.only,
             preserveState: true,
             preserveScroll: false,
@@ -113,6 +120,7 @@ export function usePaginatedQuery<TQuery extends PaginatedQuery, TItem>(options:
         applyQuery,
         processing,
         query,
+        resetQuery,
         resultText,
         setPage,
         setPerPage,

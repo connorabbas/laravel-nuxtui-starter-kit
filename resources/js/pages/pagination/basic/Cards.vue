@@ -11,7 +11,7 @@ const props = defineProps<AppPageProps<{
     query: App.Data.PaginatedData
 }>>()
 
-const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.PaginatedData, App.Data.UserData>({
+const { processing, resetQuery, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.PaginatedData, App.Data.UserData>({
     route: route('pagination.basic.cards'),
     serverQuery: () => props.query,
     paginator: () => props.users,
@@ -63,13 +63,20 @@ const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Da
                         </UPageCard>
                     </div>
 
-                    <UAlert
+                    <UEmpty
                         v-else
-                        color="neutral"
                         variant="subtle"
                         icon="i-lucide-search-x"
                         title="No users found"
-                        description="There are no users to show yet."
+                        description="Reset the pagination query or add users to see results."
+                        :actions="[{
+                            label: 'Reset query',
+                            icon: 'i-lucide-rotate-ccw',
+                            color: 'neutral',
+                            variant: 'subtle',
+                            disabled: processing,
+                            onClick: resetQuery
+                        }]"
                     />
 
                     <template #footer>
