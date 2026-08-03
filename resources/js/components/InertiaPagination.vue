@@ -1,11 +1,6 @@
 <script setup generic="T" lang="ts">
 import type { LengthAwarePaginator } from '@/types'
-import { computed } from 'vue'
-
-type PerPageSelectItem = {
-    label: string
-    value: number
-}
+import { useId } from 'vue'
 
 const props = withDefaults(defineProps<{
     paginator: LengthAwarePaginator<T>
@@ -29,10 +24,7 @@ const emit = defineEmits<{
     perPage: [perPage: number]
 }>()
 
-const perPageItems = computed<PerPageSelectItem[]>(() => props.perPageOptions.map((option) => ({
-    label: `${option} per page`,
-    value: option
-})))
+const perPageId = useId()
 </script>
 
 <template>
@@ -48,13 +40,25 @@ const perPageItems = computed<PerPageSelectItem[]>(() => props.perPageOptions.ma
         </p>
 
         <div class="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center md:ml-auto">
-            <USelect
-                :model-value="paginator.per_page"
-                :items="perPageItems"
-                :disabled="disabled"
-                class="w-full shrink-0 sm:w-40"
-                @update:model-value="emit('perPage', Number($event))"
-            />
+            <UFieldGroup class="w-full sm:w-auto">
+                <UButton
+                    as="label"
+                    :for="perPageId"
+                    color="neutral"
+                    variant="subtle"
+                    label="Per page"
+                    class="shrink-0 cursor-pointer"
+                />
+
+                <USelect
+                    :id="perPageId"
+                    :model-value="paginator.per_page"
+                    :items="props.perPageOptions"
+                    :disabled="disabled"
+                    class="min-w-0 flex-1 sm:flex-none"
+                    @update:model-value="emit('perPage', Number($event))"
+                />
+            </UFieldGroup>
 
             <div class="min-w-0 overflow-x-auto pb-1">
                 <UPagination
