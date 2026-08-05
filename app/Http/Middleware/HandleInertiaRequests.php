@@ -40,11 +40,14 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
-            'currentRouteName' => fn () => $request->route()?->getName(),
             'auth' => [
                 'user' => Auth::check() ? UserData::from($request->user()) : null,
             ],
+            'config' => [
+                'appName' => config('app.name'),
+                'timezone' => config('app.timezone'),
+            ],
+            'currentRouteName' => fn () => $request->route()?->getName(),
             'queryParams' => Inertia::always($request->query()),
         ];
     }
