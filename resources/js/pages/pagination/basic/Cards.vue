@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import InertiaPagination from '@/components/InertiaPagination.vue'
+import UserCard from '@/components/UserCard.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import AppLayout from '@/layouts/app/Index.vue'
 import type { AppPageProps, LengthAwarePaginator } from '@/types'
-import { formatDate } from '@/utils/date'
 import { route } from '@/utils/route'
 
 const props = defineProps<AppPageProps<{
@@ -40,27 +40,12 @@ const { processing, resetQuery, resultText, setPage, setPerPage } = usePaginated
                         v-if="users.data.length"
                         class="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
                     >
-                        <UPageCard
+                        <UserCard
                             v-for="user in users.data"
                             :key="user.id"
-                            :title="user.name"
-                            :description="user.email"
-                            variant="outline"
-                            class="min-w-0"
-                            :ui="{
-                                container: 'min-w-0',
-                                wrapper: 'min-w-0',
-                                body: 'min-w-0',
-                                title: 'break-words',
-                                description: 'break-all'
-                            }"
-                        >
-                            <UBadge
-                                color="neutral"
-                                variant="subtle"
-                                :label="`Joined ${formatDate(user.createdAt, $page.props.config.timezone)}`"
-                            />
-                        </UPageCard>
+                            :user="user"
+                            :time-zone="$page.props.config.timezone"
+                        />
                     </div>
 
                     <UEmpty
