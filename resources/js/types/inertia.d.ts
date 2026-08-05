@@ -6,6 +6,7 @@ export interface AuthProps {
 
 export interface ConfigProps {
     appName: string
+    timezone: string
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
