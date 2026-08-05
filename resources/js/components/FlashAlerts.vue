@@ -2,7 +2,7 @@
 import { usePage } from '@inertiajs/vue3'
 import type { AlertProps } from '@nuxt/ui'
 import { computed, ref, watch } from 'vue'
-import type { FlashProps } from '@/types/app'
+import type { FlashProps } from '@/types/inertia'
 import { flashPresentationByTone, resolveFlashTone } from '@/utils/flash'
 
 interface FlashAlertItem {

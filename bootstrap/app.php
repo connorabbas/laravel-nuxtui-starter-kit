@@ -83,7 +83,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
 
                 // Return JSON response for mutation requests to support toast handling
-                if ($request->inertia() && !$request->isMethod('GET')) {
+                if ($request->header('X-Inertia') && !$request->isMethod('GET')) {
                     $errorSummary = "{$statusText} - {$statusCode}";
 
                     $toastPayload = new ErrorToastResponseData(
