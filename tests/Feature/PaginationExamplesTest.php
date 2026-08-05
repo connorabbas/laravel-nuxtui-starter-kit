@@ -64,6 +64,8 @@ test('authenticated users can view the pagination table example', function () {
         ->assertInertia(
             fn (Assert $page) => $page
                 ->component('pagination/Table', false)
+                ->where('config.appName', config('app.name'))
+                ->where('config.timezone', config('app.timezone'))
                 ->has('users.data', 10)
                 ->where('users.current_page', 1)
                 ->where('users.per_page', 10)
