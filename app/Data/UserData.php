@@ -34,7 +34,7 @@ class UserData extends Data
             id: $user->id,
             name: $user->name,
             email: $user->email,
-            emailVerifiedAt: $user?->email_verified_at,
+            emailVerifiedAt: $user->email_verified_at,
             createdAt: $createdAt,
             updatedAt: $updatedAt,
         );
