@@ -10,8 +10,8 @@ export interface ConfigProps {
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+    auth: AuthProps
     config: ConfigProps
     currentRouteName: string | null
-    auth: AuthProps
     queryParams: Record<string, string | string[]>
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
 import { useToast } from '@nuxt/ui/composables'
-import type { FlashProps } from '@/types/app'
+import type { FlashProps } from '@/types/inertia'
 import { flashPresentationByTone, resolveFlashTone } from '@/utils/flash'
 
 const toast = useToast()
