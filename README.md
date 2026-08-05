@@ -246,7 +246,7 @@ This application is a starter kit based on Laravel + Nuxt UI components, relevan
 - For paginated page props, always transform model items into Data objects before returning to Inertia. Prefer chaining `->through(...)` on the paginator and returning the Data object from the callback.
 - Add explicit PHPDoc generics for paginated results and transformed collections so the contract is clear (for example `LengthAwarePaginator<int, UserData>` after transformation).
 - On the frontend, consume paginator props with `LengthAwarePaginator<T>` imported from `@/types` (re-exported from `resources/js/types/pagination.d.ts`), where `T` is the generated Data type (for example `LengthAwarePaginator<App.Data.UserData>`).
-- In Vue pages/components, use explicit prop typing with shared/page prop composition (for example `defineProps<AppPageProps<{ users: LengthAwarePaginator<App.Data.UserData> }>>()`).
+- In Vue pages/components, use explicit prop typing with shared/page prop composition (for example `defineProps<SharedPageProps<{ users: LengthAwarePaginator<App.Data.UserData> }>>()`).
 
 ## Inertia Flash Notifications
 
