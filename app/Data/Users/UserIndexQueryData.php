@@ -26,7 +26,7 @@ class UserIndexQueryData extends Data
     public function __construct(
         #[Min(1)]
         public int $page = 1,
-        #[Min(1)]
+        #[Min(1), Max(100)]
         public int $perPage = 10,
         #[Max(100)]
         public ?string $search = null,

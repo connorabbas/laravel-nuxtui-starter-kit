@@ -6,7 +6,7 @@ import DatePicker from '@/components/DatePicker.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
 
 const props = withDefaults(defineProps<{
-    userFilterOptions?: App.Data.FilterOptionData[]
+    userFilterOptions: App.Data.FilterOptionData[]
     verifiedFilterItems: App.Data.FilterOptionData[]
     processing?: boolean
 }>(), {
@@ -32,6 +32,12 @@ const page = usePage()
 const isOpen = ref(false)
 const timeZone = computed(() => page.props.config.timezone)
 const maxFilterDate = computed(() => today(timeZone.value))
+const draftSearch = ref<string | null>(null)
+const draftUserIds = ref<string[]>([])
+const draftVerified = ref<boolean | null>(null)
+const draftVerifiedAt = ref<string | null>(null)
+const draftCreatedFrom = ref<string | null>(null)
+const draftCreatedUntil = ref<string | null>(null)
 
 const activeFilterCount = computed(() => {
     let count = 0
@@ -59,34 +65,61 @@ const activeFilterCount = computed(() => {
     return count
 })
 
-const userFilterOptions = computed(() => props.userFilterOptions ?? [])
-const isLoadingUserFilterOptions = computed(() => props.userFilterOptions === undefined)
-
 function applyFilters(): void {
+    commitDraft()
     emit('apply')
     isOpen.value = false
 }
 
 function clearFilters(): void {
-    search.value = null
-    userIds.value = []
-    verified.value = null
-    verifiedAt.value = null
-    createdFrom.value = null
-    createdUntil.value = null
+    draftSearch.value = null
+    draftUserIds.value = []
+    draftVerified.value = null
+    draftVerifiedAt.value = null
+    draftCreatedFrom.value = null
+    draftCreatedUntil.value = null
+
+    commitDraft()
 
     emit('apply')
 
     isOpen.value = false
 }
+
+function updateOpen(open: boolean): void {
+    if (open) {
+        copyAppliedFiltersToDraft()
+    }
+
+    isOpen.value = open
+}
+
+function copyAppliedFiltersToDraft(): void {
+    draftSearch.value = search.value
+    draftUserIds.value = [...userIds.value]
+    draftVerified.value = verified.value
+    draftVerifiedAt.value = verifiedAt.value
+    draftCreatedFrom.value = createdFrom.value
+    draftCreatedUntil.value = createdUntil.value
+}
+
+function commitDraft(): void {
+    search.value = draftSearch.value
+    userIds.value = [...draftUserIds.value]
+    verified.value = draftVerified.value
+    verifiedAt.value = draftVerifiedAt.value
+    createdFrom.value = draftCreatedFrom.value
+    createdUntil.value = draftCreatedUntil.value
+}
 </script>
 
 <template>
     <USlideover
-        v-model:open="isOpen"
+        :open="isOpen"
         title="Filter users"
         description="Choose filters, then apply them to refresh the results."
         :ui="{ footer: 'justify-end' }"
+        @update:open="updateOpen"
     >
         <UButton
             type="button"
@@ -117,7 +150,7 @@ function clearFilters(): void {
             >
                 <UFormField label="Search">
                     <UInput
-                        v-model.trim.nullable="search"
+                        v-model.trim.nullable="draftSearch"
                         icon="i-lucide-search"
                         placeholder="Search name or email..."
                         class="w-full"
@@ -129,19 +162,17 @@ function clearFilters(): void {
                     description="This loads users as an illustrative multi-select filter. Large production datasets should use a remote-search selector."
                 >
                     <USelect
-                        v-model="userIds"
+                        v-model="draftUserIds"
                         multiple
-                        :items="userFilterOptions"
+                        :items="props.userFilterOptions"
                         placeholder="Any user"
-                        :loading="isLoadingUserFilterOptions"
-                        :disabled="isLoadingUserFilterOptions"
                         class="w-full"
                     />
                 </UFormField>
 
                 <UFormField label="Verification status">
                     <USelect
-                        v-model="verified"
+                        v-model="draftVerified"
                         :items="verifiedFilterItems"
                         class="w-full"
                     />
@@ -152,7 +183,7 @@ function clearFilters(): void {
                     description="Matches users verified on this exact day."
                 >
                     <DatePicker
-                        v-model="verifiedAt"
+                        v-model="draftVerifiedAt"
                         :max-value="maxFilterDate"
                         :time-zone="timeZone"
                     />
@@ -160,8 +191,8 @@ function clearFilters(): void {
 
                 <UFormField label="Created">
                     <DateRangePicker
-                        v-model:start="createdFrom"
-                        v-model:end="createdUntil"
+                        v-model:start="draftCreatedFrom"
+                        v-model:end="draftCreatedUntil"
                         :max-value="maxFilterDate"
                         :time-zone="timeZone"
                     />

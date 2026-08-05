@@ -14,7 +14,7 @@ class PaginationCardsController extends Controller
     {
         return Inertia::render('pagination/Cards', [
             'users' => fn () => $userQueryService->paginate($query),
-            'userFilterOptions' => Inertia::defer(fn () => $userQueryService->filterOptions()),
+            'userFilterOptions' => fn () => $userQueryService->filterOptions(),
             'query' => $query,
         ]);
     }

@@ -54,6 +54,18 @@ test('authenticated users can view the basic pagination cards example with query
         );
 });
 
+test('basic pagination rejects per page values above the allowed maximum', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('pagination.basic.table', absolute: false))
+        ->get(route('pagination.basic.table', [
+            'perPage' => 101,
+        ], false))
+        ->assertRedirect(route('pagination.basic.table', absolute: false))
+        ->assertSessionHasErrors(['perPage']);
+});
+
 test('authenticated users can view the pagination table example', function () {
     $user = User::factory()->create();
     User::factory()->count(14)->create();
@@ -79,12 +91,7 @@ test('authenticated users can view the pagination table example', function () {
                 ->where('query.createdFrom', null)
                 ->where('query.createdUntil', null)
                 ->where('query.sort', 'newest')
-                ->missing('userFilterOptions')
-                ->loadDeferredProps(
-                    fn (Assert $reload) => $reload
-                        ->has('userFilterOptions', 15)
-                        ->missing('users')
-                )
+                ->has('userFilterOptions', 15)
         );
 });
 
@@ -117,6 +124,24 @@ test('users can be filtered and sorted through typed query params', function () 
                 ->where('query.sort', 'email_asc')
                 ->where('query.perPage', 25)
                 ->where('query.page', 1)
+        );
+});
+
+test('advanced pagination accepts the maximum per page value', function () {
+    $user = User::factory()->create();
+    User::factory()->count(104)->create();
+
+    $this->actingAs($user)
+        ->get(route('pagination.table', [
+            'perPage' => 100,
+        ], false))
+        ->assertOk()
+        ->assertInertia(
+            fn (Assert $page) => $page
+                ->component('pagination/Table', false)
+                ->has('users.data', 100)
+                ->where('users.per_page', 100)
+                ->where('query.perPage', 100)
         );
 });
 
@@ -286,14 +311,9 @@ test('authenticated users can view the pagination cards example', function () {
             fn (Assert $page) => $page
                 ->component('pagination/Cards', false)
                 ->has('users.data', 10)
-                ->missing('userFilterOptions')
+                ->has('userFilterOptions', 15)
                 ->where('query.userIds', null)
                 ->where('query.sort', 'newest')
-                ->loadDeferredProps(
-                    fn (Assert $reload) => $reload
-                        ->has('userFilterOptions', 15)
-                        ->missing('users')
-                )
         );
 });
 
@@ -304,7 +324,7 @@ test('invalid users query params are rejected', function () {
         ->from(route('pagination.table', absolute: false))
         ->get(route('pagination.table', [
             'page' => 0,
-            'perPage' => 0,
+            'perPage' => 101,
             'sort' => 'password',
             'userIds' => ['invalid-user'],
             'verified' => 'maybe',
@@ -365,7 +385,7 @@ test('pagination table supports partial reloads for paginated props', function (
             fn (Assert $page) => $page
                 ->has('users')
                 ->has('query')
-                ->missing('userFilterOptions')
+                ->has('userFilterOptions')
                 ->reloadOnly(
                     ['users', 'query'],
                     fn (Assert $reload) => $reload

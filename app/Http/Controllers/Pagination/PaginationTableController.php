@@ -14,7 +14,7 @@ class PaginationTableController extends Controller
     {
         return Inertia::render('pagination/Table', [
             'users' => fn () => $userQueryService->paginate($query),
-            'userFilterOptions' => Inertia::defer(fn () => $userQueryService->filterOptions()),
+            'userFilterOptions' => fn () => $userQueryService->filterOptions(),
             'query' => $query,
         ]);
     }

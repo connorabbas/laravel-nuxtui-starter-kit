@@ -12,7 +12,7 @@ import type { TableColumn } from '@nuxt/ui'
 
 const props = defineProps<AppPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
-    userFilterOptions?: App.Data.FilterOptionData[]
+    userFilterOptions: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData
 }>>()
 
