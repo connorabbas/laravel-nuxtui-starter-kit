@@ -14,7 +14,7 @@ export function useAppLayout() {
         return undefined
     })
 
-    const appName = computed(() => page.props.name)
+    const appName = computed(() => page.props.config.appName)
 
     const user = computed(() => page.props.auth.user)
 
