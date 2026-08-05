@@ -9,7 +9,7 @@ export interface ConfigProps {
     timezone: string
 }
 
-export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+export type SharedPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     auth: AuthProps;
     config: ConfigProps
     currentRouteName: string | null;
