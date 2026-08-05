@@ -58,7 +58,7 @@ const { processing, resetQuery, resultText, setPage, setPerPage } = usePaginated
                             <UBadge
                                 color="neutral"
                                 variant="subtle"
-                                :label="`Joined ${formatDate(user.createdAt)}`"
+                                :label="`Joined ${formatDate(user.createdAt, $page.props.config.timezone)}`"
                             />
                         </UPageCard>
                     </div>

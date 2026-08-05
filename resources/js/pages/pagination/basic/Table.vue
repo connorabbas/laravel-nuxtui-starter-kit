@@ -52,7 +52,7 @@ const columns: TableColumn<App.Data.UserData>[] = [
                             empty="No users found."
                         >
                             <template #createdAt-cell="{ row }">
-                                {{ formatDate(row.original.createdAt) }}
+                                {{ formatDate(row.original.createdAt, $page.props.config.timezone) }}
                             </template>
                         </UTable>
                     </div>

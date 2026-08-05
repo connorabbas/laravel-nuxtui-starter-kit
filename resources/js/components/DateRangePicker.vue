@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date'
+import { DateFormatter, parseDate } from '@internationalized/date'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import { computed } from 'vue'
 import type { DateValue } from '@internationalized/date'
@@ -9,16 +9,16 @@ type DateRangeValue = {
     end: DateValue | undefined
 }
 
-defineProps<{
+const props = defineProps<{
     minValue?: DateValue
     maxValue?: DateValue
+    timeZone: string
 }>()
 
 const start = defineModel<string | null>('start', { required: true })
 const end = defineModel<string | null>('end', { required: true })
 
-const dateFormatter = new DateFormatter('en-US', { dateStyle: 'medium' })
-const timeZone = getLocalTimeZone()
+const dateFormatter = computed(() => new DateFormatter('en-US', { dateStyle: 'medium', timeZone: props.timeZone }))
 const breakpoints = useBreakpoints(breakpointsTailwind)
 const isDesktop = breakpoints.greaterOrEqual('sm')
 const numberOfMonths = computed(() => isDesktop.value ? 2 : 1)
@@ -82,7 +82,7 @@ function stringifyDateValue(value: DateValue | undefined): string | null {
 }
 
 function formatDateValue(value: DateValue): string {
-    return dateFormatter.format(value.toDate(timeZone))
+    return dateFormatter.value.format(value.toDate(props.timeZone))
 }
 </script>
 

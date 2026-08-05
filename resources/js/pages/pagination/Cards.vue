@@ -113,12 +113,12 @@ function setSort(value: App.Enums.UserSort): void {
                                     <UBadge
                                         color="neutral"
                                         variant="subtle"
-                                        :label="`Joined ${formatDate(user.createdAt)}`"
+                                        :label="`Joined ${formatDate(user.createdAt, $page.props.config.timezone)}`"
                                     />
                                 </div>
 
                                 <p class="break-words text-sm text-muted">
-                                    User #{{ user.id }} was last updated {{ formatDate(user.updatedAt) }}.
+                                    User #{{ user.id }} was last updated {{ formatDate(user.updatedAt, $page.props.config.timezone) }}.
                                 </p>
                             </div>
                         </UPageCard>

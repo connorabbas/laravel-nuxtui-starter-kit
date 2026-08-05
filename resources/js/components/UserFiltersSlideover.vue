@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { getLocalTimeZone, today } from '@internationalized/date'
+import { today } from '@internationalized/date'
+import { usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import DatePicker from '@/components/DatePicker.vue'
 import DateRangePicker from '@/components/DateRangePicker.vue'
@@ -27,8 +28,10 @@ const verifiedAt = defineModel<string | null>('verifiedAt', { required: true })
 const createdFrom = defineModel<string | null>('createdFrom', { required: true })
 const createdUntil = defineModel<string | null>('createdUntil', { required: true })
 
+const page = usePage()
 const isOpen = ref(false)
-const maxFilterDate = today(getLocalTimeZone())
+const timeZone = computed(() => page.props.config.timezone)
+const maxFilterDate = computed(() => today(timeZone.value))
 
 const activeFilterCount = computed(() => {
     let count = 0
@@ -151,6 +154,7 @@ function clearFilters(): void {
                     <DatePicker
                         v-model="verifiedAt"
                         :max-value="maxFilterDate"
+                        :time-zone="timeZone"
                     />
                 </UFormField>
 
@@ -159,6 +163,7 @@ function clearFilters(): void {
                         v-model:start="createdFrom"
                         v-model:end="createdUntil"
                         :max-value="maxFilterDate"
+                        :time-zone="timeZone"
                     />
                 </UFormField>
             </form>

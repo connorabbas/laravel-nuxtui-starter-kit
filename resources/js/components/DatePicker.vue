@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date'
+import { DateFormatter, parseDate } from '@internationalized/date'
 import { computed } from 'vue'
 import type { DateValue } from '@internationalized/date'
 
-defineProps<{
+const props = defineProps<{
     minValue?: DateValue
     maxValue?: DateValue
+    timeZone: string
 }>()
 
 const model = defineModel<string | null>({ required: true })
 
-const dateFormatter = new DateFormatter('en-US', { dateStyle: 'medium' })
-const timeZone = getLocalTimeZone()
+const dateFormatter = computed(() => new DateFormatter('en-US', { dateStyle: 'medium', timeZone: props.timeZone }))
 
 const date = computed<DateValue | undefined>({
     get: () => parseDateValue(model.value),
@@ -25,7 +25,7 @@ const label = computed(() => {
         return 'Select a date'
     }
 
-    return dateFormatter.format(date.value.toDate(timeZone))
+    return dateFormatter.value.format(date.value.toDate(props.timeZone))
 })
 
 function parseDateValue(value: string | null): DateValue | undefined {
