@@ -533,11 +533,11 @@ Notes:
 
 ## AI
 
-This starter kit intentionally does not ship with AI configuration files, since tool preferences vary among developers. That said, agentic tools like Cursor, Claude Code, OpenCode, Codex, etc. can significantly improve developer velocity. Use the MCP servers, skills, and instructions below to get the most out of them.
+This starter kit intentionally does not ship with AI configuration files, since tool preferences vary among developers. That said, agentic tools like Cursor, Claude Code, OpenCode, Codex, etc. can significantly improve developer velocity. Use the MCP servers, skills, and project rules below to get the most out of them.
 
 ### MCP & Skills
 
-When working with AI using this starter kit you should configure [Laravel Boost](https://laravel.com/docs/master/boost) and the official [Nuxt UI MCP Server](https://ui.nuxt.com/docs/getting-started/ai/mcp) to provide your coding agent with useful tools that can greatly improve accuracy and efficiency.
+When working with AI using this starter kit you should configure [Laravel Boost](https://laravel.com/docs/13.x/boost) and the official [Nuxt UI MCP Server](https://ui.nuxt.com/docs/getting-started/ai/mcp) to provide your coding agent with useful tools that can greatly improve accuracy and efficiency.
 
 Nuxt UI also provides [Skills](https://ui.nuxt.com/docs/getting-started/ai/skills) that you should install:
 
@@ -545,79 +545,34 @@ Nuxt UI also provides [Skills](https://ui.nuxt.com/docs/getting-started/ai/skill
 npx skills add nuxt/ui
 ```
 
-### Instructions File
+### Project Rules
 
-To provide more context about the starter kit's preferred patterns and available features, and to invoke the `nuxt-ui` skill automatically you can add the following section to the end of your instructions file (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, etc.)
+Laravel Boost v2.5+ project rules capture application-specific conventions in scoped Markdown files under `.ai/rules`. Boost maintains an index of each rule's applicable paths so agents load only the context relevant to the files they are working on.
 
-```md
-<laravel-nuxtui-starter-kit-guidelines>
+After configuring the Laravel Boost MCP server, send each prompt below to your agent. The agent will use Boost's `record-rule` tool to create the scoped rule files and update `.ai/rules/index.md`. Review and commit the generated `.ai/rules` directory so the conventions are shared with every teammate and coding agent.
 
-=== starter kit guideline rules ===
+```text
+Remember this project rule for app/Data/**: Use Spatie Data objects for structured application and frontend-facing payloads. Mark frontend-facing Data classes with #[TypeScript] so `php artisan typescript:transform` emits matching TypeScript types. Run the transformer after changing Data classes or route signatures.
 
-# Laravel Nuxt UI Starter Kit Guidelines
+Remember this project rule for app/**: Use typed Data objects or value objects for internal structured payloads; do not pass associative arrays between application layers. Flat/list arrays are allowed when documented with generics, for example `array<int, FooData>`. Associative arrays are allowed only at framework boundaries that require them, such as `Inertia::render(...)` props, Form Request rules and messages, configuration maps, and validation maps.
 
-## Scope & Precedence
+Remember this project rule for app/Http/Controllers/**: In controllers, transform models and structured Inertia payloads into Data objects before returning them. Simple scalar and list values may remain in the framework-required `Inertia::render(...)` prop map. For paginated props, transform items with paginator `through(...)` and add PHPDoc generics for the transformed paginator type.
 
-- These starter-kit guidelines extend `<laravel-boost-guidelines>` and take precedence where they conflict.
+Remember this project rule for app/Http/Controllers/**: For controller-driven application notifications, use `Inertia::flash()` instead of ad hoc Laravel session flash keys. Name keys `<color>_toast` for global toasts and `<color>_alert` for inline alerts, using `success`, `info`, `warning`, or `error`. Unknown prefixes intentionally fall back to `neutral` in the frontend flash utilities.
 
-## Foundational Context
+Remember this project rule for app/Providers/FortifyServiceProvider.php: This provider may call `Inertia::flash()` for Fortify workflow notifications such as two-factor setup. Keep this as a narrow framework-integration exception to the normal controller-driven notification rule; session `status` remains reserved for Fortify authentication and verification state.
 
-This application is a starter kit based on Laravel + Nuxt UI components, relevant packages & versions are listed below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+Remember this project rule for app/Http/Middleware/**: The shared Inertia `auth.user` prop is `App\Data\UserData|null`. Keep `HandleInertiaRequests` and the frontend Inertia type declarations aligned when the authenticated user payload changes.
 
-- inertiajs/inertia-laravel (INERTIA_LARAVEL) - v3
-- spatie/laravel-data (LARAVEL_DATA) - v4
-- spatie/laravel-typescript-transformer (LARAVEL_TYPESCRIPT_TRANSFORMER) - v3
-- @inertiajs/vue3 (INERTIA_VUE) - v3
-- @nuxt/ui (NUXT_UI) - v4
-- tailwindcss (TAILWINDCSS) - v4
-- vue (VUE) - v3
-- eslint (ESLINT) - v9
-- @lucide/vue (LUCIDE) - v1
-- @vueuse/core (VUEUSE) - v14
+Remember this project rule for resources/js/components/**: Server-driven toasts are rendered centrally from `resources/js/components/AppRoot.vue`, and inline flash messages are rendered by `FlashAlerts.vue`. Page-level success callbacks may reset local UI state, but should not duplicate server mutation-success toasts.
 
-## Data Contracts
+Remember this project rule for resources/js/types/**: Keep shared Inertia props in the hand-authored type modules and expose them through `@inertiajs/core` module augmentation in `globals.d.ts` so `usePage()` is typed globally. Use generated `App.Data.*` types for frontend-facing Data contracts and `LengthAwarePaginator<T>` from `@/types` for paginated props. Do not hand-edit generated declarations or the transformer manifest; regenerate them with `php artisan typescript:transform`.
 
-- For structured data contracts in application code, use DTO/value object classes (prefer `spatie/laravel-data` `Data` objects).
-- For Inertia page props, backend payloads should be represented by `Data` classes and passed to `Inertia::render(...)` as typed objects (not ad-hoc associative arrays).
-- Annotate frontend-facing `Data` classes with `#[TypeScript]` so they are emitted to `resources/js/types/generated.d.ts` by the TypeScript transformer.
-- After creating/updating any `Data` class or route signatures, run `php artisan typescript:transform` (or rely on the watch process in `composer run dev`) so TS contracts stay in sync.
-- Do not use associative arrays for internal structured payloads.
-- Flat/list arrays are allowed when type-hinted with generics (for example `array<int, FooData>`).
-- Associative arrays are allowed only at framework boundaries where required (for example `Inertia::render(...)` props, Form Request `rules()`, config files, validation message maps).
-- Shared props must use the generated Data types in frontend declarations. Example: `auth.user` is shared as `UserData` in `app/Http/Middleware/HandleInertiaRequests.php` and typed as `App.Data.UserData | null` in `resources/js/types/index.d.ts`.
-- For paginated page props, always transform model items into Data objects before returning to Inertia. Prefer chaining `->through(...)` on the paginator and returning the Data object from the callback.
-- Add explicit PHPDoc generics for paginated results and transformed collections so the contract is clear (for example `LengthAwarePaginator<int, UserData>` after transformation).
-- On the frontend, consume paginator props with `LengthAwarePaginator<T>` imported from `@/types` (re-exported from `resources/js/types/pagination.d.ts`), where `T` is the generated Data type (for example `LengthAwarePaginator<App.Data.UserData>`).
-- In Vue pages/components, use explicit prop typing with shared/page prop composition (for example `defineProps<SharedPageProps<{ users: LengthAwarePaginator<App.Data.UserData> }>>()`).
+Remember this project rule for resources/js/**: Import `route` from `@/utils/route` in Vue and TypeScript files for named application routes. Do not rely on a global route helper or controller-provided route tables for normal frontend navigation. Regenerate the helper with `php artisan typescript:transform` after route signature changes; do not edit it directly.
 
-## Inertia Flash Notifications
+Remember this project rule for resources/js/pages/**/*.vue: Rely on the `@inertiajs/core` module augmentation in `resources/js/types/globals.d.ts` so `usePage()` automatically includes `SharedPageProps`; do not redeclare shared props or add a generic solely for them. Declare page-specific component props with `defineProps`, using generated `App.Data.*` types for structured payloads and `LengthAwarePaginator<App.Data.FooData>` from `@/types` for paginated Data objects.
 
-- For server-driven notifications, use `Inertia::flash(...)` instead of Laravel session flash keys like `flash_success`, `flash_warn`, or page-local ad hoc props.
-- Use suffix-based flash key naming:
-  - `<color>_toast` to trigger global toast notifications.
-  - `<color>_alert` to render inline `FlashAlerts` content.
-- Use color prefixes: `success`, `info`, `warning`, `error`. Unknown prefixes fall back to `neutral` in the frontend.
-- Toast rendering is centralized in `resources/js/components/AppRoot.vue` via `router.on('flash', ...)`; do not duplicate mutation-success toasts in page-level `onSuccess` callbacks.
-- Inline message rendering is centralized in `resources/js/components/FlashAlerts.vue`; use `*_alert` flash keys when you want visible page-level messaging.
+Remember this project rule for resources/js/**/*.vue: Activate the `nuxt-ui` skill and consult the Nuxt UI MCP Vue component docs before adding or changing UI. Prefer Nuxt UI catalog components for controls, overlays, tables, forms, navigation, and layout primitives. Custom composition, branding components, and semantic HTML are allowed when Nuxt UI does not provide the needed structure.
 
-## Frontend Routing
-
-- In Vue or TypeScript files, import `route` from `@/utils/route`.
-- The `@/utils/route` helper function is generated by the `spatie/laravel-typescript-transformer` composer package using the `php artisan typescript:transform` command, DO NOT alter the contents of the file directly
-- Do not rely on global route helpers or pass in route data from controllers to Vue page props.
-
-## Skills Activation
-
-- `nuxt-ui` — Activate for every Vue page or feature. All UI elements must use Nuxt UI v4 components. Triggers include: creating or editing any Vue page/component, adding buttons, forms, inputs, dialogs, menus, tables, or any other UI element, working with data tables, applying layout or styling, selecting between Nuxt UI components, and customizing components using Tailwind through the `:ui` prop.
-
-=== nuxt ui rules ===
-
-# Nuxt UI v4
-
-- IMPORTANT: Activate the `nuxt-ui` skill whenever working with any Vue UI — all component, styling, theming, and layout decisions are governed by that skill.
-- This is NOT a Nuxt application, it is a Laravel app that uses Nuxt UI components which are compatible in regular Vue apps (like this Inertia + Vue Laravel site)
-- All UI must use Nuxt UI components. Never create custom UI components; always check the Nuxt UI catalog first and ask the user if nothing fits.
-- Always rely on the remote Nuxt UI MCP server (`nuxt-ui`) before implementing any component. Do not rely on memory for props, slots, or events. Always reference the Vue version of the component docs NOT the Nuxt version
-
-</laravel-nuxtui-starter-kit-guidelines>
+Remember this project rule for resources/js/**: This is a Laravel Inertia Vue application, not a Nuxt application. Use Nuxt UI components that work in regular Vue apps and reference the Vue component APIs from the Nuxt UI MCP docs rather than Nuxt-only app patterns.
 ```
