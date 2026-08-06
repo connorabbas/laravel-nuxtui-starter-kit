@@ -4,13 +4,13 @@ import UserFiltersSlideover from '@/components/UserFiltersSlideover.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import { useTableQuerySorting } from '@/composables/useTableQuerySorting'
 import AppLayout from '@/layouts/app/Index.vue'
-import type { AppPageProps, LengthAwarePaginator } from '@/types'
+import type { SharedPageProps, LengthAwarePaginator } from '@/types'
 import { formatDate } from '@/utils/date'
 import { route } from '@/utils/route'
 import { userTableSorting, verifiedFilterItems } from '@/utils/userPagination'
 import type { TableColumn } from '@nuxt/ui'
 
-const props = defineProps<AppPageProps<{
+const props = defineProps<SharedPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
     userFilterOptions: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData

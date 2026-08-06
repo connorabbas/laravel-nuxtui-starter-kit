@@ -3,10 +3,10 @@ import InertiaPagination from '@/components/InertiaPagination.vue'
 import UserCard from '@/components/UserCard.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import AppLayout from '@/layouts/app/Index.vue'
-import type { AppPageProps, LengthAwarePaginator } from '@/types'
+import type { SharedPageProps, LengthAwarePaginator } from '@/types'
 import { route } from '@/utils/route'
 
-const props = defineProps<AppPageProps<{
+const props = defineProps<SharedPageProps<{
     users: LengthAwarePaginator<App.Data.UserData>
     query: App.Data.PaginatedData
 }>>()
