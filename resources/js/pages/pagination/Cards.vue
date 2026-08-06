@@ -4,15 +4,15 @@ import UserCard from '@/components/UserCard.vue'
 import UserFiltersSlideover from '@/components/UserFiltersSlideover.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import AppLayout from '@/layouts/app/Index.vue'
-import type { SharedPageProps, LengthAwarePaginator } from '@/types'
+import type { LengthAwarePaginator } from '@/types'
 import { route } from '@/utils/route'
 import { userSortItems, verifiedFilterItems } from '@/utils/userPagination'
 
-const props = defineProps<SharedPageProps<{
+const props = defineProps<{
     users: LengthAwarePaginator<App.Data.UserData>
     userFilterOptions: App.Data.FilterOptionData[]
     query: App.Data.Users.UserIndexQueryData
-}>>()
+}>()
 
 const { applyQuery, processing, query, resetQuery, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.Users.UserIndexQueryData, App.Data.UserData>({
     route: route('pagination.cards'),

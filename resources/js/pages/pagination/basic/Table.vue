@@ -2,15 +2,15 @@
 import InertiaPagination from '@/components/InertiaPagination.vue'
 import { usePaginatedQuery } from '@/composables/usePaginatedQuery'
 import AppLayout from '@/layouts/app/Index.vue'
-import type { SharedPageProps, LengthAwarePaginator } from '@/types'
+import type { LengthAwarePaginator } from '@/types'
 import { formatDate } from '@/utils/date'
 import { route } from '@/utils/route'
 import type { TableColumn } from '@nuxt/ui'
 
-const props = defineProps<SharedPageProps<{
+const props = defineProps<{
     users: LengthAwarePaginator<App.Data.UserData>
     query: App.Data.PaginatedData
-}>>()
+}>()
 
 const { processing, resultText, setPage, setPerPage } = usePaginatedQuery<App.Data.PaginatedData, App.Data.UserData>({
     route: route('pagination.basic.table'),
