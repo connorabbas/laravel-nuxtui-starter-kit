@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
+use App\Support\TypeScript\AttributedEnumTransformer;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelTypeScriptTransformer\TransformedProviders\LaravelRouteTransformedProvider;
 use Spatie\LaravelTypeScriptTransformer\TypeScriptTransformerApplicationServiceProvider as BaseTypeScriptTransformerServiceProvider;
 use Spatie\TypeScriptTransformer\Formatters\EslintFormatter;
 use Spatie\TypeScriptTransformer\Transformers\AttributedClassTransformer;
-use Spatie\TypeScriptTransformer\Transformers\EnumTransformer;
 use Spatie\TypeScriptTransformer\TypeScriptTransformerConfigFactory;
 use Spatie\TypeScriptTransformer\Writers\GlobalNamespaceWriter;
 
@@ -18,7 +18,7 @@ class TypeScriptTransformerServiceProvider extends BaseTypeScriptTransformerServ
     {
         $config
             ->transformer(AttributedClassTransformer::class)
-            ->transformer(EnumTransformer::class)
+            ->transformer(AttributedEnumTransformer::class)
             ->transformDirectories(app_path('Data'), app_path('Enums'))
             ->outputDirectory(resource_path('js/types'))
             ->writer(new GlobalNamespaceWriter('generated.d.ts'))
