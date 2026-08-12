@@ -55,7 +55,10 @@ const columns: TableColumn<App.Data.UserData>[] = [
             />
 
             <UPageBody id="users-results">
-                <UCard :ui="{ root: 'min-w-0', body: 'min-w-0 p-0!' }">
+                <UCard
+                    :ui="{ root: 'min-w-0', body: 'min-w-0 p-0!' }"
+                    variant="outline"
+                >
                     <template #header>
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div />

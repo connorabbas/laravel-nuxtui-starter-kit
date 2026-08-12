@@ -42,7 +42,10 @@ const columns: TableColumn<App.Data.UserData>[] = [
             />
 
             <UPageBody id="basic-users-table-results">
-                <UCard :ui="{ root: 'min-w-0', body: 'min-w-0 p-0!' }">
+                <UCard
+                    :ui="{ root: 'min-w-0', body: 'min-w-0 p-0!' }"
+                    variant="outline"
+                >
                     <div class="min-w-0 overflow-x-auto">
                         <UTable
                             :data="users.data"

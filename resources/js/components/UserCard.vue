@@ -11,7 +11,6 @@ defineProps<{
     <UPageCard
         :title="user.name"
         :description="user.email"
-        variant="outline"
         class="min-w-0"
         :ui="{
             container: 'min-w-0',

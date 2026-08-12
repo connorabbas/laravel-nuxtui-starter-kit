@@ -35,7 +35,10 @@ const { processing, resetQuery, resultText, setPage, setPerPage } = usePaginated
             />
 
             <UPageBody id="basic-users-cards-results">
-                <UCard :ui="{ root: 'min-w-0', body: 'min-w-0' }">
+                <UCard
+                    :ui="{ root: 'min-w-0', body: 'min-w-0' }"
+                    variant="outline"
+                >
                     <div
                         v-if="users.data.length"
                         class="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"

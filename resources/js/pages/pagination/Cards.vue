@@ -41,7 +41,10 @@ function setSort(value: App.Enums.UserSort): void {
             />
 
             <UPageBody id="users-directory-results">
-                <UCard :ui="{ root: 'min-w-0', body: 'min-w-0' }">
+                <UCard
+                    :ui="{ root: 'min-w-0', body: 'min-w-0' }"
+                    variant="outline"
+                >
                     <template #header>
                         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <div />
