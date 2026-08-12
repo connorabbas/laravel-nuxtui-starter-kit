@@ -15,6 +15,10 @@ const props = defineProps<{
     timeZone: string
 }>()
 
+const emit = defineEmits<{
+    change: []
+}>()
+
 const start = defineModel<string | null>('start', { required: true })
 const end = defineModel<string | null>('end', { required: true })
 
@@ -38,8 +42,14 @@ const dateRange = computed<DateRangeValue | null>({
         }
     },
     set: (value) => {
-        start.value = stringifyDateValue(value?.start)
-        end.value = stringifyDateValue(value?.end)
+        const nextStart = stringifyDateValue(value?.start)
+        const nextEnd = stringifyDateValue(value?.end)
+
+        if (start.value !== nextStart || end.value !== nextEnd) {
+            start.value = nextStart
+            end.value = nextEnd
+            emit('change')
+        }
     },
 })
 

@@ -9,6 +9,10 @@ const props = defineProps<{
     timeZone: string
 }>()
 
+const emit = defineEmits<{
+    change: []
+}>()
+
 const model = defineModel<string | null>({ required: true })
 
 const dateFormatter = computed(() => new DateFormatter('en-US', { dateStyle: 'medium', timeZone: props.timeZone }))
@@ -16,7 +20,12 @@ const dateFormatter = computed(() => new DateFormatter('en-US', { dateStyle: 'me
 const date = computed<DateValue | undefined>({
     get: () => parseDateValue(model.value),
     set: (value) => {
-        model.value = value?.toString() ?? null
+        const nextValue = value?.toString() ?? null
+
+        if (model.value !== nextValue) {
+            model.value = nextValue
+            emit('change')
+        }
     },
 })
 
