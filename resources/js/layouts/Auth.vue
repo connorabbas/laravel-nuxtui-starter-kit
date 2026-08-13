@@ -26,6 +26,7 @@ const props = defineProps<{
             />
             <UPageCard
                 class="w-full max-w-md"
+                variant="subtle"
             >
                 <FlashAlerts class="mb-4" />
 
