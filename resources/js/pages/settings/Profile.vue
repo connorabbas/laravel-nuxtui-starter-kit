@@ -75,7 +75,10 @@ watch(deleteModalOpen, async (open) => {
         title="Profile"
         description="Update your name, email address, and account details."
     >
-        <UCard class="max-w-xl">
+        <UCard
+            class="max-w-xl"
+            variant="subtle"
+        >
             <template #header>
                 <h2 class="text-base font-semibold">
                     Profile information
@@ -162,7 +165,10 @@ watch(deleteModalOpen, async (open) => {
             </form>
         </UCard>
 
-        <UCard class="max-w-xl">
+        <UCard
+            class="max-w-xl"
+            variant="subtle"
+        >
             <template #header>
                 <h2 class="text-base font-semibold text-error">
                     Danger zone

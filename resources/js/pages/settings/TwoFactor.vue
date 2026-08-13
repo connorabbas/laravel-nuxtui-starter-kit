@@ -124,7 +124,10 @@ function regenerateRecoveryCodes(): void {
         title="Two-Factor Authentication"
         description="Add an additional authentication step to protect your account."
     >
-        <UCard class="max-w-xl">
+        <UCard
+            class="max-w-xl"
+            variant="subtle"
+        >
             <template #header>
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-base font-semibold">
@@ -279,6 +282,7 @@ function regenerateRecoveryCodes(): void {
         <UCard
             v-if="props.twoFactorEnabled && props.recoveryCodes.length > 0"
             class="max-w-xl"
+            variant="subtle"
         >
             <template #header>
                 <h2 class="text-base font-semibold">

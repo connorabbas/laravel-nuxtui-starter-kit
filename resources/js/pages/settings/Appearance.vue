@@ -7,7 +7,10 @@ import SettingsLayout from '@/layouts/Settings.vue'
         title="Appearance"
         description="Choose how the interface looks for your preference."
     >
-        <UCard class="max-w-xl">
+        <UCard
+            class="max-w-xl"
+            variant="subtle"
+        >
             <template #header>
                 <h2 class="text-base font-semibold">
                     Color mode
