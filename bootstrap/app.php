@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Support\Header;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -83,7 +84,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
 
                 // Return JSON response for mutation requests to support toast handling
-                if ($request->header('X-Inertia') && !$request->isMethod('GET')) {
+                if ($request->header(Header::INERTIA) && !$request->isMethod('GET')) {
                     $errorSummary = "{$statusText} - {$statusCode}";
 
                     $toastPayload = new ErrorToastResponseData(
