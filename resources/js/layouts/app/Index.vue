@@ -21,6 +21,10 @@ const props = defineProps<{
             :page-title="props.title"
             :sub-page-nav-items="props.subPageNavItems"
         >
+            <!-- passthrough actions slot for sidebar layout -->
+            <template #actions>
+                <slot name="actions" />
+            </template>
             <slot />
         </AppLayout>
     </div>
