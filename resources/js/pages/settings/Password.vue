@@ -46,7 +46,10 @@ function submit(): void {
         title="Password"
         description="Update your password to keep your account secure."
     >
-        <UCard class="max-w-xl">
+        <UCard
+            class="max-w-xl"
+            variant="subtle"
+        >
             <template #header>
                 <h2 class="text-base font-semibold">
                     Update password
