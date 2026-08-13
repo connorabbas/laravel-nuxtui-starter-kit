@@ -17,6 +17,7 @@ import AppLayout from '@/layouts/app/Index.vue'
                 <UPageCard
                     title="Welcome to the Laravel + Nuxt UI Starter Kit"
                     description="You are logged in!"
+                    variant="subtle"
                 />
             </UPageBody>
         </UPage>
