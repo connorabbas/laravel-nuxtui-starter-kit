@@ -124,6 +124,9 @@ const groups = computed(() => [
                     <template #leading>
                         <UDashboardSidebarCollapse />
                     </template>
+                    <template #right>
+                        <slot name="actions" />
+                    </template>
                 </UDashboardNavbar>
 
                 <UDashboardToolbar v-if="resolvedSubPageNavItems">
