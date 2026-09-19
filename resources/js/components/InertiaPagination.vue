@@ -60,7 +60,7 @@ const perPageId = useId()
                 />
             </UFieldGroup>
 
-            <div class="min-w-0 overflow-x-auto pb-1">
+            <div class="min-w-0 overflow-x-auto">
                 <UPagination
                     :page="paginator.current_page"
                     :items-per-page="paginator.per_page"
