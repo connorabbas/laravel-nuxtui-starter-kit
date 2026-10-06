@@ -14,7 +14,7 @@ const navMenuItems: NavigationMenuItem[] = [
     {
         label: 'Laravel Docs',
         icon: 'i-lucide-book-open',
-        to: 'https://laravel.com/docs/12.x',
+        to: 'https://laravel.com/docs/13.x',
         target: '_blank'
     },
     {
@@ -76,7 +76,7 @@ const navMenuItems: NavigationMenuItem[] = [
                 <UColorModeButton />
 
                 <UButton
-                    to="https://github.com/nuxt-ui-templates/starter-laravel"
+                    to="https://github.com/connorabbas/laravel-nuxtui-starter-kit"
                     target="_blank"
                     icon="simple-icons:github"
                     aria-label="GitHub"
@@ -113,7 +113,7 @@ const navMenuItems: NavigationMenuItem[] = [
 
             <template #right>
                 <UButton
-                    to="https://github.com/nuxt-ui-templates/starter-laravel"
+                    to="https://github.com/connorabbas/laravel-nuxtui-starter-kit"
                     target="_blank"
                     icon="simple-icons:github"
                     aria-label="GitHub"

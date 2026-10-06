@@ -1,15 +1,15 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "connorabbas/laravel-nuxtui-starter-kit",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A Laravel starter kit with Inertia, Vue, TypeScript and Nuxt UI.",
     "keywords": [
         "laravel",
         "framework"
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3.0",
+        "php": "^8.5",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel/fortify": "^1.31",
         "laravel/framework": "^13.15",

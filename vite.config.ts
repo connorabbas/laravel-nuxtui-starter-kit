@@ -69,13 +69,12 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             port: devPort,
-            host: true,
+            host: env.VITE_HOST || 'localhost',
             hmr: {
                 host: hostDomain,
             },
-            cors: true,
             watch: {
-                usePolling: true,
+                usePolling: env.VITE_USE_POLLING === 'true',
             },
         },
         preview: {

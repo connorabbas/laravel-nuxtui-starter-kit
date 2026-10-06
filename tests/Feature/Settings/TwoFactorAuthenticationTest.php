@@ -90,6 +90,27 @@ test('user can disable two factor authentication', function () {
     expect($user->two_factor_confirmed_at)->toBeNull();
 });
 
+test('invalid two factor confirmation code is shared as a string error', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->post(route('two-factor.enable', absolute: false));
+
+    $this->from(route('two-factor.show', absolute: false))
+        ->post(route('two-factor.confirm', absolute: false), ['code' => 'invalid'], [
+            'X-Inertia' => 'true',
+            'X-Inertia-Error-Bag' => 'confirmTwoFactorAuthentication',
+        ])
+        ->assertSessionHasErrors('code', null, 'confirmTwoFactorAuthentication');
+
+    $this->get(route('two-factor.show', absolute: false))
+        ->assertInertia(fn (Inertia\Testing\AssertableInertia $page) => $page
+            ->where('errors.confirmTwoFactorAuthentication.code', 'The provided two factor authentication code was invalid.'));
+
+    expect($user->fresh()->two_factor_confirmed_at)->toBeNull();
+});
+
 test('user can regenerate two factor recovery codes', function () {
     $user = User::factory()->create();
 

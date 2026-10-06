@@ -18,3 +18,12 @@ test('authenticated users can visit the dashboard', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('Dashboard', false));
 });
+
+test('authenticated users do not need email verification to visit the dashboard', function () {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard', absolute: false))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('Dashboard', false));
+});
