@@ -8,7 +8,7 @@ import { createSSRApp, h } from 'vue'
 import type { DefineComponent } from 'vue'
 import AppRoot from '@/components/AppRoot.vue'
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel Nuxt UI Starter'
 
 createServer((page) => {
     const head = createHead()

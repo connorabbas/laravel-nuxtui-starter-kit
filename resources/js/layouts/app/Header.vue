@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { Link } from '@inertiajs/vue3'
-import { computed } from 'vue'
 
 import { useAppLayout } from '@/composables/useAppLayout'
 import AppLogo from '@/components/AppLogo.vue'
@@ -12,9 +11,7 @@ const props = defineProps<{
     subPageNavItems?: NavigationMenuItem[]
 }>()
 
-const { navMenuItems, subPageNavItems: defaultSubPageNavItems, userMenuItems, user } = useAppLayout()
-
-const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
+const { navMenuItems, userMenuItems, user } = useAppLayout()
 </script>
 
 <template>
@@ -60,13 +57,12 @@ const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultS
         </UHeader>
 
         <div
-            v-if="resolvedSubPageNavItems"
+            v-if="props.subPageNavItems"
             class="border-default bg-default/75 sticky top-(--ui-header-height) z-40 w-full border-b backdrop-blur"
         >
             <UContainer>
                 <UNavigationMenu
-                    v-if="resolvedSubPageNavItems"
-                    :items="resolvedSubPageNavItems"
+                    :items="props.subPageNavItems"
                     class="-mx-2.5 w-full"
                     variant="pill"
                     highlight

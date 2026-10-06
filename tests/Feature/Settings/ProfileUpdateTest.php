@@ -82,8 +82,21 @@ test('correct password must be provided to delete account', function () {
         ]);
 
     $response
-        ->assertSessionHasErrors('password')
+        ->assertSessionHasErrors(['password' => 'The provided password does not match your current password.'])
         ->assertRedirect(route('profile.edit', absolute: false));
 
     expect($user->fresh())->not->toBeNull();
+});
+
+test('password is required to delete account', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('profile.edit', absolute: false))
+        ->delete(route('profile.destroy', absolute: false))
+        ->assertSessionHasErrors('password')
+        ->assertRedirect(route('profile.edit', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+    $this->assertModelExists($user);
 });

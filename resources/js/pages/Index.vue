@@ -5,12 +5,12 @@ import DefaultLayout from '@/layouts/Default.vue'
 <template>
     <DefaultLayout
         title="Home"
-        description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
+        description="A Laravel starter kit with Inertia, Vue, TypeScript and Nuxt UI."
     >
         <div>
             <UPageHero
-                title="Laravel Starter Template"
-                description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
+                title="Laravel Nuxt UI Starter Kit"
+                description="A Laravel starter kit with Inertia, Vue, TypeScript and Nuxt UI."
                 :links="[
                     {
                         label: 'Get started',
@@ -38,7 +38,7 @@ import DefaultLayout from '@/layouts/Default.vue'
                 :features="[
                     {
                         icon: 'i-lucide-rocket',
-                        title: 'Production-ready from day one',
+                        title: 'Pre-configured development tooling',
                         description: 'Pre-configured with TypeScript, ESLint, Tailwind CSS, and Vite. Focus on building features, not setting up tooling.'
                     },
                     {
