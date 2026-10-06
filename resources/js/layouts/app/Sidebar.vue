@@ -3,7 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
 import { useAppLayout } from '@/composables/useAppLayout'
-import { useSsrStorage } from '@/composables/useSsrStorage'
+import { useStorage } from '@vueuse/core'
 import AppLogo from '@/components/AppLogo.vue'
 import LaravelLogo from '@/components/LaravelLogo.vue'
 import FlashAlerts from '@/components/FlashAlerts.vue'
@@ -13,12 +13,11 @@ const props = defineProps<{
     subPageNavItems?: NavigationMenuItem[]
 }>()
 
-const { subPageNavItems: defaultSubPageNavItems, navMenuItems, userMenuItems, user } = useAppLayout()
+const { navMenuItems, userMenuItems, user } = useAppLayout()
 
 const pageTitle = computed(() => props.pageTitle ?? 'Application')
-const resolvedSubPageNavItems = computed(() => props.subPageNavItems ?? defaultSubPageNavItems.value)
 
-const sidebarCollapsed = useSsrStorage('sidebar-collapsed', false)
+const sidebarCollapsed = useStorage('sidebar-collapsed', false, undefined, { initOnMounted: true })
 
 const groups = computed(() => [
     {
@@ -129,11 +128,10 @@ const groups = computed(() => [
                     </template>
                 </UDashboardNavbar>
 
-                <UDashboardToolbar v-if="resolvedSubPageNavItems">
+                <UDashboardToolbar v-if="props.subPageNavItems">
                     <div class="flex w-full flex-col gap-3 md:flex-row md:items-center">
                         <UNavigationMenu
-                            v-if="resolvedSubPageNavItems"
-                            :items="resolvedSubPageNavItems"
+                            :items="props.subPageNavItems"
                             highlight
                             class="-mx-1 flex-1"
                         />
