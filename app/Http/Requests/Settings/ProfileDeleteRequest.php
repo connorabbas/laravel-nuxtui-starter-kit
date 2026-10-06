@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Settings;
 
 use App\Http\Requests\AuthenticatedFormRequest;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Hash;
 
 class ProfileDeleteRequest extends AuthenticatedFormRequest
 {
@@ -24,16 +22,15 @@ class ProfileDeleteRequest extends AuthenticatedFormRequest
     public function rules(): array
     {
         return [
-            'password' => ['required', 'string'],
+            'password' => ['required', 'string', 'current_password'],
         ];
     }
 
-    public function validatePassword(): void
+    /** @return array<string, string> */
+    public function messages(): array
     {
-        if (! Hash::check($this->string('password')->toString(), $this->authenticatedUser()->password)) {
-            throw ValidationException::withMessages([
-                'password' => [__('The provided password does not match your current password.')],
-            ]);
-        }
+        return [
+            'password.current_password' => __('The provided password does not match your current password.'),
+        ];
     }
 }

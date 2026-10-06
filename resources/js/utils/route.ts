@@ -39,8 +39,6 @@ settings: never,
 'settings.password.edit': never,
 'settings.password.update': never,
 'two-factor.show': never,
-'boost.browser-logs': never,
-index: never,
 dashboard: never,
 'appearance.edit': never,
 'storage.local.upload': {
@@ -105,8 +103,6 @@ const routes = {
     "settings.password.edit": "settings/password",
     "settings.password.update": "settings/password",
     "two-factor.show": "settings/two-factor",
-    "boost.browser-logs": "_boost/browser-logs",
-    "index": "",
     "dashboard": "dashboard",
     "appearance.edit": "settings/appearance",
     "storage.local.upload": "storage/{path}"

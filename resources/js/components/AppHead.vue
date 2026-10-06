@@ -6,10 +6,10 @@ const props = withDefaults(defineProps<{
     title: string,
     description?: string,
 }>(), {
-    description: 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
+    description: 'A Laravel starter kit with Inertia, Vue, TypeScript and Nuxt UI.'
 })
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel Starter Template'
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel Nuxt UI Starter'
 
 const openGraphTitle = computed(() => props.title || appName)
 </script>

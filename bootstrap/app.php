@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\ExceptionResponse;
 use Inertia\Support\Header;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -24,10 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 AddLinkHeadersForPreloadedAssets::class,
             ],
         );
-        // TrustProxies middleware for Traefik proxy handling assets over https
-        // TODO: update `at` to actual Traefik subnet/container ip value, ideally via env/config entry
         $middleware->trustProxies(
-            at: '*',
             headers: Request::HEADER_X_FORWARDED_FOR
             | Request::HEADER_X_FORWARDED_HOST
             | Request::HEADER_X_FORWARDED_PORT
@@ -40,74 +38,45 @@ return Application::configure(basePath: dirname(__DIR__))
         );
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $statusCode = $response->getStatusCode();
-            $errorStatuses = config('errors.statuses', []);
-            $clientErrorDefaults = config('errors.defaults.4xx', []);
-            $serverErrorDefaults = config('errors.defaults.5xx', []);
-
-            $resolveErrorMetadata = function (int $status) use ($errorStatuses, $clientErrorDefaults, $serverErrorDefaults): array {
-                if (isset($errorStatuses[$status]) && is_array($errorStatuses[$status])) {
-                    return $errorStatuses[$status];
-                }
-
-                if ($status >= 500) {
-                    return $serverErrorDefaults;
-                }
-
-                if ($status >= 400) {
-                    return $clientErrorDefaults;
-                }
-
-                return [];
-            };
+            if ($statusCode < 400 || (!$request->header(Header::INERTIA) && ($request->is('api/*') || $request->expectsJson()))) {
+                return $response;
+            }
 
             if ($statusCode === 419) {
-                $errorMetadata = $resolveErrorMetadata($statusCode);
-
                 return Inertia::flash(
                     'warning_alert',
-                    $errorMetadata['detail'] ?? 'The page expired, please try again.',
+                    config('errors.statuses.419.detail', 'The page expired, please try again.'),
                 )->back();
             }
 
-            if ($statusCode >= 400) {
-                $errorMetadata = $resolveErrorMetadata($statusCode);
-                $statusText = Response::$statusTexts[$statusCode] ?? 'Error';
-                $errorDetail = $errorMetadata['detail'] ?? 'An unexpected error occurred.';
-                $errorIcon = $errorMetadata['icon'] ?? 'i-lucide-alert-triangle';
-
-                // Show exception modal in debug mode
-                if (
-                    $statusCode >= 500
-                    && app()->hasDebugModeEnabled()
-                ) {
-                    return $response;
-                }
-
-                // Return JSON response for mutation requests to support toast handling
-                if ($request->header(Header::INERTIA) && !$request->isMethod('GET')) {
-                    $errorSummary = "{$statusText} - {$statusCode}";
-
-                    $toastPayload = new ErrorToastResponseData(
-                        status: $statusCode,
-                        errorSummary: $errorSummary,
-                        errorDetail: $errorDetail,
-                        errorIcon: $errorIcon,
-                    );
-
-                    return response()->json($toastPayload->toArray(), $statusCode);
-                }
-
-                // Standard error page
-                return Inertia::render('Error', [
-                    'title' => $statusText,
-                    'detail' => $errorDetail,
-                    'status' => $statusCode,
-                    'homepageRoute' => route(name: 'index', absolute: false),
-                ])
-                    ->toResponse($request)
-                    ->setStatusCode($statusCode);
+            if ($statusCode >= 500 && app()->hasDebugModeEnabled()) {
+                return $response;
             }
 
-            return $response;
+            $errorMetadata = config("errors.statuses.{$statusCode}")
+                ?? config($statusCode >= 500 ? 'errors.defaults.5xx' : 'errors.defaults.4xx', []);
+            $statusText = Response::$statusTexts[$statusCode] ?? 'Error';
+            $errorDetail = $errorMetadata['detail'] ?? 'An unexpected error occurred.';
+            $errorIcon = $errorMetadata['icon'] ?? 'i-lucide-alert-triangle';
+
+            if ($request->header(Header::INERTIA) && !$request->isMethodSafe()) {
+                return response()->json((new ErrorToastResponseData(
+                    status: $statusCode,
+                    errorSummary: "{$statusText} - {$statusCode}",
+                    errorDetail: $errorDetail,
+                    errorIcon: $errorIcon,
+                ))->toArray(), $statusCode);
+            }
+
+            return app(ExceptionResponse::class, [
+                'exception' => $exception,
+                'request' => $request,
+                'response' => $response,
+            ])->render('Error', [
+                'title' => $statusText,
+                'detail' => $errorDetail,
+                'status' => $statusCode,
+                'homepageRoute' => route(name: 'index', absolute: false),
+            ])->withSharedData()->toResponse($request);
         });
     })->create();

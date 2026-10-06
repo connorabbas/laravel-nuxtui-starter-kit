@@ -8,7 +8,7 @@ import { createSSRApp, h } from 'vue'
 import type { DefineComponent } from 'vue'
 import AppRoot from '@/components/AppRoot.vue'
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel'
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel Nuxt UI Starter'
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

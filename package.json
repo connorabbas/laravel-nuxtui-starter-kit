@@ -6,7 +6,8 @@
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
-        "lint": "eslint . --fix",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
         "typecheck": "vue-tsc --noEmit"
     },
     "devDependencies": {
@@ -22,9 +23,10 @@
         "@inertiajs/vue3": "^3.0.0",
         "@internationalized/date": "^3.12.3",
         "@nuxt/ui": "^4.10",
+        "@unhead/vue": "2.1.16",
         "@vitejs/plugin-vue": "^6.0.1",
+        "@vue/server-renderer": "3.5.32",
         "@vueuse/core": "^13.9.0",
-        "clsx": "^2.1.1",
         "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^3.1.0",
         "typescript": "^5.9.3",
