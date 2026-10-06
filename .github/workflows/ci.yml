@@ -30,8 +30,8 @@ jobs:
       - name: Typecheck frontend
         run: npm run typecheck
 
-      - name: Build frontend assets
-        run: npm run build
+      - name: Build client and SSR assets
+        run: npm run build:ssr
 
       - name: Upload frontend build artifact
         uses: actions/upload-artifact@v4
