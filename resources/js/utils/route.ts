@@ -35,22 +35,13 @@ settings: never,
 'settings.password.edit': never,
 'settings.password.update': never,
 'two-factor.show': never,
-'boost.browser-logs': never,
-index: never,
 dashboard: never,
 'appearance.edit': never,
 'storage.local.upload': {
 path: string | number,
 },
 };
-export function hasRoute(name: string): name is keyof RouteParameters {
-    return Object.prototype.hasOwnProperty.call(routes, name)
-}
 export function route<T extends keyof RouteParameters>(name: T, parameters?: [RouteParameters[T]] extends [never] ? Record<string, never> : RouteParameters[T], absolute: boolean = false): string {
-    if (! Object.prototype.hasOwnProperty.call(routes, name)) {
-        throw new Error(`Route "${name}" not found.`)
-    }
-
     let url: string = '/' + routes[name]
 
     if (parameters) {
@@ -97,8 +88,6 @@ const routes = {
     "settings.password.edit": "settings/password",
     "settings.password.update": "settings/password",
     "two-factor.show": "settings/two-factor",
-    "boost.browser-logs": "_boost/browser-logs",
-    "index": "",
     "dashboard": "dashboard",
     "appearance.edit": "settings/appearance",
     "storage.local.upload": "storage/{path}"

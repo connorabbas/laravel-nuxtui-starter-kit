@@ -6,15 +6,7 @@ import { route } from '@/utils/route'
 export function useAppLayout() {
     const page = usePage()
 
-    const currentPath = computed(() => page.url.split('?')[0])
-
     const currentRoute = computed(() => page.props.currentRouteName)
-
-    const subPageNavItems = computed<NavigationMenuItem[] | undefined>(() => {
-        return undefined
-    })
-
-    const appName = computed(() => page.props.config.appName)
 
     const user = computed(() => page.props.auth.user)
 
@@ -38,7 +30,7 @@ export function useAppLayout() {
                 {
                     label: 'Laravel Docs',
                     icon: 'i-lucide-book-open',
-                    to: 'https://laravel.com/docs/12.x',
+                    to: 'https://laravel.com/docs/13.x',
                     target: '_blank'
                 }
             ]
@@ -69,9 +61,6 @@ export function useAppLayout() {
 
     return {
         currentRoute,
-        currentPath,
-        appName,
-        subPageNavItems,
         navMenuItems,
         userMenuItems,
         user
