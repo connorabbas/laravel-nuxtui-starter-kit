@@ -24,10 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 AddLinkHeadersForPreloadedAssets::class,
             ],
         );
-        // TrustProxies middleware for Traefik proxy handling assets over https
-        // TODO: update `at` to actual Traefik subnet/container ip value, ideally via env/config entry
         $middleware->trustProxies(
-            at: '*',
             headers: Request::HEADER_X_FORWARDED_FOR
             | Request::HEADER_X_FORWARDED_HOST
             | Request::HEADER_X_FORWARDED_PORT
