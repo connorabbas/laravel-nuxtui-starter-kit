@@ -3,6 +3,7 @@ services:
     image: '${IMAGE_REPOSITORY}:${IMAGE_TAG}'
     env_file: '.env'
     environment:
+      TRUSTED_PROXIES: '${TRUSTED_PROXIES:?Set TRUSTED_PROXIES to the Traefik IP or CIDR before deployment}'
       # https://serversideup.net/open-source/docker-php/docs/reference/environment-variable-specification
       PHP_OPCACHE_ENABLE: '1'
       SSL_MODE: 'mixed'
