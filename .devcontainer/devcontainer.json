@@ -41,8 +41,12 @@
         }
     },
     "remoteUser": "www-data",
+    "portsAttributes": {
+        "5173": {
+            "onAutoForward": "ignore"
+        }
+    },
     "postCreateCommand": "chown -R 1000:1000 /var/www/html 2>/dev/null || true"
-    // "forwardPorts": [],
     // "runServices": [],
     // "shutdownAction": "none",
 }

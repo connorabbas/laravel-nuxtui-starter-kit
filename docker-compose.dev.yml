@@ -8,18 +8,21 @@ services:
         GROUP_ID: '${GROUP_ID:-1000}'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    #ports:
-      #- '${VITE_APP_PORT:-5173}:${VITE_APP_PORT:-5173}' # Not necessarily required for dev containers (auto port forwarding)
     environment:
       PHP_OPCACHE_ENABLE: '1'
       PHP_OPCACHE_REVALIDATE_FREQ: '0'
       XDEBUG_MODE: '${XDEBUG_MODE:-off}'
+      VITE_DEV_SERVER_URL: 'http://vite.${APP_DOMAIN}'
     volumes:
       - '.:/var/www/html'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.laravel-nuxtui.rule=Host(`${APP_DOMAIN}`)'
-      - 'traefik.http.services.laravel-nuxtui.loadbalancer.server.port=8080' # exposed http port from serversideup image
+      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${APP_DOMAIN}`)'
+      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.service=${COMPOSE_PROJECT_NAME}'
+      - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8080' # exposed http port from serversideup image
+      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-vite.rule=Host(`vite.${APP_DOMAIN}`)'
+      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-vite.service=${COMPOSE_PROJECT_NAME}-vite'
+      - 'traefik.http.services.${COMPOSE_PROJECT_NAME}-vite.loadbalancer.server.port=${VITE_APP_PORT:-5173}'
     networks:
       - proxy
       - laravel
