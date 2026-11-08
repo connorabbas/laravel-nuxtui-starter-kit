@@ -86,6 +86,18 @@ composer run dev
 
 Open the app at the URL shown by `php artisan serve` (typically `http://127.0.0.1:8000`).
 
+### Docker / Devcontainer
+
+1. Start a shared [Traefik proxy stack](https://github.com/connorabbas/traefik-docker-compose/blob/master/docker-compose.dev.yml) separately. Run it once for **all local projects**, not once per Laravel app.
+2. Set unique values in `.env`:
+   ```dotenv
+   COMPOSE_PROJECT_NAME=laravel-nuxtui
+   APP_DOMAIN=laravel-nuxtui.localhost
+   ```
+3. Open the project in its devcontainer, run `npm run dev`, and visit `http://laravel-nuxtui.localhost`.
+
+Laravel and Vite route through Traefik, no port forwarding needed. Rebuild the devcontainer after changing Compose settings or ports.
+
 ---
 
 ## Common Commands
