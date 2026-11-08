@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     // https://vite.dev/config/#using-environment-variables-in-config
     const env = loadEnv(mode, process.cwd(), '')
     const devPort = env.VITE_APP_PORT ? Number(env.VITE_APP_PORT) : 5173
-    const hostDomain = env.VITE_HOST_DOMAIN || 'localhost'
+    const devServerUrl = env.VITE_DEV_SERVER_URL ? new URL(env.VITE_DEV_SERVER_URL) : undefined
 
     return {
         plugins: [
@@ -69,10 +69,11 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             port: devPort,
-            host: env.VITE_HOST || 'localhost',
-            hmr: {
-                host: hostDomain,
-            },
+            strictPort: true,
+            host: devServerUrl ? '0.0.0.0' : 'localhost',
+            origin: devServerUrl?.origin,
+            allowedHosts: devServerUrl ? [devServerUrl.hostname] : undefined,
+            cors: devServerUrl ? { origin: env.APP_URL } : undefined,
             watch: {
                 usePolling: env.VITE_USE_POLLING === 'true',
             },
